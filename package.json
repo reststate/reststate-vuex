@@ -1,0 +1,30 @@
+{
+  "name": "vuex-jsonapi",
+  "version": "0.1.0",
+  "description": "Library to access JSON API data via Vuex stores",
+  "main": "index.js",
+  "repository": "git@github.com:CodingItWrong/vuex-jsonapi.git",
+  "author": "Josh Justice <me@codingitwrong.com>",
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "mocha --require @babel/register test",
+    "lint": "eslint src test"
+  },
+  "devDependencies": {
+    "@babel/core": "7.0.0-beta.51",
+    "@babel/preset-env": "7.0.0-beta.51",
+    "@babel/register": "7.0.0-beta.51",
+    "babel-eslint": "^8.2.3",
+    "chai": "^4.1.2",
+    "eslint": "^4.19.1",
+    "eslint-config-codingitwrong": "^0.1.2",
+    "mocha": "^5.2.0",
+    "sinon": "^6.0.0",
+    "sinon-chai": "^3.2.0",
+    "vue": "^2.5.16",
+    "vuex": "^3.0.1"
+  },
+  "peerDependencies": {
+    "vuex": "^3.0.1"
+  }
+}
