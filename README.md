@@ -1,8 +1,8 @@
 # vuex-jsonapi
 
-`vuex-jsonapi`, unsurprisingly, allows you to access data from a JSON API web service via Vuex stores. Because of JSON API's strong conventions, in most cases all you should need to do is tell `vuex-jsonapi` the base URL of your web service, and which resources to access, and you should be set. No manual web request juggling!
+`vuex-jsonapi`, unsurprisingly, allows you to access data from a [JSON API](http://jsonapi.org/) web service via Vuex stores. Because of JSON API's strong conventions, in most cases all you should need to do is tell `vuex-jsonapi` the base URL of your web service, and which resources to access, and you should be set. No manual web request juggling!
 
-This is a very early proof-of-concept, so many features of JSON API are not yet supported. Open a GitHub issue with any other features you'd like to see!
+This is a very early proof-of-concept, so THERE IS NO ERROR HANDLING YET, and many features of JSON API are not yet supported. Open a GitHub issue with any other features you'd like to see!
 
 ## Installation
 
@@ -49,13 +49,13 @@ const store = new Store({
 });
 ```
 
-The `httpClient` accepts an object with a signature similar to the popular Axios HTTP client directory. You can either pass in an Axios client configured with your base URL:
+The `httpClient` accepts an object with a signature similar to the popular [Axios](https://github.com/axios/axios) HTTP client directory. You can either pass in an Axios client configured with your base URL and headers:
 
 ```javascript
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3002/',
+  baseURL: 'http://api.example.com/',
   headers: {
     'Content-Type': 'application/vnd.api+json',
     'Authentication': `Bearer ${token}`,
@@ -98,7 +98,7 @@ Working with JSON API data is split into two parts to follow Vuex conventions:
 
 ### loadAll action / all getter
 
-So, for example, to retrieve all of the records for a resource, dispatch the `loadAll` action, then access the `all` getter:
+So, for example, to retrieve all of the records for a resource, dispatch the `loadAll` action to save them into the store. They can then be accessed using `all` getter:
 
 ```javascript
 this.$store.dispatch('widgets/loadAll')
@@ -131,7 +131,7 @@ export default {
 
 ### loadById action / find getter
 
-To retrieve a single record by ID:
+To retrieve a single record by ID, dispatch the `loadById` action, then access the `find` getter:
 
 ```javascript
 this.$store.dispatch('widgets/loadById', { id: 42 })
@@ -150,24 +150,42 @@ console.log(widget);
 
 ### loadBy action / where getter
 
-To filter/query for records based on certain criteria, use the `loadBy` action.
+To filter/query for records based on certain criteria, use the `loadBy` action, passing it an object of filter keys and values to send to the server:
 
 ```javascript
 const filter = {
   category: 'whizbang',
 };
-this.$store.dispatch('widgets/loadBy', { filter })
+this.$store.dispatch('widgets/loadBy', { filter });
+```
+
+There are a few different ways to access the resources that match these filters.
+
+If these are the only records you've loaded from the server, you can simply use the `all` getter:
+
+```
+this.$store.dispatch('widgets/loadBy', { filter });
+  .then(() => {
+    const widget = this.$store.getters['widgets/all'];
+    console.log(widget);
+  });
+```
+
+If you have loaded other records of this type, then all the action does is ensure that all the matching records will be pulled down locally. But they will be intermixed with any other records that are in the Vuex store. To extract just the matching records, if your server is simply checking for property equality, then the `where` getter will perform the same matching on the client side:
+
+```
+this.$store.dispatch('widgets/loadBy', { filter });
   .then(() => {
     const widget = this.$store.getters['widgets/where'](filter);
     console.log(widget);
   });
 ```
 
-Note that if your server is doing anything fancy with filtering, the `where` getter will not replicate that logic. In that case, you may want to access the `all` getter and perform filtering yourself.
+But if the server is doing anything fancy with filtering, like substring matches or virtual fields, then you'll need to replicate that logic yourself on the client side. You can access the `all` getter and then perform filtering yourself.
 
 ### loadRelated action / related getter
 
-Finally, to load records related via JSON API relationships, use the `loadRelated` action. The related resource URL is constructed (may need to be more HATEOAS in the future). This ensures the records are downloaded. Then, to display them, use the `related` getter. The record you pass to it needs to include the relationships sideloaded.
+Finally, to load records related via JSON API relationships, use the `loadRelated` action. The related resource URL is constructed (may need to be more HATEOAS in the future). This ensures the records are downloaded.
 
 ```javascript
 const categoryId = 27;
@@ -179,7 +197,17 @@ this.$store.dispatch('categories/find', { id: categoryId, options })
   .then(() => {
     const category = this.$store.getters['categories/find'](categoryId);
     return this.$store.dispatch('widgets/loadRelated', { parent: category });
-  })
+  });
+```
+
+Then, to display them, use the `related` getter. The record you pass to it needs to include the relationships sideloaded. ADD MORE DETAIL ABOUT THIS
+
+```javascript
+this.$store.dispatch('categories/find', { id: categoryId, options })
+  .then(() => {
+    const category = this.$store.getters['categories/find'](categoryId);
+    return this.$store.dispatch('widgets/loadRelated', { parent: category });
+  });
   .then(() => {
     const widgets = this.$store.getters['widgets/related'](category);
     console.log(widgets);
@@ -188,7 +216,7 @@ this.$store.dispatch('categories/find', { id: categoryId, options })
 
 ### create
 
-To create records on the server and also store it locally:
+To create records on the server and also store it locally, use the `create` action. Pass it an object containing an `attributes` object. This is similar to a JSON API record, but you don't need to specify the type -- the store will add the type.
 
 ```javascript
 const recordData = {
@@ -199,7 +227,7 @@ const recordData = {
 this.$store.dispatch('widgets/create', recordData);
 ```
 
-You can also save relationships by providing the object in the JSON API format:
+You can also save relationships by providing a `relationships` attribute, just like in the JSON API spec:
 
 ```javascript
 const recordData = {
