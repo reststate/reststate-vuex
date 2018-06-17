@@ -166,8 +166,8 @@ If these are the only records you've loaded from the server, you can simply use 
 ```
 this.$store.dispatch('widgets/loadBy', { filter });
   .then(() => {
-    const widget = this.$store.getters['widgets/all'];
-    console.log(widget);
+    const widgets = this.$store.getters['widgets/all'];
+    console.log(widgets);
   });
 ```
 
@@ -176,8 +176,8 @@ If you have loaded other records of this type, then all the action does is ensur
 ```
 this.$store.dispatch('widgets/loadBy', { filter });
   .then(() => {
-    const widget = this.$store.getters['widgets/where'](filter);
-    console.log(widget);
+    const widgets = this.$store.getters['widgets/where'](filter);
+    console.log(widgets);
   });
 ```
 
@@ -195,7 +195,7 @@ const parent = {
 
 this.$store.dispatch('widgets/loadRelated', { parent })
   .then(() => {
-    const widgets = this.$store.getters['widgets/related'](category);
+    const widgets = this.$store.getters['widgets/related'](parent);
     console.log(widgets);
   });
 ```
