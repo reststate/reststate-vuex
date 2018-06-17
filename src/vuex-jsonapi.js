@@ -95,12 +95,16 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
           });
       },
 
-      loadRelated({ commit }, { parent, options }) {
+      loadRelated({ commit }, {
+        parent,
+        relationship = resourceName,
+        options,
+      }) {
         const url = relatedResourceUrl(parent);
         const optionsWithInclude = Object.assign(
           // TODO: allow relation to be named something
           // other than the resource name
-          { include: resourceName },
+          { include: relationship },
           options,
         );
         return api.get(`${url}?${getOptionsQuery(optionsWithInclude)}`)
@@ -144,14 +148,18 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
       where: state => criteria => (
         state.records.filter(record => matches(criteria)(record.attributes))
       ),
-      related: state => ({ type, id }) => {
+      related: state => ({
+        parent,
+        relationship = resourceName,
+      }) => {
+        const { type, id } = parent;
         const related = state.related.find(matches({ type, id }));
 
         if (!related) {
           return [];
         }
 
-        const ids = related.relationships[resourceName].data.map(r => r.id);
+        const ids = related.relationships[relationship].data.map(r => r.id);
         return state.records.filter(record => ids.includes(record.id));
       },
     },

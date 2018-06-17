@@ -226,58 +226,122 @@ describe('resourceStore()', () => {
         id: '42',
       };
 
-      beforeEach(() => {
-        api.get.resolves({
-          data: {
+      describe('when relationship name is the same as resource name', () => {
+        beforeEach(() => {
+          api.get.resolves({
             data: {
-              type: 'users',
-              id: '42',
-              relationships: {
-                widgets: {
-                  data: [
-                    {
-                      type: 'widget',
-                      id: '1',
-                    },
-                    {
-                      type: 'widget',
-                      id: '2',
-                    },
-                  ],
+              data: {
+                type: 'users',
+                id: '42',
+                relationships: {
+                  widgets: {
+                    data: [
+                      {
+                        type: 'widget',
+                        id: '1',
+                      },
+                      {
+                        type: 'widget',
+                        id: '2',
+                      },
+                    ],
+                  },
                 },
               },
+              included: [
+                {
+                  type: 'widget',
+                  id: '1',
+                  attributes: {
+                    title: 'Foo',
+                  },
+                },
+                {
+                  type: 'widget',
+                  id: '2',
+                  attributes: {
+                    title: 'Bar',
+                  },
+                },
+              ],
             },
-            included: [
-              {
-                type: 'widget',
-                id: '1',
-                attributes: {
-                  title: 'Foo',
-                },
-              },
-              {
-                type: 'widget',
-                id: '2',
-                attributes: {
-                  title: 'Bar',
-                },
-              },
-            ],
-          },
+          });
+
+          return store.dispatch('loadRelated', { parent });
         });
 
-        return store.dispatch('loadRelated', { parent });
+        it('requests the resource endpoint', () => {
+          expect(api.get).to.have.been.calledWith(
+            'users/42?include=widgets',
+          );
+        });
+
+        it('allows retrieving related records', () => {
+          const records = store.getters.related({ parent });
+          expect(records.length).to.equal(2);
+        });
       });
 
-      it('requests the resource endpoint', () => {
-        expect(api.get).to.have.been.calledWith(
-          'users/42?include=widgets',
-        );
-      });
+      describe('when relationship name is not the same as resource name', () => {
+        beforeEach(() => {
+          api.get.resolves({
+            data: {
+              data: {
+                type: 'users',
+                id: '42',
+                relationships: {
+                  'purchased-widgets': {
+                    data: [
+                      {
+                        type: 'widget',
+                        id: '1',
+                      },
+                      {
+                        type: 'widget',
+                        id: '2',
+                      },
+                    ],
+                  },
+                },
+              },
+              included: [
+                {
+                  type: 'widget',
+                  id: '1',
+                  attributes: {
+                    title: 'Foo',
+                  },
+                },
+                {
+                  type: 'widget',
+                  id: '2',
+                  attributes: {
+                    title: 'Bar',
+                  },
+                },
+              ],
+            },
+          });
 
-      it('allows retrieving related records', () => {
-        const records = store.getters.related(parent);
-        expect(records.length).to.equal(2);
+          return store.dispatch('loadRelated', {
+            parent,
+            relationship: 'purchased-widgets',
+          });
+        });
+
+        it('requests the resource endpoint', () => {
+          expect(api.get).to.have.been.calledWith(
+            'users/42?include=purchased-widgets',
+          );
+        });
+
+        it('allows retrieving related records', () => {
+          const records = store.getters.related({
+            parent,
+            relationship: 'purchased-widgets',
+          });
+          expect(records.length).to.equal(2);
+        });
       });
     });
   });
@@ -336,7 +400,7 @@ describe('resourceStore()', () => {
             type: 'user',
             id: '42',
             relationships: {
-              widgets: {
+              'purchased-widgets': {
                 data: [
                   {
                     type: 'widgets',
@@ -381,7 +445,10 @@ describe('resourceStore()', () => {
           id: '42',
         };
 
-        const result = store.getters.related(parent);
+        const result = store.getters.related({
+          parent,
+          relationship: 'purchased-widgets',
+        });
 
         expect(result.length).to.equal(2);
         expect(result[0].id).to.equal('27');
@@ -394,7 +461,11 @@ describe('resourceStore()', () => {
           id: '27',
         };
 
-        const result = store.getters.related(parent);
+        const result = store.getters.related({
+          parent,
+          relationship: 'purchased-widgets',
+        });
+
         expect(result).to.deep.equal([]);
       });
     });
