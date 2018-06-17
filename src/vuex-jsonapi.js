@@ -34,6 +34,7 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
     state: {
       records: [],
       related: [],
+      filtered: [],
     },
 
     mutations: {
@@ -61,6 +62,15 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
         const { related } = state;
 
         storeRecord(related)(parent);
+      },
+
+      STORE_FILTERED: (state, { filter, matches }) => {
+        const { filtered } = state;
+
+        // TODO: handle overwriting existing one
+        filtered.push({ filter, matches });
+
+        // TODO: only store IDs to prevent accidentally duplicating records
       },
 
       REMOVE_RECORD: (state, record) => {
@@ -91,7 +101,9 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
         const fullUrl = `${collectionUrl}?${searchQuery}&${optionsQuery}`;
         return api.get(fullUrl)
           .then(results => {
-            commit('STORE_RECORDS', results.data.data);
+            const matches = results.data.data;
+            commit('STORE_RECORDS', matches);
+            commit('STORE_FILTERED', { filter, matches });
           });
       },
 
@@ -145,9 +157,13 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
     getters: {
       all: state => state.records,
       find: state => id => state.records.find(r => r.id === id),
-      where: state => criteria => (
-        state.records.filter(record => matches(criteria)(record.attributes))
-      ),
+      where: state => filter => {
+        // TODO: not object equality
+        const entry = state.filtered
+          .find(({ filter: testFilter }) => testFilter === filter);
+        // TODO: handle not found
+        return entry.matches;
+      },
       related: state => ({
         parent,
         relationship = resourceName,

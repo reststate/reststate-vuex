@@ -29,6 +29,7 @@ describe('resourceStore()', () => {
       state: {
         records: [], // TODO find some nicer way to clone this
         related: [],
+        filtered: [],
       },
     });
   });
@@ -87,20 +88,34 @@ describe('resourceStore()', () => {
     });
 
     describe('filtering', () => {
+      const filter = {
+        status: 'draft',
+      };
+
       beforeEach(() => {
+        store.commit('REPLACE_ALL_RECORDS', [
+          {
+            type: 'widget',
+            id: '1',
+            attributes: {
+              title: 'Non-Matching',
+            },
+          },
+        ]);
+
         api.get.resolves({
           data: {
             data: [
               {
                 type: 'widget',
-                id: '1',
+                id: '2',
                 attributes: {
                   title: 'Foo',
                 },
               },
               {
                 type: 'widget',
-                id: '2',
+                id: '3',
                 attributes: {
                   title: 'Bar',
                 },
@@ -110,9 +125,7 @@ describe('resourceStore()', () => {
         });
 
         return store.dispatch('loadBy', {
-          filter: {
-            status: 'draft',
-          },
+          filter,
           options: {
             include: 'customers',
           },
@@ -125,13 +138,16 @@ describe('resourceStore()', () => {
         );
       });
 
-      it('stores the results', () => {
-        const records = store.getters.all;
+      it('allows retrieving the results by filter', () => {
+        const all = store.getters.all;
+        expect(all.length).to.equal(3);
+
+        const records = store.getters.where(filter);
 
         expect(records.length).to.equal(2);
 
         const firstRecord = records[0];
-        expect(firstRecord.id).to.equal('1');
+        expect(firstRecord.id).to.equal('2');
         expect(firstRecord.attributes.title).to.equal('Foo');
       });
     });
@@ -372,15 +388,6 @@ describe('resourceStore()', () => {
 
         expect(result.length).to.equal(2);
         expect(result[0].id).to.equal('27');
-      });
-    });
-
-    describe('by a filter', () => {
-      it('returns only matching records', () => {
-        const result = store.getters.where({ title: 'Bar' });
-
-        expect(result.length).to.equal(1);
-        expect(result[0].id).to.equal('42');
       });
     });
 
