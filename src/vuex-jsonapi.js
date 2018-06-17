@@ -91,7 +91,7 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
         const fullUrl = `${collectionUrl}?${searchQuery}&${optionsQuery}`;
         return api.get(fullUrl)
           .then(results => {
-            commit('REPLACE_ALL_RECORDS', results.data.data);
+            commit('STORE_RECORDS', results.data.data);
           });
       },
 
