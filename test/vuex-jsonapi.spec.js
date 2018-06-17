@@ -28,6 +28,7 @@ describe('resourceStore()', () => {
       ...storeConfig,
       state: {
         records: [], // TODO find some nicer way to clone this
+        related: [],
       },
     });
   });
@@ -220,10 +221,33 @@ describe('resourceStore()', () => {
     });
 
     describe('related', () => {
+      const parent = {
+        type: 'users',
+        id: '42',
+      };
+
       beforeEach(() => {
         api.get.resolves({
           data: {
-            data: [
+            data: {
+              type: 'users',
+              id: '42',
+              relationships: {
+                widgets: {
+                  data: [
+                    {
+                      type: 'widget',
+                      id: '1',
+                    },
+                    {
+                      type: 'widget',
+                      id: '2',
+                    },
+                  ],
+                },
+              },
+            },
+            included: [
               {
                 type: 'widget',
                 id: '1',
@@ -242,27 +266,17 @@ describe('resourceStore()', () => {
           },
         });
 
-        const parent = {
-          type: 'users',
-          id: '42',
-        };
-
-        return store.dispatch('loadRelated', {
-          parent,
-          options: {
-            include: 'customers',
-          },
-        });
+        return store.dispatch('loadRelated', { parent });
       });
 
       it('requests the resource endpoint', () => {
         expect(api.get).to.have.been.calledWith(
-          'users/42/widgets?include=customers',
+          'users/42?include=widgets',
         );
       });
 
-      it('stores results', () => {
-        const records = store.getters.all;
+      it('allows retrieving related records', () => {
+        const records = store.getters.related(parent);
         expect(records.length).to.equal(2);
       });
     });
@@ -317,6 +331,27 @@ describe('resourceStore()', () => {
 
     describe('related', () => {
       it('allows retrieving related records', () => {
+        store.commit('REPLACE_ALL_RELATED', [
+          {
+            type: 'user',
+            id: '42',
+            relationships: {
+              widgets: {
+                data: [
+                  {
+                    type: 'widgets',
+                    id: '27',
+                  },
+                  {
+                    type: 'widgets',
+                    id: '42',
+                  },
+                ],
+              },
+            },
+          },
+        ]);
+
         store.commit('REPLACE_ALL_RECORDS', [
           {
             type: 'widgets',
@@ -342,20 +377,8 @@ describe('resourceStore()', () => {
         ]);
 
         const parent = {
-          relationships: {
-            widgets: {
-              data: [
-                {
-                  type: 'widgets',
-                  id: '27',
-                },
-                {
-                  type: 'widgets',
-                  id: '42',
-                },
-              ],
-            },
-          },
+          type: 'user',
+          id: '42',
         };
 
         const result = store.getters.related(parent);
@@ -367,11 +390,8 @@ describe('resourceStore()', () => {
 
       it('does not error out if there is no relationship data', () => {
         const parent = {
-          relationships: {
-            widgets: {
-              links: [],
-            },
-          },
+          type: 'user',
+          id: '27',
         };
 
         const result = store.getters.related(parent);

@@ -188,26 +188,12 @@ But if the server is doing anything fancy with filtering, like substring matches
 Finally, to load records related via JSON API relationships, use the `loadRelated` action. The related resource URL is constructed (may need to be more HATEOAS in the future). This ensures the records are downloaded.
 
 ```javascript
-const categoryId = 27;
-const options = {
-  include: 'widgets',
+const parent = {
+  type: 'category',
+  id: 27,
 };
 
-this.$store.dispatch('categories/find', { id: categoryId, options })
-  .then(() => {
-    const category = this.$store.getters['categories/find'](categoryId);
-    return this.$store.dispatch('widgets/loadRelated', { parent: category });
-  });
-```
-
-Then, to display them, use the `related` getter. The record you pass to it needs to include the relationships sideloaded. ADD MORE DETAIL ABOUT THIS
-
-```javascript
-this.$store.dispatch('categories/find', { id: categoryId, options })
-  .then(() => {
-    const category = this.$store.getters['categories/find'](categoryId);
-    return this.$store.dispatch('widgets/loadRelated', { parent: category });
-  });
+this.$store.dispatch('widgets/loadRelated', { parent })
   .then(() => {
     const widgets = this.$store.getters['widgets/related'](category);
     console.log(widgets);

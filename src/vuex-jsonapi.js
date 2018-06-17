@@ -26,20 +26,23 @@ const matches = (criteria) => (test) => (
 const resourceStore = ({ name: resourceName, httpClient: api }) => {
   const collectionUrl = resourceName;
   const resourceUrl = id => `${resourceName}/${id}`;
-  const relatedResourceUrl = parent => (
-    `${parent.type}/${parent.id}/${resourceName}`
-  );
+  const relatedResourceUrl = parent => `${parent.type}/${parent.id}`;
 
   return {
     namespaced: true,
 
     state: {
       records: [],
+      related: [],
     },
 
     mutations: {
       REPLACE_ALL_RECORDS: (state, records) => {
         state.records = records;
+      },
+
+      REPLACE_ALL_RELATED: (state, related) => {
+        state.related = related;
       },
 
       STORE_RECORD: (state, newRecord) => {
@@ -52,6 +55,12 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
         const { records } = state;
 
         newRecords.forEach(storeRecord(records));
+      },
+
+      STORE_RELATED: (state, parent) => {
+        const { related } = state;
+
+        storeRecord(related)(parent);
       },
 
       REMOVE_RECORD: (state, record) => {
@@ -88,9 +97,16 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
 
       loadRelated({ commit }, { parent, options }) {
         const url = relatedResourceUrl(parent);
-        return api.get(`${url}?${getOptionsQuery(options)}`)
+        const optionsWithInclude = Object.assign(
+          // TODO: allow relation to be named something
+          // other than the resource name
+          { include: resourceName },
+          options,
+        );
+        return api.get(`${url}?${getOptionsQuery(optionsWithInclude)}`)
           .then(results => {
-            commit('STORE_RECORDS', results.data.data);
+            commit('STORE_RECORDS', results.data.included);
+            commit('STORE_RELATED', results.data.data);
           });
       },
 
@@ -128,13 +144,14 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
       where: state => criteria => (
         state.records.filter(record => matches(criteria)(record.attributes))
       ),
-      related: state => parent => {
-        const relationshipData = parent.relationships[resourceName].data;
-        if (!relationshipData) {
+      related: state => ({ type, id }) => {
+        const related = state.related.find(matches({ type, id }));
+
+        if (!related) {
           return [];
         }
 
-        const ids = relationshipData.map(r => r.id);
+        const ids = related.relationships[resourceName].data.map(r => r.id);
         return state.records.filter(record => ids.includes(record.id));
       },
     },
