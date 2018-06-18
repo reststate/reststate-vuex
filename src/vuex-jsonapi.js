@@ -115,8 +115,6 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
       }) {
         const url = relatedResourceUrl(parent);
         const optionsWithInclude = Object.assign(
-          // TODO: allow relation to be named something
-          // other than the resource name
           { include: relationship },
           options,
         );
