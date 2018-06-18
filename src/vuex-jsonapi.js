@@ -67,10 +67,10 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
       STORE_FILTERED: (state, { filter, matches }) => {
         const { filtered } = state;
 
-        // TODO: handle overwriting existing one
-        filtered.push({ filter, matches });
+        const ids = matches.map(({ id }) => id);
 
-        // TODO: only store IDs to prevent accidentally duplicating records
+        // TODO: handle overwriting existing one
+        filtered.push({ filter, ids });
       },
 
       REMOVE_RECORD: (state, record) => {
@@ -161,7 +161,13 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
         const entry = state.filtered.find(({ filter: testFilter }) => (
           matchesRequestedFilter(testFilter)
         ));
-        return entry ? entry.matches : [];
+
+        if (!entry) {
+          return [];
+        }
+
+        const { ids } = entry;
+        return state.records.filter(record => ids.includes(record.id));
       },
       related: state => ({
         parent,
