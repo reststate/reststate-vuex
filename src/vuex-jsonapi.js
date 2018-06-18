@@ -160,9 +160,10 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
       find: state => id => state.records.find(r => r.id === id),
       where: state => filter => {
         const matchesRequestedFilter = matches(filter);
-        const entry = state.filtered.find(({ filter: testFilter }) => matchesRequestedFilter(testFilter));
-        // TODO: handle not found
-        return entry.matches;
+        const entry = state.filtered.find(({ filter: testFilter }) => (
+          matchesRequestedFilter(testFilter)
+        ));
+        return entry ? entry.matches : [];
       },
       related: state => ({
         parent,

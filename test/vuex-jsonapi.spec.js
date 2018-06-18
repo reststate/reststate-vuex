@@ -483,7 +483,13 @@ describe('resourceStore()', () => {
 
     describe('filter', () => {
       it('does not error on filter that has not been sent', () => {
+        const filter = {
+          first: 'time',
+        };
 
+        const result = store.getters.where(filter);
+
+        expect(result).to.deep.equal([]);
       });
     });
   });
