@@ -120,8 +120,15 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
         );
         return api.get(`${url}?${getOptionsQuery(optionsWithInclude)}`)
           .then(results => {
+            const { id, type } = parent;
+            const relatedIds = results
+              .data
+              .data
+              .relationships[relationship]
+              .data
+              .map(record => record.id);
             commit('STORE_RECORDS', results.data.included);
-            commit('STORE_RELATED', results.data.data);
+            commit('STORE_RELATED', { id, type, relatedIds });
           });
       },
 
@@ -180,7 +187,7 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
           return [];
         }
 
-        const ids = related.relationships[relationship].data.map(r => r.id);
+        const ids = related.relatedIds;
         return state.records.filter(record => ids.includes(record.id));
       },
     },

@@ -410,20 +410,7 @@ describe('resourceStore()', () => {
           {
             type: 'user',
             id: '42',
-            relationships: {
-              'purchased-widgets': {
-                data: [
-                  {
-                    type: 'widgets',
-                    id: '27',
-                  },
-                  {
-                    type: 'widgets',
-                    id: '42',
-                  },
-                ],
-              },
-            },
+            relatedIds: ['27', '42'],
           },
         ]);
 
