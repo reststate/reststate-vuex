@@ -83,8 +83,7 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
         const url = `${collectionUrl}?${getOptionsQuery(options)}`;
         return api.get(url)
           .then(results => {
-            // don't store all?
-            commit('REPLACE_ALL_RECORDS', results.data.data);
+            commit('STORE_RECORDS', results.data.data);
           });
       },
 
