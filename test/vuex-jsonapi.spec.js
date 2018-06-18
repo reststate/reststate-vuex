@@ -250,25 +250,7 @@ describe('resourceStore()', () => {
         beforeEach(() => {
           api.get.resolves({
             data: {
-              data: {
-                type: 'users',
-                id: '42',
-                relationships: {
-                  widgets: {
-                    data: [
-                      {
-                        type: 'widget',
-                        id: '1',
-                      },
-                      {
-                        type: 'widget',
-                        id: '2',
-                      },
-                    ],
-                  },
-                },
-              },
-              included: [
+              data: [
                 {
                   type: 'widget',
                   id: '1',
@@ -292,7 +274,7 @@ describe('resourceStore()', () => {
 
         it('requests the resource endpoint', () => {
           expect(api.get).to.have.been.calledWith(
-            'users/42?include=widgets',
+            'users/42/widgets?',
           );
         });
 
@@ -306,25 +288,7 @@ describe('resourceStore()', () => {
         beforeEach(() => {
           api.get.resolves({
             data: {
-              data: {
-                type: 'users',
-                id: '42',
-                relationships: {
-                  'purchased-widgets': {
-                    data: [
-                      {
-                        type: 'widget',
-                        id: '1',
-                      },
-                      {
-                        type: 'widget',
-                        id: '2',
-                      },
-                    ],
-                  },
-                },
-              },
-              included: [
+              data: [
                 {
                   type: 'widget',
                   id: '1',
@@ -351,7 +315,7 @@ describe('resourceStore()', () => {
 
         it('requests the resource endpoint', () => {
           expect(api.get).to.have.been.calledWith(
-            'users/42?include=purchased-widgets',
+            'users/42/purchased-widgets?',
           );
         });
 

@@ -26,7 +26,9 @@ const matches = (criteria) => (test) => (
 const resourceStore = ({ name: resourceName, httpClient: api }) => {
   const collectionUrl = resourceName;
   const resourceUrl = id => `${resourceName}/${id}`;
-  const relatedResourceUrl = parent => `${parent.type}/${parent.id}`;
+  const relatedResourceUrl = ({ parent, relationship }) => (
+    `${parent.type}/${parent.id}/${relationship}`
+  );
 
   return {
     namespaced: true,
@@ -112,21 +114,13 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
         relationship = resourceName,
         options,
       }) {
-        const url = relatedResourceUrl(parent);
-        const optionsWithInclude = Object.assign(
-          { include: relationship },
-          options,
-        );
-        return api.get(`${url}?${getOptionsQuery(optionsWithInclude)}`)
+        const url = relatedResourceUrl({ parent, relationship });
+        return api.get(`${url}?${getOptionsQuery(options)}`)
           .then(results => {
             const { id, type } = parent;
-            const relatedIds = results
-              .data
-              .data
-              .relationships[relationship]
-              .data
-              .map(record => record.id);
-            commit('STORE_RECORDS', results.data.included);
+            const relatedRecords = results.data.data;
+            const relatedIds = relatedRecords.map(record => record.id);
+            commit('STORE_RECORDS', relatedRecords);
             commit('STORE_RELATED', { id, type, relatedIds });
           });
       },
