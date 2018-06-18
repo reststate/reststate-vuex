@@ -139,6 +139,7 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
       },
 
       update({ commit }, record) {
+        // http://jsonapi.org/faq/#wheres-put
         return api.patch(resourceUrl(record.id), record)
           .then(() => {
             commit('STORE_RECORD', record);
