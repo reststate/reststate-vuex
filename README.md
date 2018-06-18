@@ -54,7 +54,7 @@ The `httpClient` accepts an object with a signature similar to the popular [Axio
 ```javascript
 import axios from 'axios';
 
-const api = axios.create({
+const httpClient = axios.create({
   baseURL: 'http://api.example.com/',
   headers: {
     'Content-Type': 'application/vnd.api+json',
@@ -64,14 +64,14 @@ const api = axios.create({
 
 const module = resourceStore({
   name: 'widgets',
-  httpClient: api,
+  httpClient,
 })
 ```
 
 Or else you can pass in an object that exposes the following methods:
 
 ```javascript
-const api = {
+const httpClient = {
   get(path) {
     // ...
   },
@@ -152,7 +152,7 @@ console.log(widget);
 
 To filter/query for records based on certain criteria, use the `loadBy` action, passing it an object of filter keys and values to send to the server:
 
-```javascript
+```js
 const filter = {
   category: 'whizbang',
 };
@@ -185,7 +185,7 @@ But if the server is doing anything fancy with filtering, like substring matches
 
 ### loadRelated action / related getter
 
-Finally, to load records related via JSON API relationships, use the `loadRelated` action. The related resource URL is constructed (may need to be more HATEOAS in the future). This ensures the records are downloaded.
+Finally, to load records related via JSON API relationships, use the `loadRelated` action. A nested resource URL is constructed like `categories/27/widgets`. (In the future we will look into using HATEOAS to let the server tell us the relationship URL).
 
 ```javascript
 const parent = {
@@ -196,6 +196,23 @@ const parent = {
 this.$store.dispatch('widgets/loadRelated', { parent })
   .then(() => {
     const widgets = this.$store.getters['widgets/related'](parent);
+    console.log(widgets);
+  });
+```
+
+By default, the name of the relationship on `parent` is assumed to be the same as the name of the other model: in this case, `widgets`. In cases where the names are not the same, you can explicitly pass the relationship name:
+
+```js
+const parent = {
+  type: 'categories',
+  id: 27,
+};
+
+const relationship = 'purchased-widgets';
+
+this.$store.dispatch('widgets/loadRelated', { parent, relationship })
+  .then(() => {
+    const widgets = this.$store.getters['widgets/related']({ parent, relationship });
     console.log(widgets);
   });
 ```
