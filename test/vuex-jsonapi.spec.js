@@ -284,7 +284,7 @@ describe('resourceStore()', () => {
         });
       });
 
-      describe('when relationship name is not the same as resource name', () => {
+      describe('when relationship name is not the resource name', () => {
         beforeEach(() => {
           api.get.resolves({
             data: {
