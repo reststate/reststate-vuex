@@ -159,9 +159,8 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
       all: state => state.records,
       find: state => id => state.records.find(r => r.id === id),
       where: state => filter => {
-        // TODO: not object equality
-        const entry = state.filtered
-          .find(({ filter: testFilter }) => testFilter === filter);
+        const matchesRequestedFilter = matches(filter);
+        const entry = state.filtered.find(({ filter: testFilter }) => matchesRequestedFilter(testFilter));
         // TODO: handle not found
         return entry.matches;
       },

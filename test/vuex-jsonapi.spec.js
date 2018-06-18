@@ -88,10 +88,6 @@ describe('resourceStore()', () => {
     });
 
     describe('filtering', () => {
-      const filter = {
-        status: 'draft',
-      };
-
       beforeEach(() => {
         store.commit('REPLACE_ALL_RECORDS', [
           {
@@ -124,6 +120,10 @@ describe('resourceStore()', () => {
           },
         });
 
+        const filter = {
+          status: 'draft',
+        };
+
         return store.dispatch('loadBy', {
           filter,
           options: {
@@ -141,6 +141,10 @@ describe('resourceStore()', () => {
       it('allows retrieving the results by filter', () => {
         const all = store.getters.all;
         expect(all.length).to.equal(3);
+
+        const filter = {
+          status: 'draft',
+        };
 
         const records = store.getters.where(filter);
 
@@ -474,6 +478,12 @@ describe('resourceStore()', () => {
         });
 
         expect(result).to.deep.equal([]);
+      });
+    });
+
+    describe('filter', () => {
+      it('does not error on filter that has not been sent', () => {
+
       });
     });
   });
