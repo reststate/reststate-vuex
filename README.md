@@ -150,30 +150,12 @@ console.log(widget);
 
 ### loadBy action / where getter
 
-To filter/query for records based on certain criteria, use the `loadBy` action, passing it an object of filter keys and values to send to the server:
+To filter/query for records based on certain criteria, use the `loadBy` action, passing it an object of filter keys and values to send to the server, then pass those same filters to the `where` getter:
 
 ```js
 const filter = {
   category: 'whizbang',
 };
-this.$store.dispatch('widgets/loadBy', { filter });
-```
-
-There are a few different ways to access the resources that match these filters.
-
-If these are the only records you've loaded from the server, you can simply use the `all` getter:
-
-```
-this.$store.dispatch('widgets/loadBy', { filter });
-  .then(() => {
-    const widgets = this.$store.getters['widgets/all'];
-    console.log(widgets);
-  });
-```
-
-If you have loaded other records of this type, then all the action does is ensure that all the matching records will be pulled down locally. But they will be intermixed with any other records that are in the Vuex store. To extract just the matching records, if your server is simply checking for property equality, then the `where` getter will perform the same matching on the client side:
-
-```
 this.$store.dispatch('widgets/loadBy', { filter });
   .then(() => {
     const widgets = this.$store.getters['widgets/where'](filter);
@@ -181,7 +163,7 @@ this.$store.dispatch('widgets/loadBy', { filter });
   });
 ```
 
-But if the server is doing anything fancy with filtering, like substring matches or virtual fields, then you'll need to replicate that logic yourself on the client side. You can access the `all` getter and then perform filtering yourself.
+This doesn’t perform any filtering logic on the client side; it simply keeps track of which IDs were returned by the server side request and retrieves those records.
 
 ### loadRelated action / related getter
 
