@@ -146,7 +146,7 @@ describe('resourceModule()', () => {
           status: 'draft',
         };
 
-        const records = store.getters.where(filter);
+        const records = store.getters.where({ filter });
 
         expect(records.length).to.equal(2);
 
@@ -362,7 +362,7 @@ describe('resourceModule()', () => {
     describe('by ID', () => {
       it('allows retrieving the record by ID', () => {
         const id = '42';
-        const storedRecord = store.getters.find(id);
+        const storedRecord = store.getters.find({ id });
         expect(storedRecord.id).to.equal(id);
         expect(storedRecord.attributes.title).to.equal('Bar');
       });
@@ -438,7 +438,7 @@ describe('resourceModule()', () => {
           first: 'time',
         };
 
-        const result = store.getters.where(filter);
+        const result = store.getters.where({ filter });
 
         expect(result).to.deep.equal([]);
       });

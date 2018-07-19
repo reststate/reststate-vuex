@@ -160,8 +160,8 @@ const resourceModule = ({ name: resourceName, httpClient: api }) => {
 
     getters: {
       all: state => state.records,
-      find: state => id => state.records.find(r => r.id === id),
-      where: state => filter => {
+      find: state => ({ id }) => state.records.find(r => r.id === id),
+      where: state => ({ filter }) => {
         const matchesRequestedFilter = matches(filter);
         const entry = state.filtered.find(({ filter: testFilter }) => (
           matchesRequestedFilter(testFilter)
