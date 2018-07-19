@@ -498,6 +498,13 @@ describe('resourceStore()', () => {
       attributes: {
         title: 'Baz',
       },
+      relationships: {
+        categories: {
+          data: [
+            { type: 'category', id: '27' },
+          ],
+        },
+      },
     };
 
     const recordWithUpdatedData = {

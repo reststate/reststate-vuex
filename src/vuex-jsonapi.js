@@ -140,9 +140,9 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
 
       update({ commit }, record) {
         // http://jsonapi.org/faq/#wheres-put
-        const { type, id, attributes } = record;
+        const { type, id, attributes, relationships } = record;
         const requestBody = {
-          data: { type, id, attributes },
+          data: { type, id, attributes, relationships },
         };
         return api.patch(resourceUrl(record.id), requestBody)
           .then(() => {
