@@ -97,7 +97,7 @@ const resourceModule = ({ name: resourceName, httpClient: api }) => {
           });
       },
 
-      loadBy({ commit }, { filter, options }) {
+      loadWhere({ commit }, { filter, options }) {
         const searchQuery = filterQueryString(filter);
         const optionsQuery = getOptionsQuery(options);
         const fullUrl = `${collectionUrl}?${searchQuery}&${optionsQuery}`;
@@ -160,7 +160,7 @@ const resourceModule = ({ name: resourceName, httpClient: api }) => {
 
     getters: {
       all: state => state.records,
-      find: state => ({ id }) => state.records.find(r => r.id === id),
+      byId: state => ({ id }) => state.records.find(r => r.id === id),
       where: state => ({ filter }) => {
         const matchesRequestedFilter = matches(filter);
         const entry = state.filtered.find(({ filter: testFilter }) => (

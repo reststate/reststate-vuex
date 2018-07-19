@@ -124,7 +124,7 @@ describe('resourceModule()', () => {
           status: 'draft',
         };
 
-        return store.dispatch('loadBy', {
+        return store.dispatch('loadWhere', {
           filter,
           options: {
             include: 'customers',
@@ -362,7 +362,7 @@ describe('resourceModule()', () => {
     describe('by ID', () => {
       it('allows retrieving the record by ID', () => {
         const id = '42';
-        const storedRecord = store.getters.find({ id });
+        const storedRecord = store.getters.byId({ id });
         expect(storedRecord.id).to.equal(id);
         expect(storedRecord.attributes.title).to.equal('Bar');
       });
