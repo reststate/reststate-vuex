@@ -23,7 +23,7 @@ const matches = (criteria) => (test) => (
   ))
 );
 
-const resourceStore = ({ name: resourceName, httpClient: api }) => {
+const resourceModule = ({ name: resourceName, httpClient: api }) => {
   const collectionUrl = resourceName;
   const resourceUrl = id => `${resourceName}/${id}`;
   const relatedResourceUrl = ({ parent, relationship }) => (
@@ -192,16 +192,16 @@ const resourceStore = ({ name: resourceName, httpClient: api }) => {
   };
 };
 
-const mapResourceStores = ({ names, httpClient }) => (
+const mapResourceModules = ({ names, httpClient }) => (
   names.reduce(
     (acc, name) => (
-      Object.assign({ [name]: resourceStore({ name, httpClient }) }, acc)
+      Object.assign({ [name]: resourceModule({ name, httpClient }) }, acc)
     ),
     {},
   )
 );
 
 export {
-  resourceStore,
-  mapResourceStores,
+  resourceModule,
+  mapResourceModules,
 };

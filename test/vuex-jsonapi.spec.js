@@ -3,12 +3,12 @@ import { stub } from 'sinon';
 import sinonChai from 'sinon-chai';
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { resourceStore } from '../src/vuex-jsonapi';
+import { resourceModule } from '../src/vuex-jsonapi';
 
 chai.use(sinonChai);
 Vue.use(Vuex);
 
-describe('resourceStore()', () => {
+describe('resourceModule()', () => {
   let store;
   let api;
 
@@ -20,7 +20,7 @@ describe('resourceStore()', () => {
       delete: stub(),
     };
 
-    const storeConfig = resourceStore({
+    const storeConfig = resourceModule({
       name: 'widgets',
       httpClient: api,
     });

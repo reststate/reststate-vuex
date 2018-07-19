@@ -1,9 +1,9 @@
 import {
-  resourceStore,
-  mapResourceStores,
+  resourceModule,
+  mapResourceModules,
 } from './src/vuex-jsonapi';
 
 export {
-  resourceStore,
-  mapResourceStores,
+  resourceModule,
+  mapResourceModules,
 };
