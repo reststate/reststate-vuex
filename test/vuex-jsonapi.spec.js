@@ -513,11 +513,14 @@ describe('resourceStore()', () => {
     });
 
     it('sends the record to the server', () => {
+      const expectedBody = {
+        data: record,
+      };
       return store.dispatch('update', record)
         .then(() => {
           expect(api.patch).to.have.been.calledWith(
             `widgets/${record.id}`,
-            record,
+            expectedBody,
           );
         });
     });
