@@ -12,16 +12,16 @@ This is a very early proof-of-concept, so THERE IS NO ERROR HANDLING YET, and ma
 
 ## Setup
 
-To create a Vuex module corresponding to a resource on the server, call `resourceStore()`:
+To create a Vuex module corresponding to a resource on the server, call `resourceModule()`:
 
 ```javascript
 import { Store } from 'vuex';
-import { resourceStore } from 'vuex-jsonapi';
+import { resourceModule } from 'vuex-jsonapi';
 import api from './api';
 
 const store = new Store({
   modules: {
-    'widgets': resourceStore({
+    'widgets': resourceModule({
       name: 'widgets',
       httpClient: api,
     }),
@@ -29,16 +29,16 @@ const store = new Store({
 });
 ```
 
-If you are accessing multiple resources, you can use `mapResourceStores()`:
+If you are accessing multiple resources, you can use `mapResourceModules()`:
 
 ```javascript
 import { Store } from 'vuex';
-import { mapResourceStores } from 'vuex-jsonapi';
+import { mapResourceModules } from 'vuex-jsonapi';
 import api from './api';
 
 const store = new Store({
   modules: {
-    ...mapResourceStores({
+    ...mapResourceModules({
       names: [
         'widgets',
         'purchases',
@@ -62,7 +62,7 @@ const httpClient = axios.create({
   },
 });
 
-const module = resourceStore({
+const module = resourceModule({
   name: 'widgets',
   httpClient,
 })
@@ -129,14 +129,14 @@ export default {
 };
 ```
 
-### loadById action / find getter
+### loadById action / byId getter
 
-To retrieve a single record by ID, dispatch the `loadById` action, then access the `find` getter:
+To retrieve a single record by ID, dispatch the `loadById` action, then access the `byId` getter:
 
 ```javascript
 this.$store.dispatch('widgets/loadById', { id: 42 })
   .then(() => {
-    const widget = this.$store.getters['widgets/find'](42);
+    const widget = this.$store.getters['widgets/byId']({ id: 42 });
     console.log(widget);
   });
 ```
@@ -144,21 +144,21 @@ this.$store.dispatch('widgets/loadById', { id: 42 })
 However, the beauty of storing your data in Vuex is that if you know the record has already been retrieved, you don't need to load it again. For example, if you've loaded all records on a list screen, and then you click to view the details for a single record, you can just use the getter directly:
 
 ```javascript
-const widget = this.$store.getters['widgets/find'](42);
+const widget = this.$store.getters['widgets/byId']({ id: 42 });
 console.log(widget);
 ```
 
-### loadBy action / where getter
+### loadWhere action / where getter
 
-To filter/query for records based on certain criteria, use the `loadBy` action, passing it an object of filter keys and values to send to the server, then pass those same filters to the `where` getter:
+To filter/query for records based on certain criteria, use the `loadWhere` action, passing it an object of filter keys and values to send to the server, then pass those same filters to the `where` getter:
 
 ```js
 const filter = {
   category: 'whizbang',
 };
-this.$store.dispatch('widgets/loadBy', { filter });
+this.$store.dispatch('widgets/loadWhere', { filter });
   .then(() => {
-    const widgets = this.$store.getters['widgets/where'](filter);
+    const widgets = this.$store.getters['widgets/where']({ filter });
     console.log(widgets);
   });
 ```
@@ -177,7 +177,7 @@ const parent = {
 
 this.$store.dispatch('widgets/loadRelated', { parent })
   .then(() => {
-    const widgets = this.$store.getters['widgets/related'](parent);
+    const widgets = this.$store.getters['widgets/related']({ parent });
     console.log(widgets);
   });
 ```
@@ -236,7 +236,7 @@ this.$store.dispatch('widgets/create', recordData);
 To update records, pass the entire updated record object to the `update` action:
 
 ```javascript
-const widget = this.$store.getters['widgets/find'](42);
+const widget = this.$store.getters['widgets/byId']({ id: 42 });
 widget.attributes.title = 'Updated Title';
 this.$store.dispatch('widgets/update', widget);
 ```
