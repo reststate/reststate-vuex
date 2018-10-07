@@ -101,12 +101,9 @@ const resourceModule = ({ name: resourceName, httpClient: api }) => {
       },
 
       loadWhere({ commit }, { filter, options }) {
-        const searchQuery = filterQueryString(filter);
-        const optionsQuery = getOptionsQuery(options);
-        const fullUrl = `${collectionUrl}?${searchQuery}&${optionsQuery}`;
-        return api.get(fullUrl)
+        return client.where(filter, { options })
           .then(results => {
-            const matches = results.data.data;
+            const matches = results.data;
             commit('STORE_RECORDS', matches);
             commit('STORE_FILTERED', { filter, matches });
           });
