@@ -126,32 +126,21 @@ const resourceModule = ({ name: resourceName, httpClient: api }) => {
       },
 
       create({ commit }, recordData) {
-        const requestBody = {
-          data: Object.assign(
-            { type: resourceName },
-            recordData,
-          ),
-        };
-        return api.post(collectionUrl, requestBody)
+        return client.create(recordData)
           .then(result => {
-            commit('STORE_RECORD', result.data.data);
+            commit('STORE_RECORD', result.data);
           });
       },
 
       update({ commit }, record) {
-        // http://jsonapi.org/faq/#wheres-put
-        const { type, id, attributes, relationships } = record;
-        const requestBody = {
-          data: { type, id, attributes, relationships },
-        };
-        return api.patch(resourceUrl(record.id), requestBody)
+        return client.update(record)
           .then(() => {
             commit('STORE_RECORD', record);
           });
       },
 
       delete({ commit }, record) {
-        return api.delete(resourceUrl(record.id))
+        return client.delete(record)
           .then(() => {
             commit('REMOVE_RECORD', record);
           });
