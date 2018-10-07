@@ -94,10 +94,9 @@ const resourceModule = ({ name: resourceName, httpClient: api }) => {
       },
 
       loadById({ commit }, { id, options }) {
-        const url = `${resourceUrl(id)}?${getOptionsQuery(options)}`;
-        return api.get(url)
+        return client.find(id, { options })
           .then(results => {
-            commit('STORE_RECORD', results.data.data);
+            commit('STORE_RECORD', results.data);
           });
       },
 
