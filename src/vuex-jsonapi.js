@@ -1,3 +1,5 @@
+import { Resource } from 'jsonapi-client';
+
 function filterQueryString(obj) {
   return Object.keys(obj)
     .map(k => `filter[${k}]=${encodeURIComponent(obj[k])}`)
@@ -24,6 +26,8 @@ const matches = (criteria) => (test) => (
 );
 
 const resourceModule = ({ name: resourceName, httpClient: api }) => {
+  const client = new Resource({ name: resourceName, api });
+
   const collectionUrl = resourceName;
   const resourceUrl = id => `${resourceName}/${id}`;
   const relatedResourceUrl = ({ parent, relationship }) => (
@@ -82,10 +86,10 @@ const resourceModule = ({ name: resourceName, httpClient: api }) => {
 
     actions: {
       loadAll({ commit }, { options } = {}) {
-        const url = `${collectionUrl}?${getOptionsQuery(options)}`;
-        return api.get(url)
-          .then(results => {
-            commit('STORE_RECORDS', results.data.data);
+        return client.all({ options })
+          .then(result => {
+            console.log(result);
+            commit('STORE_RECORDS', result.data);
           });
       },
 
