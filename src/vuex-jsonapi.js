@@ -1,11 +1,5 @@
 import { Resource } from 'jsonapi-client';
 
-function filterQueryString(obj) {
-  return Object.keys(obj)
-    .map(k => `filter[${k}]=${encodeURIComponent(obj[k])}`)
-    .join('&');
-}
-
 const storeRecord = (records) => (newRecord) => {
   const existingRecord = records.find(r => r.id === newRecord.id);
   if (existingRecord) {
@@ -15,10 +9,6 @@ const storeRecord = (records) => (newRecord) => {
   }
 };
 
-const getOptionsQuery = (optionsObject = {}) => (
-  optionsObject.include ? `include=${optionsObject.include}` : ''
-);
-
 const matches = (criteria) => (test) => (
   Object.keys(criteria).every(key => (
     criteria[key] === test[key]
@@ -27,12 +17,6 @@ const matches = (criteria) => (test) => (
 
 const resourceModule = ({ name: resourceName, httpClient }) => {
   const client = new Resource({ name: resourceName, httpClient });
-
-  const collectionUrl = resourceName;
-  const resourceUrl = id => `${resourceName}/${id}`;
-  const relatedResourceUrl = ({ parent, relationship }) => (
-    `${parent.type}/${parent.id}/${relationship}`
-  );
 
   return {
     namespaced: true,
