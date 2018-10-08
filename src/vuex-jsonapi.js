@@ -25,8 +25,8 @@ const matches = (criteria) => (test) => (
   ))
 );
 
-const resourceModule = ({ name: resourceName, httpClient: api }) => {
-  const client = new Resource({ name: resourceName, api });
+const resourceModule = ({ name: resourceName, httpClient }) => {
+  const client = new Resource({ name: resourceName, httpClient });
 
   const collectionUrl = resourceName;
   const resourceUrl = id => `${resourceName}/${id}`;
@@ -114,11 +114,10 @@ const resourceModule = ({ name: resourceName, httpClient: api }) => {
         relationship = resourceName,
         options,
       }) {
-        const url = relatedResourceUrl({ parent, relationship });
-        return api.get(`${url}?${getOptionsQuery(options)}`)
+        return client.related({ parent, relationship, options })
           .then(results => {
             const { id, type } = parent;
-            const relatedRecords = results.data.data;
+            const relatedRecords = results.data;
             const relatedIds = relatedRecords.map(record => record.id);
             commit('STORE_RECORDS', relatedRecords);
             commit('STORE_RELATED', { id, type, relatedIds });
