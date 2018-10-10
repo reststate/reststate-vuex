@@ -65,7 +65,7 @@ const httpClient = axios.create({
 const module = resourceModule({
   name: 'widgets',
   httpClient,
-})
+});
 ```
 
 Or else you can pass in an object that exposes the following methods:
@@ -247,7 +247,7 @@ To delete, pass either a full record or just an object with an ID field:
 
 ```javascript
 const widgetIdObject = { id: 42 };
-this.$store.dispatch('widgets/delete', widget);
+this.$store.dispatch('widgets/delete', widgetIdObject);
 ```
 
 ## License
