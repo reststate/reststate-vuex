@@ -78,14 +78,14 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       loadById({ commit }, { id, options }) {
-        return client.find(id, { options })
+        return client.find({ id, options })
           .then(results => {
             commit('STORE_RECORD', results.data);
           });
       },
 
       loadWhere({ commit }, { filter, options }) {
-        return client.where(filter, { options })
+        return client.where({ filter, options })
           .then(results => {
             const matches = results.data;
             commit('STORE_RECORDS', matches);
