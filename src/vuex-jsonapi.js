@@ -1,4 +1,4 @@
-import { Resource } from 'jsonapi-client';
+import { ResourceClient } from 'jsonapi-client';
 
 const storeRecord = (records) => (newRecord) => {
   const existingRecord = records.find(r => r.id === newRecord.id);
@@ -16,7 +16,7 @@ const matches = (criteria) => (test) => (
 );
 
 const resourceModule = ({ name: resourceName, httpClient }) => {
-  const client = new Resource({ name: resourceName, httpClient });
+  const client = new ResourceClient({ name: resourceName, httpClient });
 
   return {
     namespaced: true,
