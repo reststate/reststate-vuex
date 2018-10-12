@@ -72,7 +72,6 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       loadAll({ commit }, { options } = {}) {
         return client.all({ options })
           .then(result => {
-            console.log(result);
             commit('STORE_RECORDS', result.data);
           });
       },
