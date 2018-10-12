@@ -16,7 +16,7 @@
     "babel-core": "^7.0.0-0",
     "babel-eslint": "^8.2.3",
     "babel-jest": "^23.6.0",
-    "eslint": "^4.19.1",
+    "eslint": "^5.7.0",
     "eslint-config-codingitwrong": "^0.1.2",
     "eslint-plugin-jest": "^21.24.1",
     "jest": "^23.6.0",
