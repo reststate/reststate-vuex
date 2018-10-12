@@ -7,20 +7,19 @@
   "author": "Josh Justice <me@codingitwrong.com>",
   "license": "Apache-2.0",
   "scripts": {
-    "test": "mocha --require @babel/register test",
+    "test": "jest",
     "lint": "eslint src test"
   },
   "devDependencies": {
     "@babel/core": "7.0.0-beta.51",
     "@babel/preset-env": "7.0.0-beta.51",
-    "@babel/register": "7.0.0-beta.51",
+    "babel-core": "^7.0.0-0",
     "babel-eslint": "^8.2.3",
-    "chai": "^4.1.2",
+    "babel-jest": "^23.6.0",
     "eslint": "^4.19.1",
     "eslint-config-codingitwrong": "^0.1.2",
-    "mocha": "^5.2.0",
-    "sinon": "^6.0.0",
-    "sinon-chai": "^3.2.0",
+    "eslint-plugin-jest": "^21.24.1",
+    "jest": "^23.6.0",
     "vue": "^2.5.16",
     "vuex": "^3.0.1"
   },

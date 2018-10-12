@@ -1,11 +1,7 @@
-import chai, { expect } from 'chai';
-import { stub } from 'sinon';
-import sinonChai from 'sinon-chai';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { resourceModule } from '../src/vuex-jsonapi';
 
-chai.use(sinonChai);
 Vue.use(Vuex);
 
 describe('resourceModule()', () => {
@@ -14,10 +10,10 @@ describe('resourceModule()', () => {
 
   beforeEach(() => {
     api = {
-      get: stub(),
-      post: stub(),
-      patch: stub(),
-      delete: stub(),
+      get: jest.fn(),
+      post: jest.fn(),
+      patch: jest.fn(),
+      delete: jest.fn(),
     };
 
     const storeConfig = resourceModule({
@@ -37,7 +33,7 @@ describe('resourceModule()', () => {
   describe('loading from the server', () => {
     describe('all records', () => {
       it('returns the records', () => {
-        api.get.resolves({
+        api.get.mockResolvedValue({
           data: {
             data: [
               {
@@ -62,16 +58,16 @@ describe('resourceModule()', () => {
           .then(() => {
             const records = store.getters.all;
 
-            expect(records.length).to.equal(2);
+            expect(records.length).toEqual(2);
 
             const firstRecord = records[0];
-            expect(firstRecord.id).to.equal('1');
-            expect(firstRecord.attributes.title).to.equal('Foo');
+            expect(firstRecord.id).toEqual('1');
+            expect(firstRecord.attributes.title).toEqual('Foo');
           });
       });
 
       it('allows including related records', () => {
-        api.get.resolves({
+        api.get.mockResolvedValue({
           data: {
             data: [],
           },
@@ -82,7 +78,7 @@ describe('resourceModule()', () => {
             include: 'customers',
           },
         }).then(() => {
-          expect(api.get).to.have.been.calledWith('widgets?include=customers');
+          expect(api.get).toHaveBeenCalledWith('widgets?include=customers');
         });
       });
     });
@@ -99,7 +95,7 @@ describe('resourceModule()', () => {
           },
         ]);
 
-        api.get.resolves({
+        api.get.mockResolvedValue({
           data: {
             data: [
               {
@@ -133,14 +129,14 @@ describe('resourceModule()', () => {
       });
 
       it('passes the filter on to the server', () => {
-        expect(api.get).to.have.been.calledWith(
+        expect(api.get).toHaveBeenCalledWith(
           'widgets?filter[status]=draft&include=customers',
         );
       });
 
       it('allows retrieving the results by filter', () => {
         const all = store.getters.all;
-        expect(all.length).to.equal(3);
+        expect(all.length).toEqual(3);
 
         const filter = {
           status: 'draft',
@@ -148,11 +144,11 @@ describe('resourceModule()', () => {
 
         const records = store.getters.where({ filter });
 
-        expect(records.length).to.equal(2);
+        expect(records.length).toEqual(2);
 
         const firstRecord = records[0];
-        expect(firstRecord.id).to.equal('2');
-        expect(firstRecord.attributes.title).to.equal('Foo');
+        expect(firstRecord.id).toEqual('2');
+        expect(firstRecord.attributes.title).toEqual('Foo');
       });
     });
 
@@ -170,7 +166,7 @@ describe('resourceModule()', () => {
       };
 
       beforeEach(() => {
-        api.get.resolves({
+        api.get.mockResolvedValue({
           data: {
             data: record,
           },
@@ -198,7 +194,7 @@ describe('resourceModule()', () => {
         });
 
         it('makes the correct request', () => {
-          expect(api.get).to.have.been.calledWith(
+          expect(api.get).toHaveBeenCalledWith(
             'widgets/42?include=customers',
           );
         });
@@ -206,10 +202,10 @@ describe('resourceModule()', () => {
         it('adds the record to the list of all records', () => {
           const records = store.getters.all;
 
-          expect(records.length).to.equal(2);
+          expect(records.length).toEqual(2);
 
           const storedRecord = records.find(r => r.id === id);
-          expect(storedRecord.attributes.title).to.equal('New Title');
+          expect(storedRecord.attributes.title).toEqual('New Title');
         });
       });
 
@@ -231,11 +227,11 @@ describe('resourceModule()', () => {
         it('overwrites the record in the store', () => {
           const records = store.getters.all;
 
-          expect(records.length).to.equal(1);
+          expect(records.length).toEqual(1);
 
           const storedRecord = records[0];
-          expect(storedRecord.attributes.title).to.equal('New Title');
-          expect(storedRecord.relationships.customers).to.deep.equal([]);
+          expect(storedRecord.attributes.title).toEqual('New Title');
+          expect(storedRecord.relationships.customers).toEqual([]);
         });
       });
     });
@@ -248,7 +244,7 @@ describe('resourceModule()', () => {
 
       describe('when relationship name is the same as resource name', () => {
         beforeEach(() => {
-          api.get.resolves({
+          api.get.mockResolvedValue({
             data: {
               data: [
                 {
@@ -273,20 +269,20 @@ describe('resourceModule()', () => {
         });
 
         it('requests the resource endpoint', () => {
-          expect(api.get).to.have.been.calledWith(
+          expect(api.get).toHaveBeenCalledWith(
             'users/42/widgets?',
           );
         });
 
         it('allows retrieving related records', () => {
           const records = store.getters.related({ parent });
-          expect(records.length).to.equal(2);
+          expect(records.length).toEqual(2);
         });
       });
 
       describe('when relationship name is not the resource name', () => {
         beforeEach(() => {
-          api.get.resolves({
+          api.get.mockResolvedValue({
             data: {
               data: [
                 {
@@ -314,7 +310,7 @@ describe('resourceModule()', () => {
         });
 
         it('requests the resource endpoint', () => {
-          expect(api.get).to.have.been.calledWith(
+          expect(api.get).toHaveBeenCalledWith(
             'users/42/purchased-widgets?',
           );
         });
@@ -324,7 +320,7 @@ describe('resourceModule()', () => {
             parent,
             relationship: 'purchased-widgets',
           });
-          expect(records.length).to.equal(2);
+          expect(records.length).toEqual(2);
         });
       });
     });
@@ -354,8 +350,8 @@ describe('resourceModule()', () => {
       it('returns all records', () => {
         const result = store.getters.all;
 
-        expect(result.length).to.equal(2);
-        expect(result[0].id).to.equal('27');
+        expect(result.length).toEqual(2);
+        expect(result[0].id).toEqual('27');
       });
     });
 
@@ -363,8 +359,8 @@ describe('resourceModule()', () => {
       it('allows retrieving the record by ID', () => {
         const id = '42';
         const storedRecord = store.getters.byId({ id });
-        expect(storedRecord.id).to.equal(id);
-        expect(storedRecord.attributes.title).to.equal('Bar');
+        expect(storedRecord.id).toEqual(id);
+        expect(storedRecord.attributes.title).toEqual('Bar');
       });
     });
 
@@ -412,9 +408,9 @@ describe('resourceModule()', () => {
           relationship: 'purchased-widgets',
         });
 
-        expect(result.length).to.equal(2);
-        expect(result[0].id).to.equal('27');
-        expect(result[0].attributes.title).to.equal('Bar');
+        expect(result.length).toEqual(2);
+        expect(result[0].id).toEqual('27');
+        expect(result[0].attributes.title).toEqual('Bar');
       });
 
       it('does not error out if there is no relationship data', () => {
@@ -428,7 +424,7 @@ describe('resourceModule()', () => {
           relationship: 'purchased-widgets',
         });
 
-        expect(result).to.deep.equal([]);
+        expect(result).toEqual([]);
       });
     });
 
@@ -440,7 +436,7 @@ describe('resourceModule()', () => {
 
         const result = store.getters.where({ filter });
 
-        expect(result).to.deep.equal([]);
+        expect(result).toEqual([]);
       });
     });
   });
@@ -453,7 +449,7 @@ describe('resourceModule()', () => {
     };
 
     beforeEach(() => {
-      api.post.resolves({
+      api.post.mockResolvedValue({
         data: {
           data: {
             type: 'widget',
@@ -473,7 +469,7 @@ describe('resourceModule()', () => {
               attributes: widget.attributes,
             },
           };
-          expect(api.post).to.have.been.calledWith('widgets', expectedBody);
+          expect(api.post).toHaveBeenCalledWith('widgets', expectedBody);
         });
     });
 
@@ -482,11 +478,11 @@ describe('resourceModule()', () => {
         .then(() => {
           const records = store.getters.all;
 
-          expect(records.length).to.equal(1);
+          expect(records.length).toEqual(1);
 
           const firstRecord = records[0];
-          expect(firstRecord.id).to.equal('27');
-          expect(firstRecord.attributes.title).to.equal('Baz');
+          expect(firstRecord.id).toEqual('27');
+          expect(firstRecord.attributes.title).toEqual('Baz');
         });
     });
   });
@@ -516,7 +512,7 @@ describe('resourceModule()', () => {
     };
 
     beforeEach(() => {
-      api.patch.resolves({ data: recordWithUpdatedData });
+      api.patch.mockResolvedValue({ data: recordWithUpdatedData });
     });
 
     it('sends the record to the server', () => {
@@ -525,7 +521,7 @@ describe('resourceModule()', () => {
       };
       return store.dispatch('update', record)
         .then(() => {
-          expect(api.patch).to.have.been.calledWith(
+          expect(api.patch).toHaveBeenCalledWith(
             `widgets/${record.id}`,
             expectedBody,
           );
@@ -546,9 +542,9 @@ describe('resourceModule()', () => {
       store.dispatch('update', recordWithUpdatedData)
         .then(() => {
           const records = store.getters.all;
-          expect(records.length).to.equal(1);
+          expect(records.length).toEqual(1);
           const firstRecord = records[0];
-          expect(firstRecord.attributes.title).to.equal('Bar');
+          expect(firstRecord.attributes.title).toEqual('Bar');
         });
     });
   });
@@ -578,13 +574,13 @@ describe('resourceModule()', () => {
     beforeEach(() => {
       store.commit('REPLACE_ALL_RECORDS', allRecords);
 
-      api.delete.resolves();
+      api.delete.mockResolvedValue();
     });
 
     it('sends the delete request to the server', () => {
       store.dispatch('delete', record)
         .then(() => {
-          expect(api.delete).to.have.been.calledWith(`widgets/${record.id}`);
+          expect(api.delete).toHaveBeenCalledWith(`widgets/${record.id}`);
         });
     });
 
@@ -592,7 +588,7 @@ describe('resourceModule()', () => {
       store.dispatch('delete', record)
         .then(() => {
           const records = store.getters.all;
-          expect(records.length).to.equal(allRecords.length - 1);
+          expect(records.length).toEqual(allRecords.length - 1);
         });
     });
 
