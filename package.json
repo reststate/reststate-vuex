@@ -1,5 +1,5 @@
 {
-  "name": "vuex-jsonapi",
+  "name": "@reststate/vuex",
   "version": "0.0.3",
   "description": "Library to access JSON API data via Vuex stores",
   "main": "index.js",
@@ -26,5 +26,8 @@
   },
   "peerDependencies": {
     "vuex": "^3.0.1"
+  },
+  "dependencies": {
+    "@reststate/client": "^0.0.1"
   }
 }

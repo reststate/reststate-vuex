@@ -1,4 +1,4 @@
-import { ResourceClient } from 'jsonapi-client';
+import { ResourceClient } from '@reststate/client';
 
 const storeRecord = (records) => (newRecord) => {
   const existingRecord = records.find(r => r.id === newRecord.id);
