@@ -616,43 +616,55 @@ describe('resourceModule()', () => {
       },
     };
 
+    const responseWidget = {
+      type: 'widget',
+      id: '27',
+      attributes: widget.attributes,
+    };
+
+    it('sets loading to true while loading', () => {
+      api.post.mockResolvedValue({
+        data: {
+          data: responseWidget,
+        },
+      });
+      store.dispatch('create', widget);
+      expect(store.getters.loading).toEqual(true);
+    });
+
     describe('success', () => {
       beforeEach(() => {
         api.post.mockResolvedValue({
           data: {
-            data: {
-              type: 'widget',
-              id: '27',
-              attributes: widget.attributes,
-            },
+            data: responseWidget,
           },
         });
+
+        return store.dispatch('create', widget);
       });
 
       it('sends the record to the server', () => {
-        return store.dispatch('create', widget)
-          .then(() => {
-            const expectedBody = {
-              data: {
-                type: 'widgets',
-                attributes: widget.attributes,
-              },
-            };
-            expect(api.post).toHaveBeenCalledWith('widgets', expectedBody);
-          });
+        const expectedBody = {
+          data: {
+            type: 'widgets',
+            attributes: widget.attributes,
+          },
+        };
+        expect(api.post).toHaveBeenCalledWith('widgets', expectedBody);
+      });
+
+      it('sets loading to false', () => {
+        expect(store.getters.loading).toEqual(false);
       });
 
       it('adds the record to the list', () => {
-        return store.dispatch('create', widget)
-          .then(() => {
-            const records = store.getters.all;
+        const records = store.getters.all;
 
-            expect(records.length).toEqual(1);
+        expect(records.length).toEqual(1);
 
-            const firstRecord = records[0];
-            expect(firstRecord.id).toEqual('27');
-            expect(firstRecord.attributes.title).toEqual('Baz');
-          });
+        const firstRecord = records[0];
+        expect(firstRecord.id).toEqual('27');
+        expect(firstRecord.attributes.title).toEqual('Baz');
       });
     });
 
@@ -668,6 +680,12 @@ describe('resourceModule()', () => {
 
       it('rejects with the error', () => {
         expect(response).rejects.toEqual(error);
+      });
+
+      it('sets loading to false', () => {
+        return response.catch(() => {
+          expect(store.getters.loading).toEqual(false);
+        });
       });
 
       it('sets the error flag', () => {
@@ -694,50 +712,62 @@ describe('resourceModule()', () => {
       },
     };
 
-    describe('success', () => {
-      const recordWithUpdatedData = {
-        type: 'widget',
-        id: '27',
-        attributes: {
-          title: 'Bar',
+    const recordWithUpdatedData = {
+      type: 'widget',
+      id: '42',
+      attributes: {
+        title: 'Bar',
+      },
+    };
+
+    it('sets loading to true while loading', () => {
+      api.patch.mockResolvedValue({
+        data: {
+          data: recordWithUpdatedData,
         },
-      };
+      });
+      store.dispatch('update', record);
+      expect(store.getters.loading).toEqual(true);
+    });
 
+    describe('success', () => {
       beforeEach(() => {
+        // TODO: shouldn't this be two levels of nested datas?
         api.patch.mockResolvedValue({ data: recordWithUpdatedData });
-      });
 
-      it('sends the record to the server', () => {
-        const expectedBody = {
-          data: record,
-        };
-        return store.dispatch('update', record)
-          .then(() => {
-            expect(api.patch).toHaveBeenCalledWith(
-              `widgets/${record.id}`,
-              expectedBody,
-            );
-          });
-      });
-
-      it('overwrites an existing record with the same ID', () => {
         store.commit('REPLACE_ALL_RECORDS', [
           {
             type: 'widget',
-            id: '27',
+            id: '42',
             attributes: {
               title: 'Foo',
             },
           },
         ]);
 
-        store.dispatch('update', recordWithUpdatedData)
-          .then(() => {
-            const records = store.getters.all;
-            expect(records.length).toEqual(1);
-            const firstRecord = records[0];
-            expect(firstRecord.attributes.title).toEqual('Bar');
-          });
+        return store.dispatch('update', recordWithUpdatedData);
+      });
+
+      it('sends the record to the server', () => {
+        const expectedBody = {
+          data: recordWithUpdatedData,
+        };
+
+        expect(api.patch).toHaveBeenCalledWith(
+          `widgets/${record.id}`,
+          expectedBody,
+        );
+      });
+
+      it('sets loading to false', () => {
+        expect(store.getters.loading).toEqual(false);
+      });
+
+      it('overwrites an existing record with the same ID', () => {
+        const records = store.getters.all;
+        expect(records.length).toEqual(1);
+        const firstRecord = records[0];
+        expect(firstRecord.attributes.title).toEqual('Bar');
       });
     });
 
@@ -753,6 +783,12 @@ describe('resourceModule()', () => {
 
       it('rejects with the error', () => {
         expect(response).rejects.toEqual(error);
+      });
+
+      it('sets loading to false', () => {
+        return response.catch(() => {
+          expect(store.getters.loading).toEqual(false);
+        });
       });
 
       it('sets the error flag', () => {
@@ -772,6 +808,12 @@ describe('resourceModule()', () => {
       },
     };
 
+    it('sets loading to true while loading', () => {
+      api.delete.mockResolvedValue();
+      store.dispatch('delete', record);
+      expect(store.getters.loading).toEqual(true);
+    });
+
     describe('success', () => {
       const allRecords = [
         record,
@@ -788,21 +830,21 @@ describe('resourceModule()', () => {
         store.commit('REPLACE_ALL_RECORDS', allRecords);
 
         api.delete.mockResolvedValue();
+
+        return store.dispatch('delete', record);
       });
 
       it('sends the delete request to the server', () => {
-        store.dispatch('delete', record)
-          .then(() => {
-            expect(api.delete).toHaveBeenCalledWith(`widgets/${record.id}`);
-          });
+        expect(api.delete).toHaveBeenCalledWith(`widgets/${record.id}`);
+      });
+
+      it('sets loading to false', () => {
+        expect(store.getters.loading).toEqual(false);
       });
 
       it('removes the record from the list', () => {
-        store.dispatch('delete', record)
-          .then(() => {
-            const records = store.getters.all;
-            expect(records.length).toEqual(allRecords.length - 1);
-          });
+        const records = store.getters.all;
+        expect(records.length).toEqual(allRecords.length - 1);
       });
     });
 
@@ -820,10 +862,17 @@ describe('resourceModule()', () => {
         expect(response).rejects.toEqual(error);
       });
 
+      it('sets loading to false', () => {
+        return response.catch(() => {
+          expect(store.getters.loading).toEqual(false);
+        });
+      });
+
       it('sets the error flag', () => {
         return response.catch(() => {
           expect(store.getters.error).toEqual(true);
         });
       });
-    });  });
+    });
+  });
 });
