@@ -187,73 +187,96 @@ describe('resourceModule()', () => {
         },
       };
 
-      beforeEach(() => {
-        api.get.mockResolvedValue({
-          data: {
-            data: record,
-          },
-        });
-      });
-
-      describe('when the record is not yet present in the store', () => {
+      describe('success', () => {
         beforeEach(() => {
-          store.commit('REPLACE_ALL_RECORDS', [
-            {
-              type: 'widget',
-              id: '27',
-              attributes: {
-                title: 'Old Title',
-              },
-            },
-          ]);
-
-          return store.dispatch('loadById', {
-            id,
-            options: {
-              include: 'customers',
+          api.get.mockResolvedValue({
+            data: {
+              data: record,
             },
           });
         });
 
-        it('makes the correct request', () => {
-          expect(api.get).toHaveBeenCalledWith(
-            'widgets/42?include=customers',
-          );
+        describe('when the record is not yet present in the store', () => {
+          beforeEach(() => {
+            store.commit('REPLACE_ALL_RECORDS', [
+              {
+                type: 'widget',
+                id: '27',
+                attributes: {
+                  title: 'Old Title',
+                },
+              },
+            ]);
+
+            return store.dispatch('loadById', {
+              id,
+              options: {
+                include: 'customers',
+              },
+            });
+          });
+
+          it('makes the correct request', () => {
+            expect(api.get).toHaveBeenCalledWith(
+              'widgets/42?include=customers',
+            );
+          });
+
+          it('adds the record to the list of all records', () => {
+            const records = store.getters.all;
+
+            expect(records.length).toEqual(2);
+
+            const storedRecord = records.find(r => r.id === id);
+            expect(storedRecord.attributes.title).toEqual('New Title');
+          });
         });
 
-        it('adds the record to the list of all records', () => {
-          const records = store.getters.all;
+        describe('when the record is already present in the store', () => {
+          beforeEach(() => {
+            store.commit('REPLACE_ALL_RECORDS', [
+              {
+                type: 'widget',
+                id: '42',
+                attributes: {
+                  title: 'Old Title',
+                },
+              },
+            ]);
 
-          expect(records.length).toEqual(2);
+            return store.dispatch('loadById', id);
+          });
 
-          const storedRecord = records.find(r => r.id === id);
-          expect(storedRecord.attributes.title).toEqual('New Title');
+          it('overwrites the record in the store', () => {
+            const records = store.getters.all;
+
+            expect(records.length).toEqual(1);
+
+            const storedRecord = records[0];
+            expect(storedRecord.attributes.title).toEqual('New Title');
+            expect(storedRecord.relationships.customers).toEqual([]);
+          });
         });
       });
 
-      describe('when the record is already present in the store', () => {
-        beforeEach(() => {
-          store.commit('REPLACE_ALL_RECORDS', [
-            {
-              type: 'widget',
-              id: '42',
-              attributes: {
-                title: 'Old Title',
-              },
-            },
-          ]);
+      describe('error', () => {
+        const error = { dummy: 'error' };
 
-          return store.dispatch('loadById', id);
+        let response;
+
+        beforeEach(() => {
+          api.get.mockRejectedValue(error);
+          response = store.dispatch('loadById', { id });
         });
 
-        it('overwrites the record in the store', () => {
-          const records = store.getters.all;
+        it('rejects with the error', () => {
+          expect(response).rejects.toEqual(error);
+        });
 
-          expect(records.length).toEqual(1);
-
-          const storedRecord = records[0];
-          expect(storedRecord.attributes.title).toEqual('New Title');
-          expect(storedRecord.relationships.customers).toEqual([]);
+        it('sets the error flag', () => {
+          return response.catch(() => {
+            expect(store.getters.error).toEqual(true);
+          });
         });
       });
     });

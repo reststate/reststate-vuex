@@ -89,6 +89,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return client.find({ id, options })
           .then(results => {
             commit('STORE_RECORD', results.data);
+          })
+          .catch(error => {
+            commit('STORE_ERROR');
+            throw error;
           });
       },
 
