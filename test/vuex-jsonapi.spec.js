@@ -732,8 +732,9 @@ describe('resourceModule()', () => {
 
     describe('success', () => {
       beforeEach(() => {
-        // TODO: shouldn't this be two levels of nested datas?
-        api.patch.mockResolvedValue({ data: recordWithUpdatedData });
+        // returned data not used right now
+        // probably need to in case server chagnes the values
+        api.patch.mockResolvedValue({ data: {} });
 
         store.commit('REPLACE_ALL_RECORDS', [
           {
