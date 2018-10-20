@@ -34,26 +34,38 @@ describe('resourceModule()', () => {
 
   describe('loading from the server', () => {
     describe('all records', () => {
+      const records = [
+        {
+          type: 'widget',
+          id: '1',
+          attributes: {
+            title: 'Foo',
+          },
+        },
+        {
+          type: 'widget',
+          id: '2',
+          attributes: {
+            title: 'Bar',
+          },
+        },
+      ];
+
+      it('sets loading to true while loading', () => {
+        api.get.mockResolvedValue({
+          data: {
+            data: records,
+          },
+        });
+        store.dispatch('loadAll');
+        expect(store.getters.loading).toEqual(true);
+      });
+
       describe('with no options', () => {
         beforeEach(() => {
           api.get.mockResolvedValue({
             data: {
-              data: [
-                {
-                  type: 'widget',
-                  id: '1',
-                  attributes: {
-                    title: 'Foo',
-                  },
-                },
-                {
-                  type: 'widget',
-                  id: '2',
-                  attributes: {
-                    title: 'Bar',
-                  },
-                },
-              ],
+              data: records,
             },
           });
 

@@ -43,6 +43,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         state.related = related;
       },
 
+      SET_LOADING: (state, isLoading) => {
+        state.loading = isLoading;
+      },
+
       STORE_ERROR: (state) => {
         state.error = true;
       },
@@ -81,8 +85,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
     actions: {
       loadAll({ commit }, { options } = {}) {
+        commit('SET_LOADING', true);
         return client.all({ options })
           .then(result => {
+            commit('SET_LOADING', false);
             commit('STORE_RECORDS', result.data);
           })
           .catch(handleError(commit));
