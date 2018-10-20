@@ -106,71 +106,94 @@ describe('resourceModule()', () => {
     });
 
     describe('filtering', () => {
-      beforeEach(() => {
-        store.commit('REPLACE_ALL_RECORDS', [
-          {
-            type: 'widget',
-            id: '1',
-            attributes: {
-              title: 'Non-Matching',
+      const filter = {
+        status: 'draft',
+      };
+
+      describe('success', () => {
+        beforeEach(() => {
+          store.commit('REPLACE_ALL_RECORDS', [
+            {
+              type: 'widget',
+              id: '1',
+              attributes: {
+                title: 'Non-Matching',
+              },
             },
-          },
-        ]);
+          ]);
 
-        api.get.mockResolvedValue({
-          data: {
-            data: [
-              {
-                type: 'widget',
-                id: '2',
-                attributes: {
-                  title: 'Foo',
+          api.get.mockResolvedValue({
+            data: {
+              data: [
+                {
+                  type: 'widget',
+                  id: '2',
+                  attributes: {
+                    title: 'Foo',
+                  },
                 },
-              },
-              {
-                type: 'widget',
-                id: '3',
-                attributes: {
-                  title: 'Bar',
+                {
+                  type: 'widget',
+                  id: '3',
+                  attributes: {
+                    title: 'Bar',
+                  },
                 },
-              },
-            ],
-          },
+              ],
+            },
+          });
+
+          return store.dispatch('loadWhere', {
+            filter,
+            options: {
+              include: 'customers',
+            },
+          });
         });
 
-        const filter = {
-          status: 'draft',
-        };
+        it('passes the filter on to the server', () => {
+          expect(api.get).toHaveBeenCalledWith(
+            'widgets?filter[status]=draft&include=customers',
+          );
+        });
 
-        return store.dispatch('loadWhere', {
-          filter,
-          options: {
-            include: 'customers',
-          },
+        it('allows retrieving the results by filter', () => {
+          const all = store.getters.all;
+          expect(all.length).toEqual(3);
+
+          const filter = {
+            status: 'draft',
+          };
+
+          const records = store.getters.where({ filter });
+
+          expect(records.length).toEqual(2);
+
+          const firstRecord = records[0];
+          expect(firstRecord.id).toEqual('2');
+          expect(firstRecord.attributes.title).toEqual('Foo');
         });
       });
 
-      it('passes the filter on to the server', () => {
-        expect(api.get).toHaveBeenCalledWith(
-          'widgets?filter[status]=draft&include=customers',
-        );
-      });
+      describe('error', () => {
+        const error = { dummy: 'error' };
 
-      it('allows retrieving the results by filter', () => {
-        const all = store.getters.all;
-        expect(all.length).toEqual(3);
+        let response;
 
-        const filter = {
-          status: 'draft',
-        };
+        beforeEach(() => {
+          api.get.mockRejectedValue(error);
+          response = store.dispatch('loadWhere', { filter });
+        });
 
-        const records = store.getters.where({ filter });
+        it('rejects with the error', () => {
+          expect(response).rejects.toEqual(error);
+        });
 
-        expect(records.length).toEqual(2);
-
-        const firstRecord = records[0];
-        expect(firstRecord.id).toEqual('2');
-        expect(firstRecord.attributes.title).toEqual('Foo');
+        it('sets the error flag', () => {
+          return response.catch(() => {
+            expect(store.getters.error).toEqual(true);
+          });
+        });
       });
     });
 

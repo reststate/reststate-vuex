@@ -102,6 +102,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             const matches = results.data;
             commit('STORE_RECORDS', matches);
             commit('STORE_FILTERED', { filter, matches });
+          })
+          .catch(error => {
+            commit('STORE_ERROR');
+            throw error;
           });
       },
 
