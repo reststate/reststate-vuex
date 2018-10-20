@@ -124,13 +124,46 @@ describe('resourceModule()', () => {
             expect(store.getters.error).toEqual(true);
           });
         });
+
+        it('sets loading to false', () => {
+          return response.catch(() => {
+            expect(store.getters.loading).toEqual(false);
+          });
+        });
       });
     });
 
     describe('filtering', () => {
+      const records = [
+        {
+          type: 'widget',
+          id: '2',
+          attributes: {
+            title: 'Foo',
+          },
+        },
+        {
+          type: 'widget',
+          id: '3',
+          attributes: {
+            title: 'Bar',
+          },
+        },
+      ];
+
       const filter = {
         status: 'draft',
       };
+
+      it('sets loading to true while loading', () => {
+        api.get.mockResolvedValue({
+          data: {
+            data: records,
+          },
+        });
+        store.dispatch('loadWhere', { filter });
+        expect(store.getters.loading).toEqual(true);
+      });
 
       describe('success', () => {
         beforeEach(() => {
@@ -146,22 +179,7 @@ describe('resourceModule()', () => {
 
           api.get.mockResolvedValue({
             data: {
-              data: [
-                {
-                  type: 'widget',
-                  id: '2',
-                  attributes: {
-                    title: 'Foo',
-                  },
-                },
-                {
-                  type: 'widget',
-                  id: '3',
-                  attributes: {
-                    title: 'Bar',
-                  },
-                },
-              ],
+              data: records,
             },
           });
 
@@ -171,6 +189,10 @@ describe('resourceModule()', () => {
               include: 'customers',
             },
           });
+        });
+
+        it('sets loading to false', () => {
+          expect(store.getters.loading).toEqual(false);
         });
 
         it('passes the filter on to the server', () => {
@@ -241,6 +263,11 @@ describe('resourceModule()', () => {
           });
         });
 
+        it('sets loading to true while loading', () => {
+          store.dispatch('loadById', { id });
+          expect(store.getters.loading).toEqual(true);
+        });
+
         describe('when the record is not yet present in the store', () => {
           beforeEach(() => {
             store.commit('REPLACE_ALL_RECORDS', [
@@ -265,6 +292,10 @@ describe('resourceModule()', () => {
             expect(api.get).toHaveBeenCalledWith(
               'widgets/42?include=customers',
             );
+          });
+
+          it('sets loading to false', () => {
+            expect(store.getters.loading).toEqual(false);
           });
 
           it('adds the record to the list of all records', () => {
@@ -318,6 +349,10 @@ describe('resourceModule()', () => {
           expect(response).rejects.toEqual(error);
         });
 
+        it('sets loading to false', () => {
+          expect(store.getters.loading).toEqual(false);
+        });
+
         it('sets the error flag', () => {
           return response.catch(() => {
             expect(store.getters.error).toEqual(true);
@@ -327,32 +362,44 @@ describe('resourceModule()', () => {
     });
 
     describe('related', () => {
+      const records = [
+        {
+          type: 'widget',
+          id: '1',
+          attributes: {
+            title: 'Foo',
+          },
+        },
+        {
+          type: 'widget',
+          id: '2',
+          attributes: {
+            title: 'Bar',
+          },
+        },
+      ];
+
       const parent = {
         type: 'users',
         id: '42',
       };
+
+      it('sets loading to true while loading', () => {
+        api.get.mockResolvedValue({
+          data: {
+            data: records,
+          },
+        });
+        store.dispatch('loadRelated', { parent });
+        expect(store.getters.loading).toEqual(true);
+      });
 
       describe('success', () => {
         describe('when relationship name is the same as resource name', () => {
           beforeEach(() => {
             api.get.mockResolvedValue({
               data: {
-                data: [
-                  {
-                    type: 'widget',
-                    id: '1',
-                    attributes: {
-                      title: 'Foo',
-                    },
-                  },
-                  {
-                    type: 'widget',
-                    id: '2',
-                    attributes: {
-                      title: 'Bar',
-                    },
-                  },
-                ],
+                data: records,
               },
             });
 
@@ -363,6 +410,10 @@ describe('resourceModule()', () => {
             expect(api.get).toHaveBeenCalledWith(
               'users/42/widgets?',
             );
+          });
+
+          it('sets loading to false', () => {
+            expect(store.getters.loading).toEqual(false);
           });
 
           it('allows retrieving related records', () => {
@@ -428,6 +479,10 @@ describe('resourceModule()', () => {
 
         it('rejects with the error', () => {
           expect(response).rejects.toEqual(error);
+        });
+
+        it('sets loading to false', () => {
+          expect(store.getters.loading).toEqual(false);
         });
 
         it('sets the error flag', () => {

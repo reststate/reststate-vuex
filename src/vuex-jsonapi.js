@@ -16,6 +16,7 @@ const matches = (criteria) => (test) => (
 );
 
 const handleError = (commit) => (error) => {
+  commit('SET_LOADING', false);
   commit('STORE_ERROR');
   throw error;
 };
@@ -95,17 +96,21 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       loadById({ commit }, { id, options }) {
+        commit('SET_LOADING', true);
         return client.find({ id, options })
           .then(results => {
+            commit('SET_LOADING', false);
             commit('STORE_RECORD', results.data);
           })
           .catch(handleError(commit));
       },
 
       loadWhere({ commit }, { filter, options }) {
+        commit('SET_LOADING', true);
         return client.where({ filter, options })
           .then(results => {
             const matches = results.data;
+            commit('SET_LOADING', false);
             commit('STORE_RECORDS', matches);
             commit('STORE_FILTERED', { filter, matches });
           })
@@ -117,8 +122,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         relationship = resourceName,
         options,
       }) {
+        commit('SET_LOADING', true);
         return client.related({ parent, relationship, options })
           .then(results => {
+            commit('SET_LOADING', false);
             const { id, type } = parent;
             const relatedRecords = results.data;
             const relatedIds = relatedRecords.map(record => record.id);
