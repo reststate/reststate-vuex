@@ -26,6 +26,7 @@ describe('resourceModule()', () => {
         records: [], // TODO find some nicer way to clone this
         related: [],
         filtered: [],
+        loading: false,
         error: false,
       },
     });
@@ -33,53 +34,62 @@ describe('resourceModule()', () => {
 
   describe('loading from the server', () => {
     describe('all records', () => {
-      it('returns the records', () => {
-        api.get.mockResolvedValue({
-          data: {
-            data: [
-              {
-                type: 'widget',
-                id: '1',
-                attributes: {
-                  title: 'Foo',
+      describe('with no options', () => {
+        beforeEach(() => {
+          api.get.mockResolvedValue({
+            data: {
+              data: [
+                {
+                  type: 'widget',
+                  id: '1',
+                  attributes: {
+                    title: 'Foo',
+                  },
                 },
-              },
-              {
-                type: 'widget',
-                id: '2',
-                attributes: {
-                  title: 'Bar',
+                {
+                  type: 'widget',
+                  id: '2',
+                  attributes: {
+                    title: 'Bar',
+                  },
                 },
-              },
-            ],
-          },
+              ],
+            },
+          });
+
+          return store.dispatch('loadAll');
         });
 
-        return store.dispatch('loadAll')
-          .then(() => {
-            const records = store.getters.all;
+        it('sets loading to false', () => {
+          expect(store.getters.loading).toEqual(false);
+        });
 
-            expect(records.length).toEqual(2);
+        it('makes the records accessible via getter', () => {
+          const records = store.getters.all;
 
-            const firstRecord = records[0];
-            expect(firstRecord.id).toEqual('1');
-            expect(firstRecord.attributes.title).toEqual('Foo');
-          });
+          expect(records.length).toEqual(2);
+
+          const firstRecord = records[0];
+          expect(firstRecord.id).toEqual('1');
+          expect(firstRecord.attributes.title).toEqual('Foo');
+        });
       });
 
-      it('allows including related records', () => {
-        api.get.mockResolvedValue({
-          data: {
-            data: [],
-          },
-        });
+      describe('with related records', () => {
+        it('returns the records', () => {
+          api.get.mockResolvedValue({
+            data: {
+              data: [],
+            },
+          });
 
-        return store.dispatch('loadAll', {
-          options: {
-            include: 'customers',
-          },
-        }).then(() => {
-          expect(api.get).toHaveBeenCalledWith('widgets?include=customers');
+          return store.dispatch('loadAll', {
+            options: {
+              include: 'customers',
+            },
+          }).then(() => {
+            expect(api.get).toHaveBeenCalledWith('widgets?include=customers');
+          });
         });
       });
 

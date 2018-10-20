@@ -30,6 +30,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       records: [],
       related: [],
       filtered: [],
+      loading: false,
       error: false,
     },
 
@@ -147,6 +148,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
     },
 
     getters: {
+      loading: state => state.loading,
       error: state => state.error,
       all: state => state.records,
       byId: state => ({ id }) => state.records.find(r => r.id === id),
