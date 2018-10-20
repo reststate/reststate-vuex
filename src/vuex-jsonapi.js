@@ -132,6 +132,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return client.create(recordData)
           .then(result => {
             commit('STORE_RECORD', result.data);
+          })
+          .catch(error => {
+            commit('STORE_ERROR');
+            throw error;
           });
       },
 

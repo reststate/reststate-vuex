@@ -539,42 +539,65 @@ describe('resourceModule()', () => {
       },
     };
 
-    beforeEach(() => {
-      api.post.mockResolvedValue({
-        data: {
+    describe('success', () => {
+      beforeEach(() => {
+        api.post.mockResolvedValue({
           data: {
-            type: 'widget',
-            id: '27',
-            attributes: widget.attributes,
+            data: {
+              type: 'widget',
+              id: '27',
+              attributes: widget.attributes,
+            },
           },
-        },
+        });
+      });
+
+      it('sends the record to the server', () => {
+        return store.dispatch('create', widget)
+          .then(() => {
+            const expectedBody = {
+              data: {
+                type: 'widgets',
+                attributes: widget.attributes,
+              },
+            };
+            expect(api.post).toHaveBeenCalledWith('widgets', expectedBody);
+          });
+      });
+
+      it('adds the record to the list', () => {
+        return store.dispatch('create', widget)
+          .then(() => {
+            const records = store.getters.all;
+
+            expect(records.length).toEqual(1);
+
+            const firstRecord = records[0];
+            expect(firstRecord.id).toEqual('27');
+            expect(firstRecord.attributes.title).toEqual('Baz');
+          });
       });
     });
 
-    it('sends the record to the server', () => {
-      return store.dispatch('create', widget)
-        .then(() => {
-          const expectedBody = {
-            data: {
-              type: 'widgets',
-              attributes: widget.attributes,
-            },
-          };
-          expect(api.post).toHaveBeenCalledWith('widgets', expectedBody);
+    describe('error', () => {
+      const error = { dummy: 'error' };
+
+      let response;
+
+      beforeEach(() => {
+        api.post.mockRejectedValue(error);
+        response = store.dispatch('create', widget);
+      });
+
+      it('rejects with the error', () => {
+        expect(response).rejects.toEqual(error);
+      });
+
+      it('sets the error flag', () => {
+        return response.catch(() => {
+          expect(store.getters.error).toEqual(true);
         });
-    });
-
-    it('adds the record to the list', () => {
-      return store.dispatch('create', widget)
-        .then(() => {
-          const records = store.getters.all;
-
-          expect(records.length).toEqual(1);
-
-          const firstRecord = records[0];
-          expect(firstRecord.id).toEqual('27');
-          expect(firstRecord.attributes.title).toEqual('Baz');
-        });
+      });
     });
   });
 
