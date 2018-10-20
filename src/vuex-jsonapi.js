@@ -143,6 +143,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return client.update(record)
           .then(() => {
             commit('STORE_RECORD', record);
+          })
+          .catch(error => {
+            commit('STORE_ERROR');
+            throw error;
           });
       },
 

@@ -617,49 +617,72 @@ describe('resourceModule()', () => {
       },
     };
 
-    const recordWithUpdatedData = {
-      type: 'widget',
-      id: '27',
-      attributes: {
-        title: 'Bar',
-      },
-    };
-
-    beforeEach(() => {
-      api.patch.mockResolvedValue({ data: recordWithUpdatedData });
-    });
-
-    it('sends the record to the server', () => {
-      const expectedBody = {
-        data: record,
-      };
-      return store.dispatch('update', record)
-        .then(() => {
-          expect(api.patch).toHaveBeenCalledWith(
-            `widgets/${record.id}`,
-            expectedBody,
-          );
-        });
-    });
-
-    it('overwrites an existing record with the same ID', () => {
-      store.commit('REPLACE_ALL_RECORDS', [
-        {
-          type: 'widget',
-          id: '27',
-          attributes: {
-            title: 'Foo',
-          },
+    describe('success', () => {
+      const recordWithUpdatedData = {
+        type: 'widget',
+        id: '27',
+        attributes: {
+          title: 'Bar',
         },
-      ]);
+      };
 
-      store.dispatch('update', recordWithUpdatedData)
-        .then(() => {
-          const records = store.getters.all;
-          expect(records.length).toEqual(1);
-          const firstRecord = records[0];
-          expect(firstRecord.attributes.title).toEqual('Bar');
+      beforeEach(() => {
+        api.patch.mockResolvedValue({ data: recordWithUpdatedData });
+      });
+
+      it('sends the record to the server', () => {
+        const expectedBody = {
+          data: record,
+        };
+        return store.dispatch('update', record)
+          .then(() => {
+            expect(api.patch).toHaveBeenCalledWith(
+              `widgets/${record.id}`,
+              expectedBody,
+            );
+          });
+      });
+
+      it('overwrites an existing record with the same ID', () => {
+        store.commit('REPLACE_ALL_RECORDS', [
+          {
+            type: 'widget',
+            id: '27',
+            attributes: {
+              title: 'Foo',
+            },
+          },
+        ]);
+
+        store.dispatch('update', recordWithUpdatedData)
+          .then(() => {
+            const records = store.getters.all;
+            expect(records.length).toEqual(1);
+            const firstRecord = records[0];
+            expect(firstRecord.attributes.title).toEqual('Bar');
+          });
+      });
+    });
+
+    describe('error', () => {
+      const error = { dummy: 'error' };
+
+      let response;
+
+      beforeEach(() => {
+        api.patch.mockRejectedValue(error);
+        response = store.dispatch('update', record);
+      });
+
+      it('rejects with the error', () => {
+        expect(response).rejects.toEqual(error);
+      });
+
+      it('sets the error flag', () => {
+        return response.catch(() => {
+          expect(store.getters.error).toEqual(true);
         });
+      });
     });
   });
 
