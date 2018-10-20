@@ -310,85 +310,108 @@ describe('resourceModule()', () => {
         id: '42',
       };
 
-      describe('when relationship name is the same as resource name', () => {
-        beforeEach(() => {
-          api.get.mockResolvedValue({
-            data: {
-              data: [
-                {
-                  type: 'widget',
-                  id: '1',
-                  attributes: {
-                    title: 'Foo',
+      describe('success', () => {
+        describe('when relationship name is the same as resource name', () => {
+          beforeEach(() => {
+            api.get.mockResolvedValue({
+              data: {
+                data: [
+                  {
+                    type: 'widget',
+                    id: '1',
+                    attributes: {
+                      title: 'Foo',
+                    },
                   },
-                },
-                {
-                  type: 'widget',
-                  id: '2',
-                  attributes: {
-                    title: 'Bar',
+                  {
+                    type: 'widget',
+                    id: '2',
+                    attributes: {
+                      title: 'Bar',
+                    },
                   },
-                },
-              ],
-            },
+                ],
+              },
+            });
+
+            return store.dispatch('loadRelated', { parent });
           });
 
-          return store.dispatch('loadRelated', { parent });
+          it('requests the resource endpoint', () => {
+            expect(api.get).toHaveBeenCalledWith(
+              'users/42/widgets?',
+            );
+          });
+
+          it('allows retrieving related records', () => {
+            const records = store.getters.related({ parent });
+            expect(records.length).toEqual(2);
+          });
         });
 
-        it('requests the resource endpoint', () => {
-          expect(api.get).toHaveBeenCalledWith(
-            'users/42/widgets?',
-          );
-        });
+        describe('when relationship name is not the resource name', () => {
+          beforeEach(() => {
+            api.get.mockResolvedValue({
+              data: {
+                data: [
+                  {
+                    type: 'widget',
+                    id: '1',
+                    attributes: {
+                      title: 'Foo',
+                    },
+                  },
+                  {
+                    type: 'widget',
+                    id: '2',
+                    attributes: {
+                      title: 'Bar',
+                    },
+                  },
+                ],
+              },
+            });
 
-        it('allows retrieving related records', () => {
-          const records = store.getters.related({ parent });
-          expect(records.length).toEqual(2);
+            return store.dispatch('loadRelated', {
+              parent,
+              relationship: 'purchased-widgets',
+            });
+          });
+
+          it('requests the resource endpoint', () => {
+            expect(api.get).toHaveBeenCalledWith(
+              'users/42/purchased-widgets?',
+            );
+          });
+
+          it('allows retrieving related records', () => {
+            const records = store.getters.related({
+              parent,
+              relationship: 'purchased-widgets',
+            });
+            expect(records.length).toEqual(2);
+          });
         });
       });
 
-      describe('when relationship name is not the resource name', () => {
+      describe('error', () => {
+        const error = { dummy: 'error' };
+
+        let response;
+
         beforeEach(() => {
-          api.get.mockResolvedValue({
-            data: {
-              data: [
-                {
-                  type: 'widget',
-                  id: '1',
-                  attributes: {
-                    title: 'Foo',
-                  },
-                },
-                {
-                  type: 'widget',
-                  id: '2',
-                  attributes: {
-                    title: 'Bar',
-                  },
-                },
-              ],
-            },
-          });
-
-          return store.dispatch('loadRelated', {
-            parent,
-            relationship: 'purchased-widgets',
-          });
+          api.get.mockRejectedValue(error);
+          response = store.dispatch('loadRelated', { parent });
         });
 
-        it('requests the resource endpoint', () => {
-          expect(api.get).toHaveBeenCalledWith(
-            'users/42/purchased-widgets?',
-          );
+        it('rejects with the error', () => {
+          expect(response).rejects.toEqual(error);
         });
 
-        it('allows retrieving related records', () => {
-          const records = store.getters.related({
-            parent,
-            relationship: 'purchased-widgets',
+        it('sets the error flag', () => {
+          return response.catch(() => {
+            expect(store.getters.error).toEqual(true);
           });
-          expect(records.length).toEqual(2);
         });
       });
     });

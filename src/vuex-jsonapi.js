@@ -121,6 +121,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             const relatedIds = relatedRecords.map(record => record.id);
             commit('STORE_RECORDS', relatedRecords);
             commit('STORE_RELATED', { id, type, relatedIds });
+          })
+          .catch(error => {
+            commit('STORE_ERROR');
+            throw error;
           });
       },
 
