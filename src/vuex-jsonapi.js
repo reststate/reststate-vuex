@@ -15,6 +15,11 @@ const matches = (criteria) => (test) => (
   ))
 );
 
+const handleError = (commit) => (error) => {
+  commit('STORE_ERROR');
+  throw error;
+};
+
 const resourceModule = ({ name: resourceName, httpClient }) => {
   const client = new ResourceClient({ name: resourceName, httpClient });
 
@@ -79,10 +84,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .then(result => {
             commit('STORE_RECORDS', result.data);
           })
-          .catch(error => {
-            commit('STORE_ERROR');
-            throw error;
-          });
+          .catch(handleError(commit));
       },
 
       loadById({ commit }, { id, options }) {
@@ -90,10 +92,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .then(results => {
             commit('STORE_RECORD', results.data);
           })
-          .catch(error => {
-            commit('STORE_ERROR');
-            throw error;
-          });
+          .catch(handleError(commit));
       },
 
       loadWhere({ commit }, { filter, options }) {
@@ -103,10 +102,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('STORE_RECORDS', matches);
             commit('STORE_FILTERED', { filter, matches });
           })
-          .catch(error => {
-            commit('STORE_ERROR');
-            throw error;
-          });
+          .catch(handleError(commit));
       },
 
       loadRelated({ commit }, {
@@ -122,10 +118,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('STORE_RECORDS', relatedRecords);
             commit('STORE_RELATED', { id, type, relatedIds });
           })
-          .catch(error => {
-            commit('STORE_ERROR');
-            throw error;
-          });
+          .catch(handleError(commit));
       },
 
       create({ commit }, recordData) {
@@ -133,10 +126,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .then(result => {
             commit('STORE_RECORD', result.data);
           })
-          .catch(error => {
-            commit('STORE_ERROR');
-            throw error;
-          });
+          .catch(handleError(commit));
       },
 
       update({ commit }, record) {
@@ -144,10 +134,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .then(() => {
             commit('STORE_RECORD', record);
           })
-          .catch(error => {
-            commit('STORE_ERROR');
-            throw error;
-          });
+          .catch(handleError(commit));
       },
 
       delete({ commit }, record) {
@@ -155,10 +142,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .then(() => {
             commit('REMOVE_RECORD', record);
           })
-          .catch(error => {
-            commit('STORE_ERROR');
-            throw error;
-          });
+          .catch(handleError(commit));
       },
     },
 
