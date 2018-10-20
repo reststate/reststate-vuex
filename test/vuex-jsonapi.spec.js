@@ -26,6 +26,7 @@ describe('resourceModule()', () => {
         records: [], // TODO find some nicer way to clone this
         related: [],
         filtered: [],
+        error: false,
       },
     });
   });
@@ -79,6 +80,27 @@ describe('resourceModule()', () => {
           },
         }).then(() => {
           expect(api.get).toHaveBeenCalledWith('widgets?include=customers');
+        });
+      });
+
+      describe('error', () => {
+        const error = { dummy: 'error' };
+
+        let response;
+
+        beforeEach(() => {
+          api.get.mockRejectedValue(error);
+          response = store.dispatch('loadAll');
+        });
+
+        it('rejects with the error', () => {
+          expect(response).rejects.toEqual(error);
+        });
+
+        it('sets the error flag', () => {
+          return response.catch(() => {
+            expect(store.getters.error).toEqual(true);
+          });
         });
       });
     });

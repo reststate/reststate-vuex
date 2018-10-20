@@ -25,6 +25,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       records: [],
       related: [],
       filtered: [],
+      error: false,
     },
 
     mutations: {
@@ -34,6 +35,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       REPLACE_ALL_RELATED: (state, related) => {
         state.related = related;
+      },
+
+      STORE_ERROR: (state) => {
+        state.error = true;
       },
 
       STORE_RECORD: (state, newRecord) => {
@@ -73,6 +78,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return client.all({ options })
           .then(result => {
             commit('STORE_RECORDS', result.data);
+          })
+          .catch(error => {
+            commit('STORE_ERROR');
+            throw error;
           });
       },
 
@@ -130,6 +139,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
     },
 
     getters: {
+      error: state => state.error,
       all: state => state.records,
       byId: state => ({ id }) => state.records.find(r => r.id === id),
       where: state => ({ filter }) => {
