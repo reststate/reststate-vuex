@@ -154,6 +154,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return client.delete(record)
           .then(() => {
             commit('REMOVE_RECORD', record);
+          })
+          .catch(error => {
+            commit('STORE_ERROR');
+            throw error;
           });
       },
     },

@@ -695,40 +695,58 @@ describe('resourceModule()', () => {
       },
     };
 
-    const allRecords = [
-      record,
-      {
-        type: 'widget',
-        id: '27',
-        attributes: {
-          title: 'Other',
+    describe('success', () => {
+      const allRecords = [
+        record,
+        {
+          type: 'widget',
+          id: '27',
+          attributes: {
+            title: 'Other',
+          },
         },
-      },
-    ];
+      ];
 
-    let apiDouble;
+      beforeEach(() => {
+        store.commit('REPLACE_ALL_RECORDS', allRecords);
 
-    beforeEach(() => {
-      store.commit('REPLACE_ALL_RECORDS', allRecords);
+        api.delete.mockResolvedValue();
+      });
 
-      api.delete.mockResolvedValue();
+      it('sends the delete request to the server', () => {
+        store.dispatch('delete', record)
+          .then(() => {
+            expect(api.delete).toHaveBeenCalledWith(`widgets/${record.id}`);
+          });
+      });
+
+      it('removes the record from the list', () => {
+        store.dispatch('delete', record)
+          .then(() => {
+            const records = store.getters.all;
+            expect(records.length).toEqual(allRecords.length - 1);
+          });
+      });
     });
 
-    it('sends the delete request to the server', () => {
-      store.dispatch('delete', record)
-        .then(() => {
-          expect(api.delete).toHaveBeenCalledWith(`widgets/${record.id}`);
+    describe('error', () => {
+      const error = { dummy: 'error' };
+
+      let response;
+
+      beforeEach(() => {
+        api.delete.mockRejectedValue(error);
+        response = store.dispatch('delete', record);
+      });
+
+      it('rejects with the error', () => {
+        expect(response).rejects.toEqual(error);
+      });
+
+      it('sets the error flag', () => {
+        return response.catch(() => {
+          expect(store.getters.error).toEqual(true);
         });
-    });
-
-    it('removes the record from the list', () => {
-      store.dispatch('delete', record)
-        .then(() => {
-          const records = store.getters.all;
-          expect(records.length).toEqual(allRecords.length - 1);
-        });
-    });
-
-    // TODO: handle error
-  });
+      });
+    });  });
 });
