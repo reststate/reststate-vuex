@@ -350,7 +350,9 @@ describe('resourceModule()', () => {
         });
 
         it('sets loading to false', () => {
-          expect(store.getters.loading).toEqual(false);
+          return response.catch(() => {
+            expect(store.getters.loading).toEqual(false);
+          });
         });
 
         it('sets the error flag', () => {
@@ -482,7 +484,9 @@ describe('resourceModule()', () => {
         });
 
         it('sets loading to false', () => {
-          expect(store.getters.loading).toEqual(false);
+          return response.catch(() => {
+            expect(store.getters.loading).toEqual(false);
+          });
         });
 
         it('sets the error flag', () => {
