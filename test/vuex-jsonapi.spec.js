@@ -103,8 +103,8 @@ describe('resourceModule()', () => {
         });
       });
 
-      describe('with related records', () => {
-        it('returns the records', () => {
+      describe('with options', () => {
+        it('passes the options onto the server request', () => {
           api.get.mockResolvedValue({
             data: {
               data: [],
@@ -113,10 +113,11 @@ describe('resourceModule()', () => {
 
           return store.dispatch('loadAll', {
             options: {
-              include: 'customers',
+              'fields[widgets]': 'title',
             },
           }).then(() => {
-            expect(api.get).toHaveBeenCalledWith('widgets?include=customers');
+            expect(api.get)
+              .toHaveBeenCalledWith('widgets?fields[widgets]=title');
           });
         });
       });
@@ -218,7 +219,7 @@ describe('resourceModule()', () => {
           return store.dispatch('loadWhere', {
             filter,
             options: {
-              include: 'customers',
+              'fields[widgets]': 'title',
             },
           });
         });
@@ -229,7 +230,7 @@ describe('resourceModule()', () => {
 
         it('passes the filter on to the server', () => {
           expect(api.get).toHaveBeenCalledWith(
-            'widgets?filter[status]=draft&include=customers',
+            'widgets?filter[status]=draft&fields[widgets]=title',
           );
         });
 
@@ -331,14 +332,14 @@ describe('resourceModule()', () => {
             return store.dispatch('loadById', {
               id,
               options: {
-                include: 'customers',
+                'fields[widgets]': 'title',
               },
             });
           });
 
           it('makes the correct request', () => {
             expect(api.get).toHaveBeenCalledWith(
-              'widgets/42?include=customers',
+              'widgets/42?fields[widgets]=title',
             );
           });
 
