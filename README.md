@@ -6,6 +6,31 @@
 
 This is a very early proof-of-concept, so THERE IS NO ERROR HANDLING YET, and many features of JSON API are not yet supported. Open a GitHub issue with any other features you'd like to see!
 
+## Synopsis
+
+```javascript
+const store = new Vuex.Store({
+  modules: {
+    'widgets': resourceModule({
+      name: 'widgets',
+      httpClient: axios.create(...),
+    }),
+  },
+});
+
+store.dispatch('widgets/loadAll')
+  .then(() => {
+    const widgets = store.getters['widgets/all'];
+    console.log(widgets);
+  });
+
+store.dispatch('widgets/create', {
+  attributes: {
+    title: 'My Widget',
+  },
+});
+```
+
 ## Installation
 
 ```
