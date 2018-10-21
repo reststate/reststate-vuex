@@ -61,6 +61,22 @@ describe('resourceModule()', () => {
         expect(store.getters.loading).toEqual(true);
       });
 
+      it('resets the error flag', () => {
+        api.get
+          .mockRejectedValueOnce()
+          .mockResolvedValueOnce({
+            data: {
+              data: records,
+            },
+          });
+
+        return store.dispatch('loadAll')
+          .catch(() => store.dispatch('loadAll'))
+          .then(() => {
+            expect(store.getters.error).toEqual(false);
+          });
+      });
+
       describe('with no options', () => {
         beforeEach(() => {
           api.get.mockResolvedValue({
@@ -165,6 +181,22 @@ describe('resourceModule()', () => {
         expect(store.getters.loading).toEqual(true);
       });
 
+      it('resets the error flag', () => {
+        api.get
+          .mockRejectedValueOnce()
+          .mockResolvedValueOnce({
+            data: {
+              data: records,
+            },
+          });
+
+        return store.dispatch('loadWhere', { filter })
+          .catch(() => store.dispatch('loadWhere', { filter }))
+          .then(() => {
+            expect(store.getters.error).toEqual(false);
+          });
+      });
+
       describe('success', () => {
         beforeEach(() => {
           store.commit('REPLACE_ALL_RECORDS', [
@@ -266,6 +298,22 @@ describe('resourceModule()', () => {
         it('sets loading to true while loading', () => {
           store.dispatch('loadById', { id });
           expect(store.getters.loading).toEqual(true);
+        });
+
+        it('resets the error flag', () => {
+          api.get
+            .mockRejectedValueOnce()
+            .mockResolvedValueOnce({
+              data: {
+                data: record,
+              },
+            });
+
+          return store.dispatch('loadById', { id })
+            .catch(() => store.dispatch('loadById', { id }))
+            .then(() => {
+              expect(store.getters.error).toEqual(false);
+            });
         });
 
         describe('when the record is not yet present in the store', () => {
@@ -394,6 +442,22 @@ describe('resourceModule()', () => {
         });
         store.dispatch('loadRelated', { parent });
         expect(store.getters.loading).toEqual(true);
+      });
+
+      it('resets the error flag', () => {
+        api.get
+          .mockRejectedValueOnce()
+          .mockResolvedValueOnce({
+            data: {
+              data: records,
+            },
+          });
+
+        return store.dispatch('loadRelated', { parent })
+          .catch(() => store.dispatch('loadRelated', { parent }))
+          .then(() => {
+            expect(store.getters.error).toEqual(false);
+          });
       });
 
       describe('success', () => {
@@ -636,6 +700,22 @@ describe('resourceModule()', () => {
       expect(store.getters.loading).toEqual(true);
     });
 
+    it('resets the error flag', () => {
+      api.post
+        .mockRejectedValueOnce()
+        .mockResolvedValueOnce({
+          data: {
+            data: responseWidget,
+          },
+        });
+
+      return store.dispatch('create', widget)
+        .catch(() => store.dispatch('create', widget))
+        .then(() => {
+          expect(store.getters.error).toEqual(false);
+        });
+    });
+
     describe('success', () => {
       beforeEach(() => {
         api.post.mockResolvedValue({
@@ -734,6 +814,22 @@ describe('resourceModule()', () => {
       expect(store.getters.loading).toEqual(true);
     });
 
+    it('resets the error flag', () => {
+      api.patch
+        .mockRejectedValueOnce()
+        .mockResolvedValueOnce({
+          data: {
+            data: recordWithUpdatedData,
+          },
+        });
+
+      return store.dispatch('update', record)
+        .catch(() => store.dispatch('update', record))
+        .then(() => {
+          expect(store.getters.error).toEqual(false);
+        });
+    });
+
     describe('success', () => {
       beforeEach(() => {
         // returned data not used right now
@@ -817,6 +913,18 @@ describe('resourceModule()', () => {
       api.delete.mockResolvedValue();
       store.dispatch('delete', record);
       expect(store.getters.loading).toEqual(true);
+    });
+
+    it('resets the error flag', () => {
+      api.delete
+        .mockRejectedValueOnce()
+        .mockResolvedValueOnce();
+
+      return store.dispatch('delete', record)
+        .catch(() => store.dispatch('delete', record))
+        .then(() => {
+          expect(store.getters.error).toEqual(false);
+        });
     });
 
     describe('success', () => {
