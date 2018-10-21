@@ -10,6 +10,12 @@
     "test": "jest",
     "lint": "eslint src test"
   },
+  "dependencies": {
+    "@reststate/client": "^0.0.2"
+  },
+  "peerDependencies": {
+    "vuex": "^3.0.1"
+  },
   "devDependencies": {
     "@babel/core": "7.0.0-beta.51",
     "@babel/preset-env": "7.0.0-beta.51",
@@ -22,11 +28,5 @@
     "jest": "^23.6.0",
     "vue": "^2.5.16",
     "vuex": "^3.0.1"
-  },
-  "peerDependencies": {
-    "vuex": "^3.0.1"
-  },
-  "dependencies": {
-    "@reststate/client": "^0.0.1"
   }
 }
