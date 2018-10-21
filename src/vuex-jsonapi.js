@@ -48,8 +48,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         state.loading = isLoading;
       },
 
-      STORE_ERROR: (state) => {
-        state.error = true;
+      STORE_ERROR: (state, isError = true) => {
+        state.error = isError;
       },
 
       STORE_RECORD: (state, newRecord) => {
@@ -87,6 +87,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
     actions: {
       loadAll({ commit }, { options } = {}) {
         commit('SET_LOADING', true);
+        commit('STORE_ERROR', false);
         return client.all({ options })
           .then(result => {
             commit('SET_LOADING', false);
@@ -97,6 +98,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       loadById({ commit }, { id, options }) {
         commit('SET_LOADING', true);
+        commit('STORE_ERROR', false);
         return client.find({ id, options })
           .then(results => {
             commit('SET_LOADING', false);
@@ -107,6 +109,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       loadWhere({ commit }, { filter, options }) {
         commit('SET_LOADING', true);
+        commit('STORE_ERROR', false);
         return client.where({ filter, options })
           .then(results => {
             const matches = results.data;
@@ -123,6 +126,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         options,
       }) {
         commit('SET_LOADING', true);
+        commit('STORE_ERROR', false);
         return client.related({ parent, relationship, options })
           .then(results => {
             commit('SET_LOADING', false);
@@ -137,6 +141,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       create({ commit }, recordData) {
         commit('SET_LOADING', true);
+        commit('STORE_ERROR', false);
         return client.create(recordData)
           .then(result => {
             commit('SET_LOADING', false);
@@ -147,6 +152,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       update({ commit }, record) {
         commit('SET_LOADING', true);
+        commit('STORE_ERROR', false);
         return client.update(record)
           .then(() => {
             commit('SET_LOADING', false);
@@ -157,6 +163,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       delete({ commit }, record) {
         commit('SET_LOADING', true);
+        commit('STORE_ERROR', false);
         return client.delete(record)
           .then(() => {
             commit('SET_LOADING', false);
