@@ -11,7 +11,7 @@
     "lint": "eslint src test"
   },
   "dependencies": {
-    "@reststate/client": "^0.0.2"
+    "@reststate/client": "^0.0.3"
   },
   "peerDependencies": {
     "vuex": "^3.0.1"
