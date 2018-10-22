@@ -169,7 +169,7 @@ this.$store.dispatch('widgets/loadById', { id: 42 })
   });
 ```
 
-However, the beauty of storing your data in Vuex is that if you know the record has already been retrieved, you don't need to load it again. For example, if you've loaded all records on a list screen, and then you click to view the details for a single record, you can just use the getter directly:
+If you know the record has already been retrieved, you don't need to load it again. For example, if you've loaded all records on a list screen, and then you click to view the details for a single record, you can just use the getter directly:
 
 ```javascript
 const widget = this.$store.getters['widgets/byId']({ id: 42 });
