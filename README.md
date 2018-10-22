@@ -18,17 +18,18 @@ const store = new Vuex.Store({
   },
 });
 
-store.dispatch('widgets/loadAll')
-  .then(() => {
-    const widgets = store.getters['widgets/all'];
-    console.log(widgets);
-  });
-
-store.dispatch('widgets/create', {
-  attributes: {
-    title: 'My Widget',
+const component = {
+  methods: {
+    ...mapActions({
+      loadAllWidgets: 'widgets/loadAll',
+    }),
   },
-});
+  computed: {
+    ...mapGetters({
+      widgets: 'widgets/all',
+    }),
+  },
+};
 ```
 
 ## Installation
