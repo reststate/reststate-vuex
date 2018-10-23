@@ -8,7 +8,9 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "jest",
-    "lint": "eslint src test"
+    "lint": "eslint src test",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
   "dependencies": {
     "@reststate/client": "^0.0.3"
@@ -27,6 +29,7 @@
     "eslint-plugin-jest": "^21.24.1",
     "jest": "^23.6.0",
     "vue": "^2.5.16",
+    "vuepress": "^0.14.4",
     "vuex": "^3.0.1"
   }
 }
