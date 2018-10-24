@@ -691,32 +691,6 @@ describe('resourceModule()', () => {
       attributes: widget.attributes,
     };
 
-    it('sets loading to true while loading', () => {
-      api.post.mockResolvedValue({
-        data: {
-          data: responseWidget,
-        },
-      });
-      store.dispatch('create', widget);
-      expect(store.getters.loading).toEqual(true);
-    });
-
-    it('resets the error flag', () => {
-      api.post
-        .mockRejectedValueOnce()
-        .mockResolvedValueOnce({
-          data: {
-            data: responseWidget,
-          },
-        });
-
-      return store.dispatch('create', widget)
-        .catch(() => store.dispatch('create', widget))
-        .then(() => {
-          expect(store.getters.error).toEqual(false);
-        });
-    });
-
     describe('success', () => {
       beforeEach(() => {
         api.post.mockResolvedValue({
@@ -766,18 +740,6 @@ describe('resourceModule()', () => {
       it('rejects with the error', () => {
         expect(response).rejects.toEqual(error);
       });
-
-      it('sets loading to false', () => {
-        return response.catch(() => {
-          expect(store.getters.loading).toEqual(false);
-        });
-      });
-
-      it('sets the error flag', () => {
-        return response.catch(() => {
-          expect(store.getters.error).toEqual(true);
-        });
-      });
     });
   });
 
@@ -804,32 +766,6 @@ describe('resourceModule()', () => {
         title: 'Bar',
       },
     };
-
-    it('sets loading to true while loading', () => {
-      api.patch.mockResolvedValue({
-        data: {
-          data: recordWithUpdatedData,
-        },
-      });
-      store.dispatch('update', record);
-      expect(store.getters.loading).toEqual(true);
-    });
-
-    it('resets the error flag', () => {
-      api.patch
-        .mockRejectedValueOnce()
-        .mockResolvedValueOnce({
-          data: {
-            data: recordWithUpdatedData,
-          },
-        });
-
-      return store.dispatch('update', record)
-        .catch(() => store.dispatch('update', record))
-        .then(() => {
-          expect(store.getters.error).toEqual(false);
-        });
-    });
 
     describe('success', () => {
       beforeEach(() => {
@@ -861,10 +797,6 @@ describe('resourceModule()', () => {
         );
       });
 
-      it('sets loading to false', () => {
-        expect(store.getters.loading).toEqual(false);
-      });
-
       it('overwrites an existing record with the same ID', () => {
         const records = store.getters.all;
         expect(records.length).toEqual(1);
@@ -886,18 +818,6 @@ describe('resourceModule()', () => {
       it('rejects with the error', () => {
         expect(response).rejects.toEqual(error);
       });
-
-      it('sets loading to false', () => {
-        return response.catch(() => {
-          expect(store.getters.loading).toEqual(false);
-        });
-      });
-
-      it('sets the error flag', () => {
-        return response.catch(() => {
-          expect(store.getters.error).toEqual(true);
-        });
-      });
     });
   });
 
@@ -909,24 +829,6 @@ describe('resourceModule()', () => {
         title: 'Baz',
       },
     };
-
-    it('sets loading to true while loading', () => {
-      api.delete.mockResolvedValue();
-      store.dispatch('delete', record);
-      expect(store.getters.loading).toEqual(true);
-    });
-
-    it('resets the error flag', () => {
-      api.delete
-        .mockRejectedValueOnce()
-        .mockResolvedValueOnce();
-
-      return store.dispatch('delete', record)
-        .catch(() => store.dispatch('delete', record))
-        .then(() => {
-          expect(store.getters.error).toEqual(false);
-        });
-    });
 
     describe('success', () => {
       const allRecords = [
@@ -952,10 +854,6 @@ describe('resourceModule()', () => {
         expect(api.delete).toHaveBeenCalledWith(`widgets/${record.id}`);
       });
 
-      it('sets loading to false', () => {
-        expect(store.getters.loading).toEqual(false);
-      });
-
       it('removes the record from the list', () => {
         const records = store.getters.all;
         expect(records.length).toEqual(allRecords.length - 1);
@@ -974,18 +872,6 @@ describe('resourceModule()', () => {
 
       it('rejects with the error', () => {
         expect(response).rejects.toEqual(error);
-      });
-
-      it('sets loading to false', () => {
-        return response.catch(() => {
-          expect(store.getters.loading).toEqual(false);
-        });
-      });
-
-      it('sets the error flag', () => {
-        return response.catch(() => {
-          expect(store.getters.error).toEqual(true);
-        });
       });
     });
   });

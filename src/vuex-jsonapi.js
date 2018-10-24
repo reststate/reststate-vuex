@@ -135,33 +135,24 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       create({ commit }, recordData) {
-        commit('SET_STATUS', STATUS_LOADING);
         return client.create(recordData)
           .then(result => {
-            commit('SET_STATUS', STATUS_SUCCESS);
             commit('STORE_RECORD', result.data);
-          })
-          .catch(handleError(commit));
+          });
       },
 
       update({ commit }, record) {
-        commit('SET_STATUS', STATUS_LOADING);
         return client.update(record)
           .then(() => {
-            commit('SET_STATUS', STATUS_SUCCESS);
             commit('STORE_RECORD', record);
-          })
-          .catch(handleError(commit));
+          });
       },
 
       delete({ commit }, record) {
-        commit('SET_STATUS', STATUS_LOADING);
         return client.delete(record)
           .then(() => {
-            commit('SET_STATUS', STATUS_SUCCESS);
             commit('REMOVE_RECORD', record);
-          })
-          .catch(handleError(commit));
+          });
       },
     },
 
