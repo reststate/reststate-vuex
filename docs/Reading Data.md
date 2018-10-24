@@ -107,3 +107,17 @@ this.$store.dispatch('widgets/loadRelated', { parent, relationship })
     console.log(widgets);
   });
 ```
+
+## Options
+
+All actions take an optional `options` property, consisting of an object of additional options to pass. Each key/value pair in the object is translated into a query string parameter key/value pair:
+
+```js
+this.$store.dispatch('widgets/loadAll', {
+  options: {
+    'fields[widgets]': 'title,description',
+  },
+});
+
+// requests to widgets?fields[widgets]=title,description
+```
