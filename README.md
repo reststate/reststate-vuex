@@ -1,8 +1,8 @@
-# vuex-jsonapi
+# @reststate/vuex
 
 [![CircleCI](https://circleci.com/gh/reststate/reststate-vuex.svg?style=svg)](https://circleci.com/gh/reststate/reststate-vuex)
 
-`vuex-jsonapi`, unsurprisingly, allows you to access data from a [JSON API](http://jsonapi.org/) web service via [Vuex](https://vuex.vuejs.org/) stores. Because of JSON API's strong conventions, in most cases all you should need to do is tell `vuex-jsonapi` the base URL of your web service, and which resources to access, and you should be set. No manual web request juggling!
+`@reststate/vuex` allows you to access data from a [JSON API](http://jsonapi.org/) web service via [Vuex](https://vuex.vuejs.org/) stores. Because of JSON API's strong conventions, in most cases all you should need to do is tell `@reststate/vuex` the base URL of your web service, and which resources to access, and you should be set. No manual web request juggling!
 
 This is a very early proof-of-concept, so many features of JSON API are not yet supported. Open a GitHub issue with any other features you'd like to see!
 
@@ -35,7 +35,7 @@ const component = {
 ## Installation
 
 ```
-# npm install --save vuex-jsonapi
+# npm install --save @reststate/vuex
 ```
 
 ## Setup
@@ -44,7 +44,7 @@ To create a Vuex module corresponding to a resource on the server, call `resourc
 
 ```javascript
 import { Store } from 'vuex';
-import { resourceModule } from 'vuex-jsonapi';
+import { resourceModule } from '@reststate/vuex';
 import api from './api';
 
 const store = new Store({
