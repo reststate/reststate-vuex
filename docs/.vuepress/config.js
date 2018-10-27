@@ -9,6 +9,7 @@ module.exports = {
     ],
     sidebar: [
       '/',
+      'Tutorial',
       'Installation',
       'Reading Data',
       'Writing Data',
