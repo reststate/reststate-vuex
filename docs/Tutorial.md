@@ -151,8 +151,6 @@ Add a simple form to the top of the template:
 ```diff
  <template>
    <div>
- <template>
-   <div>
 +    <form @submit.prevent="handleCreate">
 +      <input
 +        type="text"
