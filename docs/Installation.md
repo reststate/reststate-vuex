@@ -79,4 +79,4 @@ const httpClient = {
 };
 ```
 
-That's all you need to do--the JSON API spec takes care of the rest!
+That's all you need to do--the JSON:API spec takes care of the rest!

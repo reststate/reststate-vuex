@@ -1,6 +1,6 @@
 # Reading Data
 
-Working with JSON API data is split into two parts to follow Vuex conventions:
+Working with JSON:API data is split into two parts to follow Vuex conventions:
 
 - **Actions** are used to request data from the server or update data on the server, storing the results into the module's state.
 - **Getters** are used to access data from the module's state.
@@ -76,7 +76,7 @@ This doesn’t perform any filtering logic on the client side; it simply keeps t
 
 ## loadRelated action / related getter
 
-Finally, to load records related via JSON API relationships, use the `loadRelated` action. A nested resource URL is constructed like `categories/27/widgets`. (In the future we will look into using HATEOAS to let the server tell us the relationship URL).
+Finally, to load records related via JSON:API relationships, use the `loadRelated` action. A nested resource URL is constructed like `categories/27/widgets`. (In the future we will look into using HATEOAS to let the server tell us the relationship URL).
 
 ```javascript
 const parent = {
