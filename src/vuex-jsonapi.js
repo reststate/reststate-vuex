@@ -5,7 +5,7 @@ const STATUS_LOADING = 'LOADING';
 const STATUS_ERROR = 'ERROR';
 const STATUS_SUCCESS = 'SUCCESS';
 
-const storeRecord = (records) => (newRecord) => {
+const storeRecord = records => newRecord => {
   const existingRecord = records.find(r => r.id === newRecord.id);
   if (existingRecord) {
     Object.assign(existingRecord, newRecord);
@@ -14,13 +14,10 @@ const storeRecord = (records) => (newRecord) => {
   }
 };
 
-const matches = (criteria) => (test) => (
-  Object.keys(criteria).every(key => (
-    criteria[key] === test[key]
-  ))
-);
+const matches = criteria => test =>
+  Object.keys(criteria).every(key => criteria[key] === test[key]);
 
-const handleError = (commit) => (error) => {
+const handleError = commit => error => {
   commit('SET_STATUS', STATUS_ERROR);
   throw error;
 };
@@ -86,7 +83,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
     actions: {
       loadAll({ commit }, { options } = {}) {
         commit('SET_STATUS', STATUS_LOADING);
-        return client.all({ options })
+        return client
+          .all({ options })
           .then(result => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('STORE_RECORDS', result.data);
@@ -96,7 +94,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       loadById({ commit }, { id, options }) {
         commit('SET_STATUS', STATUS_LOADING);
-        return client.find({ id, options })
+        return client
+          .find({ id, options })
           .then(results => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('STORE_RECORD', results.data);
@@ -106,7 +105,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       loadWhere({ commit }, { filter, options }) {
         commit('SET_STATUS', STATUS_LOADING);
-        return client.where({ filter, options })
+        return client
+          .where({ filter, options })
           .then(results => {
             commit('SET_STATUS', STATUS_SUCCESS);
             const matches = results.data;
@@ -116,13 +116,13 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .catch(handleError(commit));
       },
 
-      loadRelated({ commit }, {
-        parent,
-        relationship = resourceName,
-        options,
-      }) {
+      loadRelated(
+        { commit },
+        { parent, relationship = resourceName, options },
+      ) {
         commit('SET_STATUS', STATUS_LOADING);
-        return client.related({ parent, relationship, options })
+        return client
+          .related({ parent, relationship, options })
           .then(results => {
             commit('SET_STATUS', STATUS_SUCCESS);
             const { id, type } = parent;
@@ -135,24 +135,21 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       create({ commit }, recordData) {
-        return client.create(recordData)
-          .then(result => {
-            commit('STORE_RECORD', result.data);
-          });
+        return client.create(recordData).then(result => {
+          commit('STORE_RECORD', result.data);
+        });
       },
 
       update({ commit }, record) {
-        return client.update(record)
-          .then(() => {
-            commit('STORE_RECORD', record);
-          });
+        return client.update(record).then(() => {
+          commit('STORE_RECORD', record);
+        });
       },
 
       delete({ commit }, record) {
-        return client.delete(record)
-          .then(() => {
-            commit('REMOVE_RECORD', record);
-          });
+        return client.delete(record).then(() => {
+          commit('REMOVE_RECORD', record);
+        });
       },
     },
 
@@ -163,9 +160,9 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       byId: state => ({ id }) => state.records.find(r => r.id === id),
       where: state => ({ filter }) => {
         const matchesRequestedFilter = matches(filter);
-        const entry = state.filtered.find(({ filter: testFilter }) => (
-          matchesRequestedFilter(testFilter)
-        ));
+        const entry = state.filtered.find(({ filter: testFilter }) =>
+          matchesRequestedFilter(testFilter),
+        );
 
         if (!entry) {
           return [];
@@ -174,10 +171,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         const { ids } = entry;
         return state.records.filter(record => ids.includes(record.id));
       },
-      related: state => ({
-        parent,
-        relationship = resourceName,
-      }) => {
+      related: state => ({ parent, relationship = resourceName }) => {
         const { type, id } = parent;
         const related = state.related.find(matches({ type, id }));
 
@@ -192,16 +186,11 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
   };
 };
 
-const mapResourceModules = ({ names, httpClient }) => (
+const mapResourceModules = ({ names, httpClient }) =>
   names.reduce(
-    (acc, name) => (
-      Object.assign({ [name]: resourceModule({ name, httpClient }) }, acc)
-    ),
+    (acc, name) =>
+      Object.assign({ [name]: resourceModule({ name, httpClient }) }, acc),
     {},
-  )
-);
+  );
 
-export {
-  resourceModule,
-  mapResourceModules,
-};
+export { resourceModule, mapResourceModules };

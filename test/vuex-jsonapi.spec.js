@@ -62,15 +62,14 @@ describe('resourceModule()', () => {
       });
 
       it('resets the error flag', () => {
-        api.get
-          .mockRejectedValueOnce()
-          .mockResolvedValueOnce({
-            data: {
-              data: records,
-            },
-          });
+        api.get.mockRejectedValueOnce().mockResolvedValueOnce({
+          data: {
+            data: records,
+          },
+        });
 
-        return store.dispatch('loadAll')
+        return store
+          .dispatch('loadAll')
           .catch(() => store.dispatch('loadAll'))
           .then(() => {
             expect(store.getters.error).toEqual(false);
@@ -111,14 +110,17 @@ describe('resourceModule()', () => {
             },
           });
 
-          return store.dispatch('loadAll', {
-            options: {
-              'fields[widgets]': 'title',
-            },
-          }).then(() => {
-            expect(api.get)
-              .toHaveBeenCalledWith('widgets?fields[widgets]=title');
-          });
+          return store
+            .dispatch('loadAll', {
+              options: {
+                'fields[widgets]': 'title',
+              },
+            })
+            .then(() => {
+              expect(api.get).toHaveBeenCalledWith(
+                'widgets?fields[widgets]=title',
+              );
+            });
         });
       });
 
@@ -183,15 +185,14 @@ describe('resourceModule()', () => {
       });
 
       it('resets the error flag', () => {
-        api.get
-          .mockRejectedValueOnce()
-          .mockResolvedValueOnce({
-            data: {
-              data: records,
-            },
-          });
+        api.get.mockRejectedValueOnce().mockResolvedValueOnce({
+          data: {
+            data: records,
+          },
+        });
 
-        return store.dispatch('loadWhere', { filter })
+        return store
+          .dispatch('loadWhere', { filter })
           .catch(() => store.dispatch('loadWhere', { filter }))
           .then(() => {
             expect(store.getters.error).toEqual(false);
@@ -302,15 +303,14 @@ describe('resourceModule()', () => {
         });
 
         it('resets the error flag', () => {
-          api.get
-            .mockRejectedValueOnce()
-            .mockResolvedValueOnce({
-              data: {
-                data: record,
-              },
-            });
+          api.get.mockRejectedValueOnce().mockResolvedValueOnce({
+            data: {
+              data: record,
+            },
+          });
 
-          return store.dispatch('loadById', { id })
+          return store
+            .dispatch('loadById', { id })
             .catch(() => store.dispatch('loadById', { id }))
             .then(() => {
               expect(store.getters.error).toEqual(false);
@@ -446,15 +446,14 @@ describe('resourceModule()', () => {
       });
 
       it('resets the error flag', () => {
-        api.get
-          .mockRejectedValueOnce()
-          .mockResolvedValueOnce({
-            data: {
-              data: records,
-            },
-          });
+        api.get.mockRejectedValueOnce().mockResolvedValueOnce({
+          data: {
+            data: records,
+          },
+        });
 
-        return store.dispatch('loadRelated', { parent })
+        return store
+          .dispatch('loadRelated', { parent })
           .catch(() => store.dispatch('loadRelated', { parent }))
           .then(() => {
             expect(store.getters.error).toEqual(false);
@@ -474,9 +473,7 @@ describe('resourceModule()', () => {
           });
 
           it('requests the resource endpoint', () => {
-            expect(api.get).toHaveBeenCalledWith(
-              'users/42/widgets?',
-            );
+            expect(api.get).toHaveBeenCalledWith('users/42/widgets?');
           });
 
           it('sets loading to false', () => {
@@ -519,9 +516,7 @@ describe('resourceModule()', () => {
           });
 
           it('requests the resource endpoint', () => {
-            expect(api.get).toHaveBeenCalledWith(
-              'users/42/purchased-widgets?',
-            );
+            expect(api.get).toHaveBeenCalledWith('users/42/purchased-widgets?');
           });
 
           it('allows retrieving related records', () => {
@@ -752,9 +747,7 @@ describe('resourceModule()', () => {
       },
       relationships: {
         categories: {
-          data: [
-            { type: 'category', id: '27' },
-          ],
+          data: [{ type: 'category', id: '27' }],
         },
       },
     };
