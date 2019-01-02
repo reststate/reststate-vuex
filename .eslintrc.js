@@ -1,5 +1,8 @@
 module.exports = {
-  extends: 'codingitwrong',
+  extends: [
+    'codingitwrong',
+    'plugin:prettier/recommended',
+  ],
   parser: 'babel-eslint',
   parserOptions: {
     sourceType: 'module',
