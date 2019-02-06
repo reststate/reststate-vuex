@@ -124,6 +124,55 @@ describe('resourceModule()', () => {
         });
       });
 
+      it('removes records in the store not in the response', () => {
+        const firstRecords = [
+          {
+            type: 'widget',
+            id: '1',
+            attributes: {
+              title: 'Foo',
+            },
+          },
+          {
+            type: 'widget',
+            id: '2',
+            attributes: {
+              title: 'Bar',
+            },
+          },
+        ];
+        const secondRecords = [
+          {
+            type: 'widget',
+            id: '1',
+            attributes: {
+              title: 'Foo',
+            },
+          },
+          {
+            type: 'widget',
+            id: '3',
+            attributes: {
+              title: 'Baz',
+            },
+          },
+        ];
+
+        api.get
+          .mockResolvedValueOnce({ data: { data: firstRecords } })
+          .mockResolvedValueOnce({ data: { data: secondRecords } });
+
+        return store
+          .dispatch('loadAll')
+          .then(() => store.dispatch('loadAll'))
+          .then(() => {
+            const records = store.getters.all;
+            expect(records.length).toEqual(2);
+            expect(records[0].id).toEqual('1');
+            expect(records[1].id).toEqual('3');
+          });
+      });
+
       describe('error', () => {
         const error = { dummy: 'error' };
 

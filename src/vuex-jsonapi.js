@@ -87,7 +87,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .all({ options })
           .then(result => {
             commit('SET_STATUS', STATUS_SUCCESS);
-            commit('STORE_RECORDS', result.data);
+            commit('REPLACE_ALL_RECORDS', result.data);
           })
           .catch(handleError(commit));
       },
