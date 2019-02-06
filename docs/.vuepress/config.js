@@ -8,13 +8,7 @@ module.exports = {
       { text: '/client', link: 'https://client.reststate.org' },
       { text: 'home', link: 'https://reststate.org' },
     ],
-    sidebar: [
-      '/',
-      'tutorial',
-      'installation',
-      'reading-data',
-      'writing-data',
-    ],
+    sidebar: ['/', 'tutorial', 'installation', 'reading-data', 'writing-data'],
     displayAllHeaders: true,
   },
 };
