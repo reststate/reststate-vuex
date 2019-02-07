@@ -324,6 +324,387 @@ describe('resourceModule()', () => {
       });
     });
 
+    describe('pagination', () => {
+      const firstPage = [
+        {
+          type: 'widget',
+          id: '1',
+          attributes: {
+            title: 'Foo',
+          },
+        },
+        {
+          type: 'widget',
+          id: '2',
+          attributes: {
+            title: 'Bar',
+          },
+        },
+      ];
+
+      const secondPage = [
+        {
+          type: 'widget',
+          id: '3',
+          attributes: {
+            title: 'Baz',
+          },
+        },
+        {
+          type: 'widget',
+          id: '4',
+          attributes: {
+            title: 'Qux',
+          },
+        },
+      ];
+
+      describe('initial request with page params', () => {
+        it('sets loading to true while loading', () => {
+          api.get.mockResolvedValue({
+            data: {
+              data: firstPage,
+              links: {
+                next:
+                  'https://api.example.com/widgets?page[number]=2&page[size]=2',
+              },
+            },
+          });
+          store.dispatch('loadPage', {
+            options: {
+              'page[number]': 1,
+              'page[size]': 2,
+            },
+          });
+          expect(store.getters.loading).toEqual(true);
+        });
+
+        describe('success', () => {
+          beforeEach(() => {
+            api.get.mockResolvedValue({
+              data: {
+                data: firstPage,
+                links: {
+                  next:
+                    'https://api.example.com/widgets?page[number]=2&page[size]=2',
+                },
+              },
+            });
+
+            return store.dispatch('loadPage', {
+              options: {
+                'page[number]': 1,
+                'page[size]': 2,
+              },
+            });
+          });
+
+          it('sets loading to false', () => {
+            expect(store.getters.loading).toEqual(false);
+          });
+
+          it('passes the pagination on to the server', () => {
+            expect(api.get).toHaveBeenCalledWith(
+              'widgets?page[number]=1&page[size]=2',
+            );
+          });
+
+          it('allows retrieving the results by page', () => {
+            const records = store.getters.page;
+            expect(records.length).toEqual(2);
+
+            const firstRecord = records[0];
+            expect(firstRecord.id).toEqual('1');
+            expect(firstRecord.attributes.title).toEqual('Foo');
+          });
+
+          it('exposes whether there is a next page', () => {
+            const { hasNext } = store.getters;
+            expect(hasNext).toEqual(true);
+          });
+
+          it('exposes whether there is a previous page', () => {
+            const { hasPrevious } = store.getters;
+            expect(hasPrevious).toEqual(false);
+          });
+        });
+
+        describe('error', () => {
+          const error = { dummy: 'error' };
+
+          let response;
+
+          beforeEach(() => {
+            api.get.mockRejectedValue(error);
+            response = store.dispatch('loadPage', {
+              options: {
+                'page[number]': 1,
+                'page[size]': 2,
+              },
+            });
+          });
+
+          it('rejects with the error', () => {
+            expect(response).rejects.toEqual(error);
+          });
+
+          it('sets the error flag', () => {
+            return response.catch(() => {
+              expect(store.getters.error).toEqual(true);
+            });
+          });
+        });
+      });
+
+      describe('next page request', () => {
+        beforeEach(() => {
+          api.get
+            .mockResolvedValueOnce({
+              data: {
+                data: firstPage,
+                links: {
+                  next:
+                    'https://api.example.com/widgets?page[number]=2&page[size]=2',
+                },
+              },
+            })
+            .mockResolvedValueOnce({
+              data: {
+                data: secondPage,
+                links: {
+                  prev:
+                    'https://api.example.com/widgets?page[number]=1&page[size]=2',
+                },
+              },
+            });
+
+          return store
+            .dispatch('loadPage', {
+              options: {
+                'page[number]': 1,
+                'page[size]': 2,
+              },
+            })
+            .then(() => store.dispatch('loadNextPage'));
+        });
+
+        it('passes the pagination on to the server', () => {
+          expect(api.get).toHaveBeenCalledWith(
+            'https://api.example.com/widgets?page[number]=2&page[size]=2',
+          );
+        });
+
+        it('allows retrieving the results by page', () => {
+          const records = store.getters.page;
+          expect(records.length).toEqual(2);
+
+          const firstRecord = records[0];
+          expect(firstRecord.id).toEqual('3');
+          expect(firstRecord.attributes.title).toEqual('Baz');
+        });
+
+        it('exposes whether there is a next page', () => {
+          const { hasNext } = store.getters;
+          expect(hasNext).toEqual(false);
+        });
+
+        it('exposes whether there is a previous page', () => {
+          const { hasPrevious } = store.getters;
+          expect(hasPrevious).toEqual(true);
+        });
+      });
+
+      describe('previous page request', () => {
+        beforeEach(() => {
+          api.get
+            .mockResolvedValueOnce({
+              data: {
+                data: secondPage,
+                links: {
+                  prev:
+                    'https://api.example.com/widgets?page[number]=1&page[size]=2',
+                },
+              },
+            })
+            .mockResolvedValueOnce({
+              data: {
+                data: firstPage,
+                links: {
+                  next:
+                    'https://api.example.com/widgets?page[number]=2&page[size]=2',
+                },
+              },
+            });
+
+          return store
+            .dispatch('loadPage', {
+              options: {
+                'page[number]': 2,
+                'page[size]': 2,
+              },
+            })
+            .then(() => store.dispatch('loadPreviousPage'));
+        });
+
+        it('passes the pagination on to the server', () => {
+          expect(api.get).toHaveBeenCalledWith(
+            'https://api.example.com/widgets?page[number]=1&page[size]=2',
+          );
+        });
+
+        it('allows retrieving the results by page', () => {
+          const records = store.getters.page;
+          expect(records.length).toEqual(2);
+
+          const firstRecord = records[0];
+          expect(firstRecord.id).toEqual('1');
+          expect(firstRecord.attributes.title).toEqual('Foo');
+        });
+
+        it('exposes whether there is a next page', () => {
+          const { hasNext } = store.getters;
+          expect(hasNext).toEqual(true);
+        });
+
+        it('exposes whether there is a previous page', () => {
+          const { hasPrevious } = store.getters;
+          expect(hasPrevious).toEqual(false);
+        });
+      });
+
+      describe('success', () => {
+        const firstPage = [
+          {
+            type: 'widget',
+            id: '1',
+            attributes: {
+              title: 'Foo',
+            },
+          },
+          {
+            type: 'widget',
+            id: '2',
+            attributes: {
+              title: 'Bar',
+            },
+          },
+        ];
+
+        const secondPage = [
+          {
+            type: 'widget',
+            id: '3',
+            attributes: {
+              title: 'Baz',
+            },
+          },
+          {
+            type: 'widget',
+            id: '4',
+            attributes: {
+              title: 'Qux',
+            },
+          },
+        ];
+
+        beforeEach(() => {
+          api.get
+            .mockResolvedValueOnce({
+              data: {
+                data: firstPage,
+                links: {
+                  next:
+                    'https://api.example.com/widgets?page[number]=2&page[size]=2',
+                },
+              },
+            })
+            .mockResolvedValueOnce({
+              data: {
+                data: secondPage,
+                links: {
+                  prev:
+                    'https://api.example.com/widgets?page[number]=1&page[size]=2',
+                },
+              },
+            })
+            .mockResolvedValueOnce({
+              data: {
+                data: firstPage,
+                links: {
+                  next:
+                    'https://api.example.com/widgets?page[number]=2&page[size]=2',
+                },
+              },
+            });
+
+          return store.dispatch('loadPage', {
+            options: {
+              'page[number]': 1,
+              'page[size]': 2,
+            },
+          });
+        });
+
+        it('passes the pagination on to the server', () => {
+          expect(api.get).toHaveBeenCalledWith(
+            'widgets?page[number]=1&page[size]=2',
+          );
+        });
+
+        it('allows retrieving the results by page', () => {
+          const records = store.getters.page;
+          expect(records.length).toEqual(2);
+
+          const firstRecord = records[0];
+          expect(firstRecord.id).toEqual('1');
+          expect(firstRecord.attributes.title).toEqual('Foo');
+        });
+
+        it('exposes whether there is a next page', () => {
+          const { hasNext } = store.getters;
+          expect(hasNext).toEqual(true);
+        });
+
+        it('exposes whether there is a previous page', () => {
+          const { hasPrevious } = store.getters;
+          expect(hasPrevious).toEqual(false);
+        });
+
+        it('allows retrieving the next page', () => {
+          return store.dispatch('loadNextPage').then(() => {
+            expect(api.get).toHaveBeenCalledWith(
+              'https://api.example.com/widgets?page[number]=2&page[size]=2',
+            );
+
+            expect(store.getters.hasNext).toEqual(false);
+            expect(store.getters.hasPrevious).toEqual(true);
+
+            const records = store.getters.page;
+            expect(records.length).toEqual(2);
+
+            const firstRecord = records[0];
+            expect(firstRecord.id).toEqual('3');
+          });
+        });
+
+        it('allows retrieving the previous page', () => {
+          return store
+            .dispatch('loadNextPage')
+            .then(() => store.dispatch('loadPreviousPage'))
+            .then(() => {
+              expect(store.getters.hasNext).toEqual(true);
+              expect(store.getters.hasPrevious).toEqual(false);
+
+              const records = store.getters.page;
+              expect(records.length).toEqual(2);
+
+              const firstRecord = records[0];
+              expect(firstRecord.id).toEqual('1');
+            });
+        });
+      });
+    });
+
     describe('by ID', () => {
       const id = '42';
       const record = {

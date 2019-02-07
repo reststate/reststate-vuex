@@ -32,7 +32,9 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       records: [],
       related: [],
       filtered: [],
+      page: [],
       status: STATUS_INITIAL,
+      links: {},
     },
 
     mutations: {
@@ -60,6 +62,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         newRecords.forEach(storeRecord(records));
       },
 
+      STORE_PAGE: (state, records) => {
+        state.page = records.map(({ id }) => id);
+      },
+
       STORE_RELATED: (state, parent) => {
         const { related } = state;
 
@@ -77,6 +83,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       REMOVE_RECORD: (state, record) => {
         state.records = state.records.filter(r => r.id !== record.id);
+      },
+
+      SET_LINKS: (state, links) => {
+        state.links = links || {};
       },
     },
 
@@ -114,6 +124,41 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('STORE_FILTERED', { filter, matches });
           })
           .catch(handleError(commit));
+      },
+
+      loadPage({ commit }, { options }) {
+        commit('SET_STATUS', STATUS_LOADING);
+        return client
+          .all({ options })
+          .then(response => {
+            commit('SET_STATUS', STATUS_SUCCESS);
+            commit('STORE_RECORDS', response.data);
+            commit('STORE_PAGE', response.data);
+            commit('SET_LINKS', response.links);
+          })
+          .catch(handleError(commit));
+      },
+
+      loadNextPage({ commit, state }) {
+        const options = {
+          url: state.links.next,
+        };
+        return client.all({ options }).then(response => {
+          commit('STORE_RECORDS', response.data);
+          commit('STORE_PAGE', response.data);
+          commit('SET_LINKS', response.links);
+        });
+      },
+
+      loadPreviousPage({ commit, state }) {
+        const options = {
+          url: state.links.prev,
+        };
+        return client.all({ options }).then(response => {
+          commit('STORE_RECORDS', response.data);
+          commit('STORE_PAGE', response.data);
+          commit('SET_LINKS', response.links);
+        });
       },
 
       loadRelated(
@@ -156,8 +201,12 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
     getters: {
       loading: state => state.status === STATUS_LOADING,
       error: state => state.status === STATUS_ERROR,
+      hasPrevious: state => !!state.links.prev,
+      hasNext: state => !!state.links.next,
       all: state => state.records,
       byId: state => ({ id }) => state.records.find(r => r.id === id),
+      page: state =>
+        state.records.filter(record => state.page.includes(record.id)),
       where: state => ({ filter }) => {
         const matchesRequestedFilter = matches(filter);
         const entry = state.filtered.find(({ filter: testFilter }) =>
