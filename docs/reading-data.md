@@ -10,11 +10,10 @@ Working with JSON:API data is split into two parts to follow Vuex conventions:
 So, for example, to retrieve all of the records for a resource, dispatch the `loadAll` action to save them into the store. They can then be accessed using `all` getter:
 
 ```javascript
-this.$store.dispatch('widgets/loadAll')
-  .then(() => {
-    const widgets = this.$store.getters['widgets/all'];
-    console.log(widgets);
-  });
+this.$store.dispatch('widgets/loadAll').then(() => {
+  const widgets = this.$store.getters['widgets/all'];
+  console.log(widgets);
+});
 ```
 
 If you're accessing these from within a Vue component, you can use Vuex's `mapActions` and `mapGetters` as usual:
@@ -50,10 +49,12 @@ this.$store.dispatch('widgets/loadById', { id: 42 })
   });
 ```
 
+Note that the ID needs to be a string, as specified by the JSON:API spec.
+
 If you know the record has already been retrieved, you don't need to load it again. For example, if you've loaded all records on a list screen, and then you click to view the details for a single record, you can just use the getter directly:
 
 ```javascript
-const widget = this.$store.getters['widgets/byId']({ id: 42 });
+const widget = this.$store.getters['widgets/byId']({ id: '42' });
 console.log(widget);
 ```
 
@@ -81,7 +82,7 @@ Finally, to load records related via JSON:API relationships, use the `loadRelate
 ```javascript
 const parent = {
   type: 'category',
-  id: 27,
+  id: '27',
 };
 
 this.$store.dispatch('widgets/loadRelated', { parent })
@@ -96,7 +97,7 @@ By default, the name of the relationship on `parent` is assumed to be the same a
 ```js
 const parent = {
   type: 'categories',
-  id: 27,
+  id: '27',
 };
 
 const relationship = 'purchased-widgets';
