@@ -1156,6 +1156,12 @@ describe('resourceModule()', () => {
         expect(firstRecord.id).toEqual('27');
         expect(firstRecord.attributes.title).toEqual('Baz');
       });
+
+      it('makes the record available in the lastCreated getter', () => {
+        const record = store.getters.lastCreated;
+        expect(record.id).toEqual('27');
+        expect(record.attributes.title).toEqual('Baz');
+      });
     });
 
     describe('error', () => {
