@@ -1024,6 +1024,12 @@ describe('resourceModule()', () => {
         expect(storedRecord.id).toEqual(id);
         expect(storedRecord.attributes.title).toEqual('Bar');
       });
+
+      it('can retrieve records with numeric IDs', () => {
+        const id = 42;
+        const storedRecord = store.getters.byId({ id });
+        expect(storedRecord.attributes.title).toEqual('Bar');
+      });
     });
 
     describe('related', () => {
