@@ -10,4 +10,7 @@ module.exports = {
     'jest/globals': true,
     node: true,
   },
+  rules: {
+    eqeqeq: 'off',
+  },
 };
