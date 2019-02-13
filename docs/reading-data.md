@@ -42,11 +42,10 @@ export default {
 To retrieve a single record by ID, dispatch the `loadById` action, then access the `byId` getter:
 
 ```javascript
-this.$store.dispatch('widgets/loadById', { id: 42 })
-  .then(() => {
-    const widget = this.$store.getters['widgets/byId']({ id: 42 });
-    console.log(widget);
-  });
+this.$store.dispatch('widgets/loadById', { id: 42 }).then(() => {
+  const widget = this.$store.getters['widgets/byId']({ id: 42 });
+  console.log(widget);
+});
 ```
 
 Note that the ID needs to be a string, as specified by the JSON:API spec.
@@ -66,11 +65,10 @@ To filter/query for records based on certain criteria, use the `loadWhere` actio
 const filter = {
   category: 'whizbang',
 };
-this.$store.dispatch('widgets/loadWhere', { filter });
-  .then(() => {
-    const widgets = this.$store.getters['widgets/where']({ filter });
-    console.log(widgets);
-  });
+this.$store.dispatch('widgets/loadWhere', { filter }).then(() => {
+  const widgets = this.$store.getters['widgets/where']({ filter });
+  console.log(widgets);
+});
 ```
 
 This doesn’t perform any filtering logic on the client side; it simply keeps track of which IDs were returned by the server side request and retrieves those records.
@@ -85,11 +83,10 @@ const parent = {
   id: '27',
 };
 
-this.$store.dispatch('widgets/loadRelated', { parent })
-  .then(() => {
-    const widgets = this.$store.getters['widgets/related']({ parent });
-    console.log(widgets);
-  });
+this.$store.dispatch('widgets/loadRelated', { parent }).then(() => {
+  const widgets = this.$store.getters['widgets/related']({ parent });
+  console.log(widgets);
+});
 ```
 
 By default, the name of the relationship on `parent` is assumed to be the same as the name of the other model: in this case, `widgets`. In cases where the names are not the same, you can explicitly pass the relationship name:
@@ -102,9 +99,13 @@ const parent = {
 
 const relationship = 'purchased-widgets';
 
-this.$store.dispatch('widgets/loadRelated', { parent, relationship })
+this.$store
+  .dispatch('widgets/loadRelated', { parent, relationship })
   .then(() => {
-    const widgets = this.$store.getters['widgets/related']({ parent, relationship });
+    const widgets = this.$store.getters['widgets/related']({
+      parent,
+      relationship,
+    });
     console.log(widgets);
   });
 ```
