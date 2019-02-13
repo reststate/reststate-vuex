@@ -35,6 +35,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       page: [],
       status: STATUS_INITIAL,
       links: {},
+      lastCreated: null,
     },
 
     mutations: {
@@ -79,6 +80,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
         // TODO: handle overwriting existing one
         filtered.push({ filter, ids });
+      },
+
+      STORE_LAST_CREATED: (state, record) => {
+        state.lastCreated = record;
       },
 
       REMOVE_RECORD: (state, record) => {
@@ -182,6 +187,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       create({ commit }, recordData) {
         return client.create(recordData).then(result => {
           commit('STORE_RECORD', result.data);
+          commit('STORE_LAST_CREATED', result.data);
         });
       },
 
@@ -204,6 +210,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       hasPrevious: state => !!state.links.prev,
       hasNext: state => !!state.links.next,
       all: state => state.records,
+      lastCreated: state => state.lastCreated,
       byId: state => ({ id }) => state.records.find(r => r.id == id),
       page: state =>
         state.records.filter(record => state.page.includes(record.id)),
