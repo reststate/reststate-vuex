@@ -1,18 +1,16 @@
 module.exports = {
-  extends: [
-    'codingitwrong',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['codingitwrong', 'plugin:prettier/recommended'],
   parser: 'babel-eslint',
   parserOptions: {
     sourceType: 'module',
   },
-  plugins: [
-    'jest',
-  ],
+  plugins: ['jest'],
   env: {
-    'es6': true,
+    es6: true,
     'jest/globals': true,
-    'node': true,
+    node: true,
+  },
+  rules: {
+    eqeqeq: 'off',
   },
 };

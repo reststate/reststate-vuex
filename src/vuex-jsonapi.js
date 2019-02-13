@@ -204,7 +204,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       hasPrevious: state => !!state.links.prev,
       hasNext: state => !!state.links.next,
       all: state => state.records,
-      byId: state => ({ id }) => state.records.find(r => r.id === id),
+      byId: state => ({ id }) => state.records.find(r => r.id == id),
       page: state =>
         state.records.filter(record => state.page.includes(record.id)),
       where: state => ({ filter }) => {
