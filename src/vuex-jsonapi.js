@@ -36,6 +36,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       status: STATUS_INITIAL,
       links: {},
       lastCreated: null,
+      lastMeta: null,
     },
 
     mutations: {
@@ -65,6 +66,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       STORE_PAGE: (state, records) => {
         state.page = records.map(({ id }) => id);
+      },
+
+      STORE_META: (state, meta) => {
+        state.lastMeta = meta;
       },
 
       STORE_RELATED: (state, parent) => {
@@ -103,6 +108,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .then(result => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('REPLACE_ALL_RECORDS', result.data);
+            commit('STORE_META', result.meta);
           })
           .catch(handleError(commit));
       },
@@ -114,6 +120,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .then(results => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('STORE_RECORD', results.data);
+            commit('STORE_META', results.meta);
           })
           .catch(handleError(commit));
       },
@@ -127,6 +134,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             const matches = results.data;
             commit('STORE_RECORDS', matches);
             commit('STORE_FILTERED', { filter, matches });
+            commit('STORE_META', results.meta);
           })
           .catch(handleError(commit));
       },
@@ -139,6 +147,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('STORE_RECORDS', response.data);
             commit('STORE_PAGE', response.data);
+            commit('STORE_META', response.meta);
             commit('SET_LINKS', response.links);
           })
           .catch(handleError(commit));
@@ -152,6 +161,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           commit('STORE_RECORDS', response.data);
           commit('STORE_PAGE', response.data);
           commit('SET_LINKS', response.links);
+          commit('STORE_META', response.meta);
         });
       },
 
@@ -163,6 +173,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           commit('STORE_RECORDS', response.data);
           commit('STORE_PAGE', response.data);
           commit('SET_LINKS', response.links);
+          commit('STORE_META', response.meta);
         });
       },
 
@@ -180,6 +191,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             const relatedIds = relatedRecords.map(record => record.id);
             commit('STORE_RECORDS', relatedRecords);
             commit('STORE_RELATED', { id, type, relatedIds });
+            commit('STORE_META', results.meta);
           })
           .catch(handleError(commit));
       },
@@ -212,6 +224,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       all: state => state.records,
       lastCreated: state => state.lastCreated,
       byId: state => ({ id }) => state.records.find(r => r.id == id),
+      lastMeta: state => state.lastMeta,
       page: state =>
         state.records.filter(record => state.page.includes(record.id)),
       where: state => ({ filter }) => {
