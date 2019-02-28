@@ -51,6 +51,8 @@ describe('resourceModule()', () => {
         },
       ];
 
+      const meta = { metaKey: 'metaValue' };
+
       it('sets loading to true while loading', () => {
         api.get.mockResolvedValue({
           data: {
@@ -81,6 +83,7 @@ describe('resourceModule()', () => {
           api.get.mockResolvedValue({
             data: {
               data: records,
+              meta,
             },
           });
 
@@ -99,6 +102,11 @@ describe('resourceModule()', () => {
           const firstRecord = records[0];
           expect(firstRecord.id).toEqual('1');
           expect(firstRecord.attributes.title).toEqual('Foo');
+        });
+
+        it('exposes meta data returned', () => {
+          const { lastMeta } = store.getters;
+          expect(lastMeta).toEqual(meta);
         });
       });
 
@@ -223,6 +231,8 @@ describe('resourceModule()', () => {
         status: 'draft',
       };
 
+      const meta = { metaKey: 'metaValue' };
+
       it('sets loading to true while loading', () => {
         api.get.mockResolvedValue({
           data: {
@@ -263,6 +273,7 @@ describe('resourceModule()', () => {
           api.get.mockResolvedValue({
             data: {
               data: records,
+              meta,
             },
           });
 
@@ -299,6 +310,11 @@ describe('resourceModule()', () => {
           const firstRecord = records[0];
           expect(firstRecord.id).toEqual('2');
           expect(firstRecord.attributes.title).toEqual('Foo');
+        });
+
+        it('exposes meta data returned', () => {
+          const { lastMeta } = store.getters;
+          expect(lastMeta).toEqual(meta);
         });
       });
 
@@ -380,6 +396,12 @@ describe('resourceModule()', () => {
         });
 
         describe('success', () => {
+          const meta = {
+            totalItems: 23,
+            itemsPerPage: 10,
+            currentPage: 1,
+          };
+
           beforeEach(() => {
             api.get.mockResolvedValue({
               data: {
@@ -388,6 +410,7 @@ describe('resourceModule()', () => {
                   next:
                     'https://api.example.com/widgets?page[number]=2&page[size]=2',
                 },
+                meta,
               },
             });
 
@@ -427,6 +450,11 @@ describe('resourceModule()', () => {
             const { hasPrevious } = store.getters;
             expect(hasPrevious).toEqual(false);
           });
+
+          it('exposes meta data returned', () => {
+            const { lastMeta } = store.getters;
+            expect(lastMeta).toEqual(meta);
+          });
         });
 
         describe('error', () => {
@@ -457,6 +485,8 @@ describe('resourceModule()', () => {
       });
 
       describe('next page request', () => {
+        const meta = { metaKey: 'metaValue' };
+
         beforeEach(() => {
           api.get
             .mockResolvedValueOnce({
@@ -475,6 +505,7 @@ describe('resourceModule()', () => {
                   prev:
                     'https://api.example.com/widgets?page[number]=1&page[size]=2',
                 },
+                meta,
               },
             });
 
@@ -512,9 +543,16 @@ describe('resourceModule()', () => {
           const { hasPrevious } = store.getters;
           expect(hasPrevious).toEqual(true);
         });
+
+        it('exposes meta data returned', () => {
+          const { lastMeta } = store.getters;
+          expect(lastMeta).toEqual(meta);
+        });
       });
 
       describe('previous page request', () => {
+        const meta = { metaKey: 'metaValue' };
+
         beforeEach(() => {
           api.get
             .mockResolvedValueOnce({
@@ -533,6 +571,7 @@ describe('resourceModule()', () => {
                   next:
                     'https://api.example.com/widgets?page[number]=2&page[size]=2',
                 },
+                meta,
               },
             });
 
@@ -569,6 +608,11 @@ describe('resourceModule()', () => {
         it('exposes whether there is a previous page', () => {
           const { hasPrevious } = store.getters;
           expect(hasPrevious).toEqual(false);
+        });
+
+        it('exposes meta data returned', () => {
+          const { lastMeta } = store.getters;
+          expect(lastMeta).toEqual(meta);
         });
       });
 
@@ -718,11 +762,14 @@ describe('resourceModule()', () => {
         },
       };
 
+      const meta = { metaKey: 'metaValue' };
+
       describe('success', () => {
         beforeEach(() => {
           api.get.mockResolvedValue({
             data: {
               data: record,
+              meta,
             },
           });
         });
@@ -784,6 +831,11 @@ describe('resourceModule()', () => {
 
             const storedRecord = records.find(r => r.id === id);
             expect(storedRecord.attributes.title).toEqual('New Title');
+          });
+
+          it('exposes meta data returned', () => {
+            const { lastMeta } = store.getters;
+            expect(lastMeta).toEqual(meta);
           });
         });
 
@@ -865,6 +917,8 @@ describe('resourceModule()', () => {
         id: '42',
       };
 
+      const meta = { metaKey: 'metaValue' };
+
       it('sets loading to true while loading', () => {
         api.get.mockResolvedValue({
           data: {
@@ -896,6 +950,7 @@ describe('resourceModule()', () => {
             api.get.mockResolvedValue({
               data: {
                 data: records,
+                meta,
               },
             });
 
@@ -913,6 +968,11 @@ describe('resourceModule()', () => {
           it('allows retrieving related records', () => {
             const records = store.getters.related({ parent });
             expect(records.length).toEqual(2);
+          });
+
+          it('exposes meta data returned', () => {
+            const { lastMeta } = store.getters;
+            expect(lastMeta).toEqual(meta);
           });
         });
 
