@@ -217,8 +217,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
     },
 
     getters: {
-      loading: state => state.status === STATUS_LOADING,
-      error: state => state.status === STATUS_ERROR,
+      isLoading: state => state.status === STATUS_LOADING,
+      isError: state => state.status === STATUS_ERROR,
       hasPrevious: state => !!state.links.prev,
       hasNext: state => !!state.links.next,
       all: state => state.records,

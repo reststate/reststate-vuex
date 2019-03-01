@@ -60,7 +60,7 @@ describe('resourceModule()', () => {
           },
         });
         store.dispatch('loadAll');
-        expect(store.getters.loading).toEqual(true);
+        expect(store.getters.isLoading).toEqual(true);
       });
 
       it('resets the error flag', () => {
@@ -74,7 +74,7 @@ describe('resourceModule()', () => {
           .dispatch('loadAll')
           .catch(() => store.dispatch('loadAll'))
           .then(() => {
-            expect(store.getters.error).toEqual(false);
+            expect(store.getters.isError).toEqual(false);
           });
       });
 
@@ -91,7 +91,7 @@ describe('resourceModule()', () => {
         });
 
         it('sets loading to false', () => {
-          expect(store.getters.loading).toEqual(false);
+          expect(store.getters.isLoading).toEqual(false);
         });
 
         it('makes the records accessible via getter', () => {
@@ -197,13 +197,13 @@ describe('resourceModule()', () => {
 
         it('sets the error flag', () => {
           return response.catch(() => {
-            expect(store.getters.error).toEqual(true);
+            expect(store.getters.isError).toEqual(true);
           });
         });
 
         it('sets loading to false', () => {
           return response.catch(() => {
-            expect(store.getters.loading).toEqual(false);
+            expect(store.getters.isLoading).toEqual(false);
           });
         });
       });
@@ -240,7 +240,7 @@ describe('resourceModule()', () => {
           },
         });
         store.dispatch('loadWhere', { filter });
-        expect(store.getters.loading).toEqual(true);
+        expect(store.getters.isLoading).toEqual(true);
       });
 
       it('resets the error flag', () => {
@@ -254,7 +254,7 @@ describe('resourceModule()', () => {
           .dispatch('loadWhere', { filter })
           .catch(() => store.dispatch('loadWhere', { filter }))
           .then(() => {
-            expect(store.getters.error).toEqual(false);
+            expect(store.getters.isError).toEqual(false);
           });
       });
 
@@ -286,7 +286,7 @@ describe('resourceModule()', () => {
         });
 
         it('sets loading to false', () => {
-          expect(store.getters.loading).toEqual(false);
+          expect(store.getters.isLoading).toEqual(false);
         });
 
         it('passes the filter on to the server', () => {
@@ -334,7 +334,7 @@ describe('resourceModule()', () => {
 
         it('sets the error flag', () => {
           return response.catch(() => {
-            expect(store.getters.error).toEqual(true);
+            expect(store.getters.isError).toEqual(true);
           });
         });
       });
@@ -392,7 +392,7 @@ describe('resourceModule()', () => {
               'page[size]': 2,
             },
           });
-          expect(store.getters.loading).toEqual(true);
+          expect(store.getters.isLoading).toEqual(true);
         });
 
         describe('success', () => {
@@ -423,7 +423,7 @@ describe('resourceModule()', () => {
           });
 
           it('sets loading to false', () => {
-            expect(store.getters.loading).toEqual(false);
+            expect(store.getters.isLoading).toEqual(false);
           });
 
           it('passes the pagination on to the server', () => {
@@ -478,7 +478,7 @@ describe('resourceModule()', () => {
 
           it('sets the error flag', () => {
             return response.catch(() => {
-              expect(store.getters.error).toEqual(true);
+              expect(store.getters.isError).toEqual(true);
             });
           });
         });
@@ -776,7 +776,7 @@ describe('resourceModule()', () => {
 
         it('sets loading to true while loading', () => {
           store.dispatch('loadById', { id });
-          expect(store.getters.loading).toEqual(true);
+          expect(store.getters.isLoading).toEqual(true);
         });
 
         it('resets the error flag', () => {
@@ -790,7 +790,7 @@ describe('resourceModule()', () => {
             .dispatch('loadById', { id })
             .catch(() => store.dispatch('loadById', { id }))
             .then(() => {
-              expect(store.getters.error).toEqual(false);
+              expect(store.getters.isError).toEqual(false);
             });
         });
 
@@ -821,7 +821,7 @@ describe('resourceModule()', () => {
           });
 
           it('sets loading to false', () => {
-            expect(store.getters.loading).toEqual(false);
+            expect(store.getters.isLoading).toEqual(false);
           });
 
           it('adds the record to the list of all records', () => {
@@ -882,13 +882,13 @@ describe('resourceModule()', () => {
 
         it('sets loading to false', () => {
           return response.catch(() => {
-            expect(store.getters.loading).toEqual(false);
+            expect(store.getters.isLoading).toEqual(false);
           });
         });
 
         it('sets the error flag', () => {
           return response.catch(() => {
-            expect(store.getters.error).toEqual(true);
+            expect(store.getters.isError).toEqual(true);
           });
         });
       });
@@ -926,7 +926,7 @@ describe('resourceModule()', () => {
           },
         });
         store.dispatch('loadRelated', { parent });
-        expect(store.getters.loading).toEqual(true);
+        expect(store.getters.isLoading).toEqual(true);
       });
 
       it('resets the error flag', () => {
@@ -940,7 +940,7 @@ describe('resourceModule()', () => {
           .dispatch('loadRelated', { parent })
           .catch(() => store.dispatch('loadRelated', { parent }))
           .then(() => {
-            expect(store.getters.error).toEqual(false);
+            expect(store.getters.isError).toEqual(false);
           });
       });
 
@@ -962,7 +962,7 @@ describe('resourceModule()', () => {
           });
 
           it('sets loading to false', () => {
-            expect(store.getters.loading).toEqual(false);
+            expect(store.getters.isLoading).toEqual(false);
           });
 
           it('allows retrieving related records', () => {
@@ -1035,13 +1035,13 @@ describe('resourceModule()', () => {
 
         it('sets loading to false', () => {
           return response.catch(() => {
-            expect(store.getters.loading).toEqual(false);
+            expect(store.getters.isLoading).toEqual(false);
           });
         });
 
         it('sets the error flag', () => {
           return response.catch(() => {
-            expect(store.getters.error).toEqual(true);
+            expect(store.getters.isError).toEqual(true);
           });
         });
       });
@@ -1204,7 +1204,7 @@ describe('resourceModule()', () => {
       });
 
       it('sets loading to false', () => {
-        expect(store.getters.loading).toEqual(false);
+        expect(store.getters.isLoading).toEqual(false);
       });
 
       it('adds the record to the list', () => {
