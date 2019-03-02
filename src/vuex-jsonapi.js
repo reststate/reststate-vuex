@@ -17,9 +17,10 @@ const storeRecord = records => newRecord => {
 const matches = criteria => test =>
   Object.keys(criteria).every(key => criteria[key] === test[key]);
 
-const handleError = commit => error => {
+const handleError = commit => errorResponse => {
   commit('SET_STATUS', STATUS_ERROR);
-  throw error;
+  commit('STORE_ERROR', errorResponse);
+  throw errorResponse;
 };
 
 const resourceModule = ({ name: resourceName, httpClient }) => {
@@ -33,6 +34,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       related: [],
       filtered: [],
       page: [],
+      error: null,
       status: STATUS_INITIAL,
       links: {},
       lastCreated: null,
@@ -70,6 +72,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       STORE_META: (state, meta) => {
         state.lastMeta = meta;
+      },
+
+      STORE_ERROR: (state, error) => {
+        state.error = error;
       },
 
       STORE_RELATED: (state, parent) => {
@@ -217,8 +223,9 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
     },
 
     getters: {
-      loading: state => state.status === STATUS_LOADING,
-      error: state => state.status === STATUS_ERROR,
+      isLoading: state => state.status === STATUS_LOADING,
+      isError: state => state.status === STATUS_ERROR,
+      error: state => state.error,
       hasPrevious: state => !!state.links.prev,
       hasNext: state => !!state.links.next,
       all: state => state.records,
