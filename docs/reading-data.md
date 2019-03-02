@@ -73,9 +73,37 @@ this.$store.dispatch('widgets/loadWhere', { filter }).then(() => {
 
 This doesn’t perform any filtering logic on the client side; it simply keeps track of which IDs were returned by the server side request and retrieves those records.
 
+## loadPage action / page getter
+
+If your API supports pagination, you can request paginated data using the `loadPage` action. JSON:API reserves the `page` query parameter for pagination parameters, but doesn't define which specific parameters are used; pass whichever keys your server expects. You can access the returned page of data via the `page` getter:
+
+```js
+const options = {
+  'page[size]': 10,
+  'page[number]': 2,
+};
+this.$store.dispatch('widgets/loadPage', { options }).then(() => {
+  const widgets = this.$store.getters['widgets/page'];
+  console.log(widgets);
+});
+```
+
+Servers can optionally return `next` and `prev` pagination links. If they are available, the `hasNext` and `hasPrevious` getters respectively will return true. You can load the next or previous page using the `loadNextPage` or `loadPreviousPage` actions:
+
+```js
+this.$store.dispatch('widgets/loadNextPage').then(() => {
+  const widgets = this.$store.getters['widgets/page'];
+  console.log(widgets);
+  this.$store.dispatch('widgets/loadPreviousPage').then(() => {
+    const widgets = this.$store.getters['widgets/page'];
+    console.log(widgets);
+  });
+});
+```
+
 ## loadRelated action / related getter
 
-Finally, to load records related via JSON:API relationships, use the `loadRelated` action. A nested resource URL is constructed like `categories/27/widgets`. (In the future we will look into using HATEOAS to let the server tell us the relationship URL).
+To load records related via JSON:API relationships, use the `loadRelated` action. A nested resource URL is constructed like `categories/27/widgets`. (In the future we will look into using HATEOAS to let the server tell us the relationship URL).
 
 ```javascript
 const parent = {
@@ -109,6 +137,16 @@ this.$store
     console.log(widgets);
   });
 ```
+
+## Meta Information
+
+When a load response from the server contains a `meta` key, it is exposed via the `meta` getter. One way the `meta` information is sometimes used is to provide pagination information, such as the total number of pages.
+
+## Loading and Error States
+
+The status of a loading action is reported in two getters: `isLoading` and `isError`.
+
+If the load action errors out, the error response is available in the `error` getter. Note that only load actions currently expose their error in the `error` getter; errors for write actions can be accessed by catching the promise returned by the write action.
 
 ## Options
 
