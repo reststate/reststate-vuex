@@ -7,8 +7,8 @@
       />
       <button>Create</button>
     </form>
-    <p v-if="loading">Loading...</p>
-    <p v-else-if="error">Error loading posts.</p>
+    <p v-if="isLoading">Loading...</p>
+    <p v-else-if="isError">Error loading posts</p>
     <ul v-else>
       <li
         v-for="post in allPosts"
@@ -54,7 +54,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      loading: 'posts/loading',
+      isLoading: 'posts/isLoading',
+      isError: 'posts/isError',
       error: 'posts/error',
       allPosts: 'posts/all',
     }),
