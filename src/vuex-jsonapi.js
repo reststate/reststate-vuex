@@ -34,6 +34,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       related: [],
       filtered: [],
       page: [],
+      error: null,
       status: STATUS_INITIAL,
       links: {},
       lastCreated: null,
