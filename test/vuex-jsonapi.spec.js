@@ -201,6 +201,12 @@ describe('resourceModule()', () => {
           });
         });
 
+        it('exposes the error response', () => {
+          return response.catch(() => {
+            expect(store.getters.error).toEqual(error);
+          });
+        });
+
         it('sets loading to false', () => {
           return response.catch(() => {
             expect(store.getters.isLoading).toEqual(false);
@@ -335,6 +341,12 @@ describe('resourceModule()', () => {
         it('sets the error flag', () => {
           return response.catch(() => {
             expect(store.getters.isError).toEqual(true);
+          });
+        });
+
+        it('exposes the error response', () => {
+          return response.catch(() => {
+            expect(store.getters.error).toEqual(error);
           });
         });
       });
@@ -479,6 +491,12 @@ describe('resourceModule()', () => {
           it('sets the error flag', () => {
             return response.catch(() => {
               expect(store.getters.isError).toEqual(true);
+            });
+          });
+
+          it('exposes the error response', () => {
+            return response.catch(() => {
+              expect(store.getters.error).toEqual(error);
             });
           });
         });
@@ -891,6 +909,12 @@ describe('resourceModule()', () => {
             expect(store.getters.isError).toEqual(true);
           });
         });
+
+        it('exposes the error response', () => {
+          return response.catch(() => {
+            expect(store.getters.error).toEqual(error);
+          });
+        });
       });
     });
 
@@ -1042,6 +1066,12 @@ describe('resourceModule()', () => {
         it('sets the error flag', () => {
           return response.catch(() => {
             expect(store.getters.isError).toEqual(true);
+          });
+        });
+
+        it('exposes the error response', () => {
+          return response.catch(() => {
+            expect(store.getters.error).toEqual(error);
           });
         });
       });
@@ -1225,17 +1255,17 @@ describe('resourceModule()', () => {
     });
 
     describe('error', () => {
-      const error = { dummy: 'error' };
+      const errorResponse = { dummy: 'error' };
 
       let response;
 
       beforeEach(() => {
-        api.post.mockRejectedValue(error);
+        api.post.mockRejectedValue({ response: errorResponse });
         response = store.dispatch('create', widget);
       });
 
       it('rejects with the error', () => {
-        expect(response).rejects.toEqual(error);
+        expect(response).rejects.toEqual(errorResponse);
       });
     });
   });
