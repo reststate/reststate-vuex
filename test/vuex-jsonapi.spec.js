@@ -1120,6 +1120,36 @@ describe('resourceModule()', () => {
         });
       });
     });
+
+    describe('removing records', () => {
+      it('removes the record from the store', () => {
+        const record = {
+          type: 'widget',
+          id: '42',
+          attributes: {
+            title: 'Foo',
+          },
+        };
+
+        store.commit('REPLACE_ALL_RECORDS', [
+          record,
+          {
+            type: 'widget',
+            id: '27',
+            attributes: {
+              title: 'Bar',
+            },
+          },
+        ]);
+
+        store.dispatch('removeRecord', record).then(() => {
+          const records = store.getters.all;
+          expect(records.length).toEqual(1);
+          const firstRecord = records[0];
+          expect(firstRecord.attributes.title).toEqual('Bar');
+        });
+      });
+    });
   });
 
   describe('retrieving from the store', () => {
