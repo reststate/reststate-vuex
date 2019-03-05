@@ -220,6 +220,14 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           commit('REMOVE_RECORD', record);
         });
       },
+
+      storeRecord({ commit }, record) {
+        commit('STORE_RECORD', record);
+      },
+
+      removeRecord({ commit }, record) {
+        commit('REMOVE_RECORD', record);
+      },
     },
 
     getters: {
