@@ -1078,6 +1078,50 @@ describe('resourceModule()', () => {
     });
   });
 
+  describe('pushing changes into the store', () => {
+    describe('adding records', () => {
+      const record = {
+        type: 'widget',
+        id: '42',
+        attributes: {
+          title: 'Bar',
+        },
+      };
+
+      describe('when the record does not yet exist', () => {
+        it('adds the record', () => {
+          return store.dispatch('storeRecord', record).then(() => {
+            const records = store.getters.all;
+            expect(records.length).toEqual(1);
+            const firstRecord = records[0];
+            expect(firstRecord.attributes.title).toEqual('Bar');
+          });
+        });
+      });
+
+      describe('when the record already exists', () => {
+        it('replaces the record', () => {
+          store.commit('REPLACE_ALL_RECORDS', [
+            {
+              type: 'widget',
+              id: '42',
+              attributes: {
+                title: 'Foo',
+              },
+            },
+          ]);
+
+          store.dispatch('storeRecord', record).then(() => {
+            const records = store.getters.all;
+            expect(records.length).toEqual(1);
+            const firstRecord = records[0];
+            expect(firstRecord.attributes.title).toEqual('Bar');
+          });
+        });
+      });
+    });
+  });
+
   describe('retrieving from the store', () => {
     beforeEach(() => {
       store.commit('REPLACE_ALL_RECORDS', [
