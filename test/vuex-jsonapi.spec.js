@@ -1474,4 +1474,46 @@ describe('resourceModule()', () => {
       });
     });
   });
+
+  describe('resetting the store', () => {
+    beforeEach(() => {
+      store.commit('REPLACE_ALL_RECORDS', [
+        {
+          type: 'widget',
+          id: '27',
+          attributes: {
+            title: 'Foo',
+          },
+        },
+        {
+          type: 'widget',
+          id: '42',
+          attributes: {
+            title: 'Bar',
+          },
+        },
+      ]);
+
+      store.dispatch('resetState');
+    });
+
+    it('removes all records from the store', () => {
+      let records = store.getters.all;
+      expect(records.length).toEqual(0);
+    });
+
+    it('removes all related records', () => {
+      let related = store.state.related;
+      expect(related.length).toEqual(0);
+    });
+
+    it('removes all filtered records', () => {
+      let filtered = store.state.filtered;
+      expect(filtered.length).toEqual(0);
+    });
+
+    it('sets the status to INITIAL_STATE', () => {
+      expect(store.state.status).toEqual('INITIAL');
+    });
+  });
 });
