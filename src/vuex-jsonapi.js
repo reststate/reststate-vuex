@@ -23,23 +23,25 @@ const handleError = commit => errorResponse => {
   throw errorResponse;
 };
 
+const initialState = () => ({
+  records: [],
+  related: [],
+  filtered: [],
+  page: [],
+  error: null,
+  status: STATUS_INITIAL,
+  links: {},
+  lastCreated: null,
+  lastMeta: null,
+});
+
 const resourceModule = ({ name: resourceName, httpClient }) => {
   const client = new ResourceClient({ name: resourceName, httpClient });
 
   return {
     namespaced: true,
 
-    state: {
-      records: [],
-      related: [],
-      filtered: [],
-      page: [],
-      error: null,
-      status: STATUS_INITIAL,
-      links: {},
-      lastCreated: null,
-      lastMeta: null,
-    },
+    state: initialState(),
 
     mutations: {
       REPLACE_ALL_RECORDS: (state, records) => {
@@ -103,6 +105,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       SET_LINKS: (state, links) => {
         state.links = links || {};
+      },
+
+      RESET_STATE: state => {
+        Object.assign(state, initialState());
       },
     },
 
@@ -227,6 +233,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       removeRecord({ commit }, record) {
         commit('REMOVE_RECORD', record);
+      },
+
+      resetState({ commit }) {
+        commit('RESET_STATE');
       },
     },
 
