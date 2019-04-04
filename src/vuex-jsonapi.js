@@ -41,7 +41,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
   return {
     namespaced: true,
 
-    state: initialState,
+    state: initialState(),
 
     mutations: {
       REPLACE_ALL_RECORDS: (state, records) => {
