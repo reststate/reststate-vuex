@@ -61,7 +61,7 @@ If you are accessing multiple resources, you can use `mapResourceModules()`:
 
 ```javascript
 import { Store } from 'vuex';
-import { mapResourceModules } from 'vuex-jsonapi';
+import { mapResourceModules } from '@reststate/vuex';
 import api from './api';
 
 const store = new Store({
