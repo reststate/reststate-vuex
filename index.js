@@ -1,9 +1,3 @@
-import {
-  resourceModule,
-  mapResourceModules,
-} from './src/vuex-jsonapi';
+import { resourceModule, mapResourceModules } from './src/reststate-vuex';
 
-export {
-  resourceModule,
-  mapResourceModules,
-};
+export { resourceModule, mapResourceModules };
