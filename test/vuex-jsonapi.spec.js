@@ -1256,7 +1256,7 @@ describe('resourceModule()', () => {
           relationship: 'purchased-widgets',
         });
 
-        expect(result).toEqual([]);
+        expect(result).toEqual(null);
       });
     });
 

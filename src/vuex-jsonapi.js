@@ -270,7 +270,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         const related = state.related.find(matches({ type, id }));
 
         if (!related) {
-          return [];
+          return null;
         }
 
         const ids = related.relatedIds;
