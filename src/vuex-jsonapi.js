@@ -199,10 +199,17 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .then(results => {
             commit('SET_STATUS', STATUS_SUCCESS);
             const { id, type } = parent;
-            const relatedRecords = results.data;
-            const relatedIds = relatedRecords.map(record => record.id);
-            commit('STORE_RECORDS', relatedRecords);
-            commit('STORE_RELATED', { id, type, relatedIds });
+            if (Array.isArray(results.data)) {
+              const relatedRecords = results.data;
+              const relatedIds = relatedRecords.map(record => record.id);
+              commit('STORE_RECORDS', relatedRecords);
+              commit('STORE_RELATED', { id, type, relatedIds });
+            } else {
+              const record = results.data;
+              const relatedIds = record.id;
+              commit('STORE_RECORDS', [record]);
+              commit('STORE_RELATED', { id, type, relatedIds });
+            }
             commit('STORE_META', results.meta);
           })
           .catch(handleError(commit));
@@ -270,11 +277,14 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         const related = state.related.find(matches({ type, id }));
 
         if (!related) {
-          return [];
+          return null;
+        } else if (Array.isArray(related.relatedIds)) {
+          const ids = related.relatedIds;
+          return state.records.filter(record => ids.includes(record.id));
+        } else {
+          const id = related.relatedIds;
+          return state.records.find(record => id === record.id);
         }
-
-        const ids = related.relatedIds;
-        return state.records.filter(record => ids.includes(record.id));
       },
     },
   };

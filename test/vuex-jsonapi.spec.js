@@ -1041,6 +1041,31 @@ describe('resourceModule()', () => {
             expect(records.length).toEqual(2);
           });
         });
+
+        describe('when relationship is a to-one', () => {
+          const record = records[0];
+
+          beforeEach(() => {
+            api.get.mockResolvedValue({
+              data: {
+                data: record,
+                meta,
+              },
+            });
+
+            return store.dispatch('loadRelated', { parent });
+          });
+
+          it('allows retrieving related records', () => {
+            const results = store.getters.related({ parent });
+            expect(results).toEqual(record);
+          });
+
+          it('exposes meta data returned', () => {
+            const { lastMeta } = store.getters;
+            expect(lastMeta).toEqual(meta);
+          });
+        });
       });
 
       describe('error', () => {
@@ -1256,7 +1281,7 @@ describe('resourceModule()', () => {
           relationship: 'purchased-widgets',
         });
 
-        expect(result).toEqual([]);
+        expect(result).toEqual(null);
       });
     });
 
