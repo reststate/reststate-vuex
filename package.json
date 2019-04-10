@@ -14,7 +14,7 @@
     "docs:build": "vuepress build docs"
   },
   "dependencies": {
-    "@reststate/client": "^0.0.5"
+    "@reststate/client": "^0.0.6"
   },
   "peerDependencies": {
     "vuex": "^3.0.1"
