@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { resourceModule } from '../src/vuex-jsonapi';
+import { resourceModule } from '../src/reststate-vuex';
 
 Vue.use(Vuex);
 

@@ -49,7 +49,7 @@ import api from './api';
 
 const store = new Store({
   modules: {
-    'widgets': resourceModule({
+    widgets: resourceModule({
       name: 'widgets',
       httpClient: api,
     }),
@@ -61,16 +61,13 @@ If you are accessing multiple resources, you can use `mapResourceModules()`:
 
 ```javascript
 import { Store } from 'vuex';
-import { mapResourceModules } from 'vuex-jsonapi';
+import { mapResourceModules } from '@reststate/vuex';
 import api from './api';
 
 const store = new Store({
   modules: {
     ...mapResourceModules({
-      names: [
-        'widgets',
-        'purchases',
-      ],
+      names: ['widgets', 'purchases'],
       httpClient: api,
     }),
   },
@@ -86,7 +83,7 @@ const httpClient = axios.create({
   baseURL: 'http://api.example.com/',
   headers: {
     'Content-Type': 'application/vnd.api+json',
-    'Authentication': `Bearer ${token}`,
+    Authentication: `Bearer ${token}`,
   },
 });
 
