@@ -1225,8 +1225,11 @@ describe('resourceModule()', () => {
       it('allows retrieving related records', () => {
         store.commit('REPLACE_ALL_RELATED', [
           {
-            type: 'user',
-            id: '42',
+            parent: {
+              type: 'user',
+              id: '42',
+            },
+            relationship: 'purchased-widgets',
             relatedIds: ['27', '42'],
           },
         ]);

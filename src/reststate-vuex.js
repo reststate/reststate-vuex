@@ -81,10 +81,15 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         state.error = error;
       },
 
-      STORE_RELATED: (state, parent) => {
+      STORE_RELATED: (state, { relatedIds, ...params }) => {
         const { related } = state;
 
-        storeRecord(related)(parent);
+        const existingRecord = related.find(matches(params));
+        if (existingRecord) {
+          existingRecord.relatedIds = relatedIds;
+        } else {
+          related.push({ ...params, relatedIds });
+        }
       },
 
       STORE_FILTERED: (state, { filter, matches }) => {
@@ -190,10 +195,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         });
       },
 
-      loadRelated(
-        { commit },
-        { parent, relationship = resourceName, options },
-      ) {
+      loadRelated({ commit }, params) {
+        const { parent, relationship = resourceName, options } = params;
         commit('SET_STATUS', STATUS_LOADING);
         return client
           .related({ parent, relationship, options })
@@ -204,12 +207,12 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
               const relatedRecords = results.data;
               const relatedIds = relatedRecords.map(record => record.id);
               commit('STORE_RECORDS', relatedRecords);
-              commit('STORE_RELATED', { id, type, relatedIds });
+              commit('STORE_RELATED', { ...params, relatedIds });
             } else {
               const record = results.data;
               const relatedIds = record.id;
               commit('STORE_RECORDS', [record]);
-              commit('STORE_RELATED', { id, type, relatedIds });
+              commit('STORE_RELATED', { ...params, relatedIds });
             }
             commit('STORE_META', results.meta);
           })
@@ -273,9 +276,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         const { ids } = entry;
         return state.records.filter(record => ids.includes(record.id));
       },
-      related: state => ({ parent, relationship = resourceName }) => {
-        const { type, id } = parent;
-        const related = state.related.find(matches({ type, id }));
+      related: state => params => {
+        const related = state.related.find(matches(params));
 
         if (!related) {
           return null;
