@@ -1,4 +1,5 @@
 import { ResourceClient } from '@reststate/client';
+import deepEquals from './deepEquals';
 
 const STATUS_INITIAL = 'INITIAL';
 const STATUS_LOADING = 'LOADING';
@@ -15,7 +16,7 @@ const storeRecord = records => newRecord => {
 };
 
 const matches = criteria => test =>
-  Object.keys(criteria).every(key => criteria[key] === test[key]);
+  Object.keys(criteria).every(key => deepEquals(criteria[key], test[key]));
 
 const handleError = commit => errorResponse => {
   commit('SET_STATUS', STATUS_ERROR);
