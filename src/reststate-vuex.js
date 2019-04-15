@@ -92,13 +92,15 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         }
       },
 
-      STORE_FILTERED: (state, { filter, matches }) => {
+      STORE_FILTERED: (state, { matchedIds, ...params }) => {
         const { filtered } = state;
 
-        const ids = matches.map(({ id }) => id);
-
-        // TODO: handle overwriting existing one
-        filtered.push({ filter, ids });
+        const existingRecord = filtered.find(matches(params));
+        if (existingRecord) {
+          existingRecord.matchedIds = matchedIds;
+        } else {
+          filtered.push({ ...params, matchedIds });
+        }
       },
 
       STORE_LAST_CREATED: (state, record) => {
@@ -143,15 +145,17 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .catch(handleError(commit));
       },
 
-      loadWhere({ commit }, { filter, options }) {
+      loadWhere({ commit }, params) {
+        const { filter, options } = params;
         commit('SET_STATUS', STATUS_LOADING);
         return client
           .where({ filter, options })
           .then(results => {
             commit('SET_STATUS', STATUS_SUCCESS);
             const matches = results.data;
+            const matchedIds = matches.map(record => record.id);
             commit('STORE_RECORDS', matches);
-            commit('STORE_FILTERED', { filter, matches });
+            commit('STORE_FILTERED', { ...params, matchedIds });
             commit('STORE_META', results.meta);
           })
           .catch(handleError(commit));
@@ -263,18 +267,15 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       lastMeta: state => state.lastMeta,
       page: state =>
         state.records.filter(record => state.page.includes(record.id)),
-      where: state => ({ filter }) => {
-        const matchesRequestedFilter = matches(filter);
-        const entry = state.filtered.find(({ filter: testFilter }) =>
-          matchesRequestedFilter(testFilter),
-        );
+      where: state => params => {
+        const entry = state.filtered.find(matches(params));
 
         if (!entry) {
           return [];
         }
 
-        const { ids } = entry;
-        return state.records.filter(record => ids.includes(record.id));
+        const ids = entry.matchedIds;
+        return ids.map(id => state.records.find(record => record.id === id));
       },
       related: state => params => {
         const related = state.related.find(matches(params));

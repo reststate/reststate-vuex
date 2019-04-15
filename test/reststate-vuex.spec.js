@@ -324,6 +324,48 @@ describe('resourceModule()', () => {
         });
       });
 
+      describe('when changing options', () => {
+        const reversedRecords = records.slice().reverse();
+        const firstOptions = { sort: 'foo' };
+        const secondOptions = { sort: 'bar' };
+
+        beforeEach(() => {
+          api.get
+            .mockResolvedValueOnce({
+              data: {
+                data: records,
+                meta,
+              },
+            })
+            .mockResolvedValueOnce({
+              data: {
+                data: reversedRecords,
+                meta,
+              },
+            });
+
+          return store
+            .dispatch('loadWhere', {
+              filter,
+              options: firstOptions,
+            })
+            .then(() =>
+              store.dispatch('loadWhere', {
+                filter,
+                options: secondOptions,
+              }),
+            );
+        });
+
+        it('returns the second set of records', () => {
+          const records = store.getters.where({
+            filter,
+            options: secondOptions,
+          });
+          expect(records).toEqual(reversedRecords);
+        });
+      });
+
       describe('error', () => {
         const error = { dummy: 'error' };
 
