@@ -324,6 +324,48 @@ describe('resourceModule()', () => {
         });
       });
 
+      describe('when changing options', () => {
+        const reversedRecords = records.slice().reverse();
+        const firstOptions = { sort: 'foo' };
+        const secondOptions = { sort: 'bar' };
+
+        beforeEach(() => {
+          api.get
+            .mockResolvedValueOnce({
+              data: {
+                data: records,
+                meta,
+              },
+            })
+            .mockResolvedValueOnce({
+              data: {
+                data: reversedRecords,
+                meta,
+              },
+            });
+
+          return store
+            .dispatch('loadWhere', {
+              filter,
+              options: firstOptions,
+            })
+            .then(() =>
+              store.dispatch('loadWhere', {
+                filter,
+                options: secondOptions,
+              }),
+            );
+        });
+
+        it('returns the second set of records', () => {
+          const records = store.getters.where({
+            filter,
+            options: secondOptions,
+          });
+          expect(records).toEqual(reversedRecords);
+        });
+      });
+
       describe('error', () => {
         const error = { dummy: 'error' };
 
@@ -1066,6 +1108,48 @@ describe('resourceModule()', () => {
             expect(lastMeta).toEqual(meta);
           });
         });
+
+        describe('when changing options', () => {
+          const reversedRecords = records.slice().reverse();
+          const firstOptions = { sort: 'foo' };
+          const secondOptions = { sort: 'bar' };
+
+          beforeEach(() => {
+            api.get
+              .mockResolvedValueOnce({
+                data: {
+                  data: records,
+                  meta,
+                },
+              })
+              .mockResolvedValueOnce({
+                data: {
+                  data: reversedRecords,
+                  meta,
+                },
+              });
+
+            return store
+              .dispatch('loadRelated', {
+                parent,
+                options: firstOptions,
+              })
+              .then(() =>
+                store.dispatch('loadRelated', {
+                  parent,
+                  options: secondOptions,
+                }),
+              );
+          });
+
+          it('returns the second set of records', () => {
+            const records = store.getters.related({
+              parent,
+              options: secondOptions,
+            });
+            expect(records).toEqual(reversedRecords);
+          });
+        });
       });
 
       describe('error', () => {
@@ -1225,8 +1309,11 @@ describe('resourceModule()', () => {
       it('allows retrieving related records', () => {
         store.commit('REPLACE_ALL_RELATED', [
           {
-            type: 'user',
-            id: '42',
+            parent: {
+              type: 'user',
+              id: '42',
+            },
+            relationship: 'purchased-widgets',
             relatedIds: ['27', '42'],
           },
         ]);
