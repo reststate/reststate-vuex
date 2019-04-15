@@ -1066,6 +1066,48 @@ describe('resourceModule()', () => {
             expect(lastMeta).toEqual(meta);
           });
         });
+
+        describe('when changing options', () => {
+          const reversedRecords = records.slice().reverse();
+          const firstOptions = { sort: 'foo' };
+          const secondOptions = { sort: 'bar' };
+
+          beforeEach(() => {
+            api.get
+              .mockResolvedValueOnce({
+                data: {
+                  data: records,
+                  meta,
+                },
+              })
+              .mockResolvedValueOnce({
+                data: {
+                  data: reversedRecords,
+                  meta,
+                },
+              });
+
+            return store
+              .dispatch('loadRelated', {
+                parent,
+                options: firstOptions,
+              })
+              .then(() =>
+                store.dispatch('loadRelated', {
+                  parent,
+                  options: secondOptions,
+                }),
+              );
+          });
+
+          it('returns the second set of records', () => {
+            const records = store.getters.related({
+              parent,
+              options: secondOptions,
+            });
+            expect(records).toEqual(reversedRecords);
+          });
+        });
       });
 
       describe('error', () => {
