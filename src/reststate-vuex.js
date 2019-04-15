@@ -281,7 +281,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           return null;
         } else if (Array.isArray(related.relatedIds)) {
           const ids = related.relatedIds;
-          return state.records.filter(record => ids.includes(record.id));
+          return ids.map(id => state.records.find(record => record.id === id));
         } else {
           const id = related.relatedIds;
           return state.records.find(record => id === record.id);
