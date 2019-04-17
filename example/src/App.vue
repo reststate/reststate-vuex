@@ -1,64 +1,78 @@
 <template>
   <div>
-    <form @submit.prevent="handleCreate">
-      <input
-        type="text"
-        v-model="title"
-      />
-      <button>Create</button>
-    </form>
-    <p v-if="isLoading">Loading...</p>
-    <p v-else-if="isError">Error loading posts</p>
-    <ul v-else>
+    <div>
+      <button @click="updateSort('username')">Username</button>
+      <button @click="updateSort('comment')">Comment</button>
+    </div>
+    <ul>
       <li
-        v-for="post in allPosts"
-        :key="post.id"
+        v-for="comment in comments"
+        :key="comment.username"
       >
-        {{ post.attributes.title }}
-        <button @click="deletePost(post)">
-          Delete
-        </button>
+        <h2>{{ comment.username }}</h2>
+        <p>{{ comment.comment }}</p>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
-
 export default {
   name: 'app',
   data() {
     return {
-      title: '',
+      parentWidgetId: 1,
+      sort: 'username',
+      currentPage: 1,
+      itemsPerPage: 2,
+      totalItems: 0,
     };
   },
   mounted() {
-    this.loadAllPosts();
-  },
-  methods: {
-    ...mapActions({
-      loadAllPosts: 'posts/loadAll',
-      createPost: 'posts/create',
-      deletePost: 'posts/delete',
-    }),
-    handleCreate() {
-      this.createPost({
-        attributes: {
-          title: this.title,
-        },
-      }).then(() => {
-        this.title = '';
-      });
-    },
+    this.loadComments();
   },
   computed: {
-    ...mapGetters({
-      isLoading: 'posts/isLoading',
-      isError: 'posts/isError',
-      error: 'posts/error',
-      allPosts: 'posts/all',
-    }),
+    comments() {
+      const comments =
+        this.$store.getters['widget-comments/related']({
+          parent: {
+            id: this.parentWidgetId,
+            type: 'widgets',
+          },
+          options: {
+            page: this.currentPage,
+            itemsPerPage: this.itemsPerPage,
+            sort: this.sort,
+          },
+        }) || [];
+      console.log({ comments });
+      return comments.map(({ attributes }) => attributes);
+    },
+  },
+  methods: {
+    loadComments() {
+      this.$store
+        .dispatch('widget-comments/loadRelated', {
+          parent: {
+            id: this.parentWidgetId,
+            type: 'widgets',
+          },
+          options: {
+            page: this.currentPage,
+            itemsPerPage: this.itemsPerPage,
+            sort: this.sort,
+          },
+        })
+        .then(() => {
+          const meta = this.$store.getters['widget-comments/lastMeta'] || {};
+          this.itemsPerPage = meta.itemsPerPage;
+          this.totalItems = meta.totalItems;
+        });
+    },
+    updateSort(sort) {
+      this.sort = sort;
+      this.loadComments();
+    },
   },
 };
 </script>
