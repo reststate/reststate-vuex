@@ -9,7 +9,8 @@
     "test:e2e": "vue-cli-service test:e2e"
   },
   "dependencies": {
-    "@reststate/vuex": "^0.0.8",
+    "@reststate/client": "^0.0.8",
+    "@reststate/vuex": "^0.0.13",
     "axios": "^0.18.0",
     "vue": "^2.5.17",
     "vuex": "^3.0.1"
