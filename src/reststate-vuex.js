@@ -143,7 +143,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('STORE_RECORD', results.data);
             commit('STORE_META', results.meta);
 
-            return dispatch('storeIncluded', results);
+            return dispatch('handleCompoundDocument', results);
           })
           .catch(handleError(commit));
       },
@@ -222,7 +222,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
               commit('STORE_RELATED', { ...params, relatedIds });
             }
             commit('STORE_META', results.meta);
-            return dispatch('storeIncluded', results);
+            return dispatch('handleCompoundDocument', results);
           })
           .catch(handleError(commit));
       },
@@ -258,97 +258,100 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         commit('RESET_STATE');
       },
 
-      storeIncluded({ commit, dispatch }, { data, included }) {
+      handleCompoundDocument({ dispatch }, { data, included }) {
         if (!included || !Array.isArray(included)) return;
-
-        const existingResourceNames = Object.keys(this._modules.root._children);
 
         if (Array.isArray(data)) {
           return Promise.all(
             data.map(datum => {
-              return dispatch('storeIncluded', {
+              return dispatch('handleCompoundDocument', {
                 data: datum,
                 included,
               });
             }),
           );
         } else {
-          Object.keys(data.relationships).forEach(key => {
-            if (!data.relationships[key].data) delete data.relationships[key];
-          });
-          const relationshipsMap = new Map(Object.entries(data.relationships));
-
-          const parent = {
-            id: data.id,
-            type: data.type,
-          };
-
-          relationshipsMap.forEach(({ data }, relationship) => {
-            if (!data || data.length === 0) return;
-
-            if (Array.isArray(data)) {
-              const targetResourceName = pluralize(data[0].type);
-
-              if (
-                !existingResourceNames.find(name => name === targetResourceName)
-              )
-                return;
-
-              const records = data
-                .map(relationshipData =>
-                  included.find(
-                    includedItem => relationshipData.id === includedItem.id,
-                  ),
-                )
-                .filter(record => !!record);
-
-              const relatedIds = records.map(r => r.id);
-
-              commit(`${targetResourceName}/STORE_RECORDS`, records, {
-                root: true,
-              });
-              commit(
-                `${targetResourceName}/STORE_RELATED`,
-                { parent, relationship, relatedIds },
-                { root: true },
-              );
-              commit(`${targetResourceName}/SET_STATUS`, STATUS_SUCCESS, {
-                root: true,
-              });
-
-              return records;
-            } else {
-              const targetResourceName = pluralize(data.type);
-
-              if (
-                !existingResourceNames.find(name => name === targetResourceName)
-              )
-                return;
-
-              const record = included.find(
-                includedItem => data.id === includedItem.id,
-              );
-
-              if (!record) return;
-
-              const relatedIds = record.id;
-
-              commit(`${targetResourceName}/STORE_RECORDS`, [record], {
-                root: true,
-              });
-              commit(
-                `${targetResourceName}/STORE_RELATED`,
-                { parent, relationship, relatedIds },
-                { root: true },
-              );
-              commit(`${targetResourceName}/SET_STATUS`, STATUS_SUCCESS, {
-                root: true,
-              });
-
-              return record;
-            }
-          });
+          return dispatch('storeIncluded', { data, included });
         }
+      },
+
+      storeIncluded({ commit, dispatch }, { data, included }) {
+        Object.keys(data.relationships).forEach(key => {
+          if (!data.relationships[key].data) delete data.relationships[key];
+        });
+
+        const relationshipsMap = new Map(Object.entries(data.relationships));
+        const existingResourceNames = Object.keys(this._modules.root._children);
+        const parent = {
+          id: data.id,
+          type: data.type,
+        };
+
+        relationshipsMap.forEach(({ data }, relationship) => {
+          if (!data || data.length === 0) return;
+
+          if (Array.isArray(data)) {
+            const targetResourceName = pluralize(data[0].type);
+
+            if (
+              !existingResourceNames.find(name => name === targetResourceName)
+            )
+              return;
+
+            const records = data
+              .map(relationshipData =>
+                included.find(
+                  includedItem => relationshipData.id === includedItem.id,
+                ),
+              )
+              .filter(record => !!record);
+
+            const relatedIds = records.map(r => r.id);
+
+            commit(`${targetResourceName}/STORE_RECORDS`, records, {
+              root: true,
+            });
+            commit(
+              `${targetResourceName}/STORE_RELATED`,
+              { parent, relationship, relatedIds },
+              { root: true },
+            );
+            commit(`${targetResourceName}/SET_STATUS`, STATUS_SUCCESS, {
+              root: true,
+            });
+
+            return records;
+          } else {
+            const targetResourceName = pluralize(data.type);
+
+            if (
+              !existingResourceNames.find(name => name === targetResourceName)
+            )
+              return;
+
+            const record = included.find(
+              includedItem => data.id === includedItem.id,
+            );
+
+            if (!record) return;
+
+            const relatedIds = record.id;
+
+            commit(`${targetResourceName}/STORE_RECORDS`, [record], {
+              root: true,
+            });
+            commit(
+              `${targetResourceName}/STORE_RELATED`,
+              { parent, relationship, relatedIds },
+              { root: true },
+            );
+            commit(`${targetResourceName}/SET_STATUS`, STATUS_SUCCESS, {
+              root: true,
+            });
+
+            return record;
+          }
+        });
       },
     },
 
