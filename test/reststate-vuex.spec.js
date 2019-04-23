@@ -807,6 +807,57 @@ describe('resourceModule()', () => {
             });
         });
       });
+
+      describe('when changing options', () => {
+        const reversedFirstPage = firstPage.slice().reverse();
+        const firstOptions = {
+          'page[number]': 1,
+          'page[size]': 2,
+          sort: 'foo',
+        };
+        const secondOptions = {
+          'page[number]': 1,
+          'page[size]': 2,
+          sort: 'bar',
+        };
+
+        const meta = {
+          totalItems: 23,
+          itemsPerPage: 10,
+          currentPage: 1,
+        };
+
+        beforeEach(() => {
+          api.get
+            .mockResolvedValueOnce({
+              data: {
+                data: firstPage,
+                meta,
+              },
+            })
+            .mockResolvedValueOnce({
+              data: {
+                data: reversedFirstPage,
+                meta,
+              },
+            });
+
+          return store
+            .dispatch('loadPage', {
+              options: firstOptions,
+            })
+            .then(() =>
+              store.dispatch('loadPage', {
+                options: secondOptions,
+              }),
+            );
+        });
+
+        it('returns the second set of records', () => {
+          const records = store.getters.page;
+          expect(records).toEqual(reversedFirstPage);
+        });
+      });
     });
 
     describe('by ID', () => {

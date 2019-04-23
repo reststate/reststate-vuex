@@ -266,7 +266,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       byId: state => ({ id }) => state.records.find(r => r.id == id),
       lastMeta: state => state.lastMeta,
       page: state =>
-        state.records.filter(record => state.page.includes(record.id)),
+        state.page.map(id => state.records.find(record => record.id === id)),
       where: state => params => {
         const entry = state.filtered.find(matches(params));
 
