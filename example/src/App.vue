@@ -1,23 +1,13 @@
 <template>
   <div>
-    <form @submit.prevent="handleCreate">
-      <input
-        type="text"
-        v-model="title"
-      />
-      <button>Create</button>
-    </form>
     <p v-if="isLoading">Loading...</p>
-    <p v-else-if="isError">Error loading posts</p>
+    <p v-else-if="isError">Error loading widgets</p>
     <ul v-else>
       <li
-        v-for="post in allPosts"
-        :key="post.id"
+        v-for="widget in allWidgets"
+        :key="widget.id"
       >
-        {{ post.attributes.title }}
-        <button @click="deletePost(post)">
-          Delete
-        </button>
+        {{ widget.attributes.name }}
       </li>
     </ul>
   </div>
@@ -34,30 +24,19 @@ export default {
     };
   },
   mounted() {
-    this.loadAllPosts();
+    this.loadAllWidgets();
   },
   methods: {
     ...mapActions({
-      loadAllPosts: 'posts/loadAll',
-      createPost: 'posts/create',
-      deletePost: 'posts/delete',
+      loadAllWidgets: 'widgets/loadAll',
     }),
-    handleCreate() {
-      this.createPost({
-        attributes: {
-          title: this.title,
-        },
-      }).then(() => {
-        this.title = '';
-      });
-    },
   },
   computed: {
     ...mapGetters({
-      isLoading: 'posts/isLoading',
-      isError: 'posts/isError',
-      error: 'posts/error',
-      allPosts: 'posts/all',
+      isLoading: 'widgets/isLoading',
+      isError: 'widgets/isError',
+      error: 'widgets/error',
+      allWidgets: 'widgets/all',
     }),
   },
 };
