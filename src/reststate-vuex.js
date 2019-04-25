@@ -276,10 +276,6 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       storeIncluded({ commit, dispatch }, { data, included }) {
-        Object.keys(data.relationships).forEach(key => {
-          if (!data.relationships[key].data) delete data.relationships[key];
-        });
-
         const relationshipsMap = new Map(Object.entries(data.relationships));
         const existingResourceNames = Object.keys(this._modules.root._children);
         const parent = {
