@@ -292,15 +292,6 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           commit(`${resourceName}/STORE_RECORDS`, [record], {
             root: true,
           });
-          commit(
-            `${resourceName}/STORE_RELATED`,
-            {
-              parent,
-              relationship: record.type,
-              relatedIds: record.id,
-            },
-            { root: true },
-          );
         }
 
         for (const relationship in data.relationships) {
