@@ -214,12 +214,20 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
               const relatedRecords = results.data;
               const relatedIds = relatedRecords.map(record => record.id);
               commit('STORE_RECORDS', relatedRecords);
-              commit('STORE_RELATED', { ...params, relatedIds });
+              commit('STORE_RELATED', {
+                parent: { id, type },
+                relationship,
+                relatedIds,
+              });
             } else {
               const record = results.data;
               const relatedIds = record.id;
               commit('STORE_RECORDS', [record]);
-              commit('STORE_RELATED', { ...params, relatedIds });
+              commit('STORE_RELATED', {
+                parent: { id, type },
+                relationship,
+                relatedIds,
+              });
             }
             commit('STORE_META', results.meta);
             return dispatch('handleCompoundDocument', results);
