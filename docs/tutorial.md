@@ -1,14 +1,15 @@
 # Tutorial
 
-Let's walk through setting up a zero-configuration data layer in Vue using `@reststate/vuex`.
+Let's walk through setting up a zero-configuration data layer in Vue using `@reststate/vuex`. To try it out, let's create a webapp for rating dishes at restaurants. We'll call it "Opinion Ate".
 
-Create a new Vue app using [Vue CLI 3](https://cli.vuejs.org/). Include Vuex support:
+Create a new Vue app using [Vue CLI 3](https://cli.vuejs.org/):
 
 ```sh
-$ vue create reststate-vuex-tutorial
+$ npm install -g @vue/cli
+$ vue create opinion-ate-vue
 ```
 
-Make sure you include Vuex in the list of features, or choose a preset that includes Vuex.
+Make sure you include Vue Router and Vuex in the list of features. You can answer "Yes" for "Use history mode for router?"
 
 Next, add `@reststate/vuex`, as well as the `axios` library for handling the web service requests:
 
@@ -32,20 +33,18 @@ You'll receive back a response like:
 
 ```json
 {
-    "access_token": "b027b3ed38739a1d01c2ac05008f0cb4e7a764acc802e0cfb1e5bf1a4876597c",
-    "token_type": "bearer",
-    "expires_in": 7200,
-    "created_at": 1531855327
+  "access_token": "Hhd07mqAY1QlhoinAcKMB5zlmRiatjOh5Ainh90yWPI",
+  "token_type": "bearer",
+  "expires_in": 7200,
+  "created_at": 1531855327
 }
 ```
 
 Let's set up an `axios` client with that access token to handle the web service connection. Add the following to `src/store.js`:
 
 ```javascript
-import Vue from 'vue';
-import Vuex from 'vuex';
 import axios from 'axios';
-import { resourceModule } from '@reststate/vuex';
+import { mapResourceModules } from '@reststate/vuex';
 
 const token = '[the token you received from the POST request above]';
 
@@ -58,55 +57,68 @@ const httpClient = axios.create({
 });
 ```
 
-Now, call `resourceModule()` to create a new module that accesses and stores post data:
+Now, call `mapResourceModules()` to create two new modules, for accessing restaurant and dish data. You can remove the existing properties of the options object:
 
 ```diff
  Vue.use(Vuex);
 
  export default new Vuex.Store({
 +  modules: {
-+    posts: resourceModule({ name: 'posts', httpClient }),
++    ...mapResourceModules({
++      httpClient,
++      names: ['restaurants', 'dishes'],
++    })
 +  },
+-  state: {
+-
+-  },
+-  mutations: {
+-
+-  },
+-  actions: {
+-
+-  }
  });
 ```
 
 That's all we have to do to set up our data layer! Now let's put it to use.
 
-Let's set up a component to display a list of the posts. Replace the content of `App.vue` with the following:
+Let's set up the index route to display a list of the restaurants.
+
+First, delete the `<style>` tag from `App.vue` to remove the default styling.
+
+Then, replace the content of `src/components/Home.vue` with the following:
 
 ```html
 <template>
   <div>
     <ul>
-      <li
-        v-for="post in allPosts"
-        :key="post.id"
-      >
-        {{ post.attributes.title }}
+      <li v-for="restaurant in allRestaurants" :key="restaurant.id">
+        {{ restaurant.attributes.name }}
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
+  import { mapActions, mapGetters } from 'vuex';
 
-export default {
-  name: 'app',
-  mounted() {
-    this.loadAllPosts();
-  },
-  methods: {
-    ...mapActions({
-      loadAllPosts: 'posts/loadAll',
-    }),
-  },
-  computed: {
-    ...mapGetters({
-      allPosts: 'posts/all',
-    }),
-  },
-};
+  export default {
+    name: 'home',
+    mounted() {
+      this.loadAllRestaurants();
+    },
+    methods: {
+      ...mapActions({
+        loadAllRestaurants: 'restaurants/loadAll',
+      }),
+    },
+    computed: {
+      ...mapGetters({
+        allRestaurants: 'restaurants/all',
+      }),
+    },
+  };
 </script>
 ```
 
@@ -115,17 +127,23 @@ Notice a few things:
 - We use Vuex's `mapActions` and `mapGetters` as usual to access the actions and getters.
 - We use a `loadAll` action to request the data from the server in the `mounted` hook.
 - We use an `all` getter to access the data for rendering.
-- The post's ID is available as a property on the `post` directly, but its title is under a `post.attributes` object. This is the standard JSON:API resource object format, and to keep things simple `@reststate/vuex` exposes resources in the same format as JSON:API.
+- The restaurant's ID is available as a property on the `restaurant` directly, but its name is under a `post.attributes` object. This is the standard JSON:API resource object format, and to keep things simple `@reststate/vuex` exposes resources in the same format as JSON:API.
 
-Run the app and you'll see some sample posts that were created by default for you when you signed up for a Sandbox API account.
+Start the app:
+
+```sh
+$ yarn serve
+```
+
+Visit `http://localhost:8080` in your browser and you'll see some sample restaurants that were created by default for you when you signed up for a Sandbox API account.
 
 A nice enhancement we could do would be to show the user when the data is loading from the server, or if it has errored out. Our store has properties for this. Map a few more getters:
 
 ```diff
      ...mapGetters({
-+      loading: 'posts/loading',
-+      error: 'posts/error',
-       allPosts: 'posts/all',
++      isLoading: 'restaurants/isLoading',
++      isError: 'restaurants/isError',
+       allRestaurants: 'restaurants/all',
      }),
 ```
 
@@ -135,16 +153,16 @@ Next, let's check these variables in the template:
  <template>
    <div>
 -    <ul>
-+    <p v-if="loading">Loading...</p>
-+    <p v-else-if="error">Error loading posts.</p>
++    <p v-if="isLoading">Loading...</p>
++    <p v-else-if="isError">Error loading restaurants.</p>
 +    <ul v-else>
        <li
-         v-for="post in allPosts"
+         v-for="restaurant in allRestaurants"
 ```
 
 Now reload the page and you should briefly see the "Loading" message before the data loads. If you'd like to see the error message, change the `baseURL` in `store.js` to some incorrect URL, and the request to load the data will error out.
 
-Now that we've set up reading our data, let's see how we can write data. Let's allow the user to create a new post. To keep things simple for the example, we'll just save a title field.
+Now that we've set up reading our data, let's see how we can write data. Let's allow the user to create a new restaurant.
 
 Add a simple form to the top of the template:
 
@@ -152,23 +170,28 @@ Add a simple form to the top of the template:
  <template>
    <div>
 +    <form @submit.prevent="handleCreate">
-+      <input
-+        type="text"
-+        v-model="title"
-+      />
++      <div>
++        Name:
++        <input type="text" v-model="name" />
++      </div>
++      <div>
++        Address:
++        <input type="text" v-model="address" />
++      </div>
 +      <button>Create</button>
 +    </form>
-     <p v-if="loading">Loading...</p>
+     <p v-if="isLoading">Loading...</p>
 ```
 
-Now, add a data property for the `title`:
+Now, add data properties for the `name` and `address` fields:
 
 ```diff
  export default {
-   name: 'app',
+   name: 'home',
 +  data() {
 +    return {
-+      title: '',
++      name: '',
++      address: '',
 +    };
 +  },
    mounted() {
@@ -179,42 +202,44 @@ Map the `create` action:
 ```diff
    methods: {
      ...mapActions({
-       loadAllPosts: 'posts/loadAll',
-+      createPost: 'posts/create',
+       loadAllRestaurants: 'restaurants/loadAll',
++      createRestaurant: 'restaurants/create',
      }),
 ```
 
 And add a custom `handleCreate` method:
 
 ```diff
-       loadAllPosts: 'posts/loadAll',
-       createPost: 'posts/create',
+       loadAllRestaurants: 'restaurants/loadAll',
+       createRestaurant: 'restaurants/create',
      }),
 +    handleCreate() {
-+      this.createPost({
++      this.createRestaurant({
 +        attributes: {
-+          title: this.title,
++          name: this.name,
++          address: this.address,
 +        },
 +      }).then(() => {
-+        this.title = '';
++        this.name = '';
++        this.address = '';
 +      });
 +    },
 ```
 
 Notice a few things:
 
-- The object we pass to `createPost` follows the JSON:API resource object format: the attributes are under an `attributes` object. (If you know JSON:API, you may notice that we aren't passing a `type` property, though--`@reststate/vuex` can infer that from the fact that we're in the `posts` module.)
-- We clear out the title after the `create` operation succeeds.
+- The object we pass to `createRestaurant` follows the JSON:API resource object format: the attributes are under an `attributes` object. (If you know JSON:API, you may notice that we aren't passing a `type` property, though--`@reststate/vuex` can infer that from the fact that we're in the `restaurants` module.)
+- We clear out the name and address after the `create` operation succeeds.
 
-Run the app and you should be able to submit a new post, and it should appear in the list right away. This is because `@reststate/vuex` automatically adds it to the local store of posts; you don't need to do that manually.
+Run the app and you should be able to submit a new restaurant, and it should appear in the list right away. This is because `@reststate/vuex` automatically adds it to the local store of restaurants; you don't need to do that manually.
 
-Finally, let's make a way to delete posts. Add a delete button to each list item:
+Next, let's make a way to delete restaurants. Add a delete button to each list item:
 
 ```diff
-         :key="post.id"
+         :key="restaurant.id"
        >
-         {{ post.attributes.title }}
-+        <button @click="deletePost(post)">
+         {{ restaurant.attributes.name }}
++        <button @click="deleteRestaurant(restaurant)">
 +          Delete
 +        </button>
        </li>
@@ -224,12 +249,152 @@ Map the `delete` action:
 
 ```diff
      ...mapActions({
-       loadAllPosts: 'posts/loadAll',
-       createPost: 'posts/create',
-+      deletePost: 'posts/delete',
+       loadAllRestaurants: 'restaurants/loadAll',
+       createRestaurant: 'restaurants/create',
++      deleteRestaurant: 'restaurants/delete',
      }),
 ```
 
 This time we don't need a custom method; we can just bind the action directly with `@click`. Try it out and you can delete records from your list. They're removed from the server and from your local Vuex store.
 
-With that, our tutorial is complete. Notice how much functionality we got without needing to write any custom store code! JSON:API's conventions allow us to use a zero-configuration library like `@reststate/vuex`  to focus on our application and not on managing data.
+Let's wrap things up by showing how you can load related data: the dishes for each restaurant.
+
+In `src/router.js`, add a new route to point to a restaurant detail view:
+
+```diff
+ import Home from './views/Home.vue'
++import RestaurantDetail from './views/RestaurantDetail.vue'
+...
+   component: Home
+ },
++{
++  path: '/restaurants/:id',
++  name: 'restaurant-detail',
++  component: RestaurantDetail
++},
+ {
+```
+
+Create a new `src/views/RestuarantDetail.vue` file for this component and start with the following:
+
+```html
+<script>
+  import { mapActions, mapGetters } from "vuex";
+
+  export default {
+    name: 'restaurant-detail',
+    methods: {
+    computed: {
+    }
+  };
+</script>
+```
+
+First let's retrieve the restaurant ID from the route:
+
+```diff
+ computed: {
++  restaurantId() {
++    return this.$route.params.id;
++  },
+ }
+```
+
+Then let's use that ID to load the restaurant with that ID when the component mounts:
+
+```diff
+ export default {
+   name: 'restaurant-detail',
++  async mounted() {
++    await this.loadRestaurant({ id: this.restaurantId });
++  },
+   methods: {
++    ...mapActions({
++      loadRestaurant: 'restaurants/loadById',
++    })
+   },
+```
+
+Then let's make that loaded restaurant easily available as a computed property:
+
+```diff
+   restaurantId() {
+     return this.$route.params.id;
+   },
++  restaurant() {
++    return this.restaurantById({ id: this.restaurantId });
++  },
+ }
+```
+
+Now we can access that restaurant in the template:
+
+```html
+<template>
+  <div v-if="restaurant">
+    <h1>{{ restaurant.attributes.name }}</h1>
+</template>
+```
+
+Now to load the dishes related to the restaurant, we'll follow fairly analogus steps.
+
+After we load the restaurant, we load its related dishes as well:
+
+```diff
+ export default {
+   name: 'restaurant-detail',
+   async mounted() {
+     await this.loadRestaurant({ id: this.restaurantId });
++    await this.loadRelatedDishes({ parent: this.restaurant });
+   },
+   methods: {
+     ...mapActions({
+       loadRestaurant: 'restaurants/loadById',
++      loadRelatedDishes: 'dishes/loadRelated',
+     })
+   },
+```
+
+Then we make that loaded dishes easily available as a computed property:
+
+```diff
+ computed: {
+   ...mapGetters({
+     restaurantById: 'restaurants/byId',
++    relatedDishes: 'dishes/related',
+   }),
+...
+   restaurant() {
+     return this.restaurantById({ id: this.restaurantId });
+   },
++  dishes() {
++    return this.relatedDishes({ parent: this.restaurant });
++  }
+ }
+```
+
+Now we add those dishes to the template:
+
+```html
+<ul>
+  <li v-for="dish in dishes" :key="dish.id">
+    {{ dish.attributes.name }} - {{ dish.attributes.rating }} stars
+  </li>
+</ul>
+```
+
+Finally, let's link each restaurant in the list to its detail page:
+
+```diff
+{% raw %} <li>
+-  {{ restaurant.attributes.name }}
++  <router-link :to="`/restaurants/${restaurant.id}`">
++    {{ restaurant.attributes.name }}
++  </router-link>
+   <button
+     type="button"{% endraw %}
+```
+
+Go back to the root of the app and click a link to go to a restauant detail page. You should see the dishes related to that restauant.
+
+With that, our tutorial is complete. Notice how much functionality we got without needing to write any custom store code! JSON:API's conventions allow us to use a zero-configuration library like `@reststate/vuex` to focus on our application and not on managing data.
