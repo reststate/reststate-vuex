@@ -1,6 +1,13 @@
 module.exports = {
   title: '@reststate/vuex',
-  ga: 'UA-128167246-2',
+  plugins: [
+    [
+      '@vuepress/google-analytics',
+      {
+        ga: 'UA-128167246-2',
+      },
+    ],
+  ],
   themeConfig: {
     nav: [
       { text: '@reststate/vuex', link: '/' },
