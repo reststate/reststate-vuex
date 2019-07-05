@@ -81,7 +81,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         state.error = error;
       },
 
-      STORE_RELATED: (state, { relatedIds, ...params }) => {
+      STORE_RELATED: (state, { relatedIds, params }) => {
         const { related } = state;
 
         const existingRecord = related.find(matches(params));
@@ -211,12 +211,12 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
               const relatedRecords = results.data;
               const relatedIds = relatedRecords.map(record => record.id);
               commit('STORE_RECORDS', relatedRecords);
-              commit('STORE_RELATED', { ...params, relatedIds });
+              commit('STORE_RELATED', { params, relatedIds });
             } else {
               const record = results.data;
               const relatedIds = record.id;
               commit('STORE_RECORDS', [record]);
-              commit('STORE_RELATED', { ...params, relatedIds });
+              commit('STORE_RELATED', { params, relatedIds });
             }
             commit('STORE_META', results.meta);
           })
