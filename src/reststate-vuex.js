@@ -81,25 +81,25 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         state.error = error;
       },
 
-      STORE_RELATED: (state, { relatedIds, ...params }) => {
+      STORE_RELATED: (state, { relatedIds, params }) => {
         const { related } = state;
 
         const existingRecord = related.find(matches(params));
         if (existingRecord) {
           existingRecord.relatedIds = relatedIds;
         } else {
-          related.push({ ...params, relatedIds });
+          related.push(Object.assign({ relatedIds }, params));
         }
       },
 
-      STORE_FILTERED: (state, { matchedIds, ...params }) => {
+      STORE_FILTERED: (state, { matchedIds, params }) => {
         const { filtered } = state;
 
         const existingRecord = filtered.find(matches(params));
         if (existingRecord) {
           existingRecord.matchedIds = matchedIds;
         } else {
-          filtered.push({ ...params, matchedIds });
+          filtered.push(Object.assign({ matchedIds }, params));
         }
       },
 
@@ -155,7 +155,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             const matches = results.data;
             const matchedIds = matches.map(record => record.id);
             commit('STORE_RECORDS', matches);
-            commit('STORE_FILTERED', { ...params, matchedIds });
+            commit('STORE_FILTERED', { params, matchedIds });
             commit('STORE_META', results.meta);
           })
           .catch(handleError(commit));
@@ -211,12 +211,12 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
               const relatedRecords = results.data;
               const relatedIds = relatedRecords.map(record => record.id);
               commit('STORE_RECORDS', relatedRecords);
-              commit('STORE_RELATED', { ...params, relatedIds });
+              commit('STORE_RELATED', { params, relatedIds });
             } else {
               const record = results.data;
               const relatedIds = record.id;
               commit('STORE_RECORDS', [record]);
-              commit('STORE_RELATED', { ...params, relatedIds });
+              commit('STORE_RELATED', { params, relatedIds });
             }
             commit('STORE_META', results.meta);
           })
