@@ -88,7 +88,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         if (existingRecord) {
           existingRecord.relatedIds = relatedIds;
         } else {
-          related.push({ ...params, relatedIds });
+          related.push(Object.assign({ relatedIds }, params));
         }
       },
 
@@ -99,7 +99,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         if (existingRecord) {
           existingRecord.matchedIds = matchedIds;
         } else {
-          filtered.push({ ...params, matchedIds });
+          filtered.push(Object.assign({ matchedIds }, params));
         }
       },
 
