@@ -11,7 +11,7 @@
   "dependencies": {
     "@reststate/client": "^0.0.7",
     "@reststate/vuex": "^0.0.16",
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "vue": "^2.5.17",
     "vuex": "^3.0.1"
   },
@@ -22,6 +22,9 @@
     "@vue/cli-plugin-eslint": "^3.0.5",
     "@vue/cli-service": "^3.0.5",
     "@vue/eslint-config-airbnb": "^3.0.5",
-    "vue-template-compiler": "^2.5.17"
+    "js-yaml": "^3.13.1",
+    "vue-template-compiler": "^2.5.17",
+    "webpack-bundle-analyzer": "^3.3.2",
+    "webpack-dev-server": "^3.7.2"
   }
 }
