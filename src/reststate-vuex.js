@@ -92,7 +92,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         }
       },
 
-      STORE_FILTERED: (state, { matchedIds, ...params }) => {
+      STORE_FILTERED: (state, { matchedIds, params }) => {
         const { filtered } = state;
 
         const existingRecord = filtered.find(matches(params));
@@ -155,7 +155,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             const matches = results.data;
             const matchedIds = matches.map(record => record.id);
             commit('STORE_RECORDS', matches);
-            commit('STORE_FILTERED', { ...params, matchedIds });
+            commit('STORE_FILTERED', { params, matchedIds });
             commit('STORE_META', results.meta);
           })
           .catch(handleError(commit));
