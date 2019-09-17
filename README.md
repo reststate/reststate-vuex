@@ -116,7 +116,7 @@ That's all you need to do--the JSON:API spec takes care of the rest!
 
 ## Usage
 
-For more information on usage, see the [`@reststate/vuex` docs](https://vuex.reststate.org).
+For more information on usage, see the [`@reststate/vuex` docs](https://vuex.reststate.codingitwrong.com).
 
 ## License
 
