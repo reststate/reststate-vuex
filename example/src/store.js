@@ -4,7 +4,7 @@ import axios from 'axios';
 import { resourceModule } from '@reststate/vuex';
 
 const httpClient = axios.create({
-  baseURL: 'https://sandboxapi.reststate.org/',
+  baseURL: 'https://sandboxapi.codingitwrong.com/',
   headers: {
     'Content-Type': 'application/vnd.api+json',
   },
