@@ -15,14 +15,40 @@ const storeRecord = records => newRecord => {
   }
 };
 
-const storeIncluded = ({ dispatch }, records) => {
-  if (!records) {
-    return;
+const storeIncluded = ({ commit, dispatch }, result) => {
+  if (result.included) {
+    // store the included records
+    result.included.forEach(relatedRecord => {
+      const action = `${relatedRecord.type}/storeRecord`;
+      dispatch(action, relatedRecord, { root: true });
+    });
+
+    // store the relationship to the primary records
+    result.data.forEach(primaryRecord => {
+      if (primaryRecord.relationships) {
+        Object.keys(primaryRecord.relationships).forEach(relationshipName => {
+          const relationship = primaryRecord.relationships[relationshipName];
+          if (!relationship.data || relationship.data.length === 0) {
+            return;
+          }
+
+          // TODO: maybe not all might have the same type
+          const { type } = relationship.data[0];
+          const relatedIds = relationship.data.map(
+            relatedRecord => relatedRecord.id,
+          );
+          const options = {
+            relatedIds,
+            params: {
+              parent: { type: primaryRecord.type, id: primaryRecord.id },
+            },
+          };
+          const action = `${type}/storeRelated`;
+          dispatch(action, options, { root: true });
+        });
+      }
+    });
   }
-  records.forEach(record => {
-    const action = `${record.type}/storeRecord`;
-    dispatch(action, record, { root: true });
-  });
 };
 
 const matches = criteria => test =>
@@ -139,7 +165,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('REPLACE_ALL_RECORDS', result.data);
             commit('STORE_META', result.meta);
-            storeIncluded({ dispatch }, result.included);
+            storeIncluded({ commit, dispatch }, result);
           })
           .catch(handleError(commit));
       },
@@ -255,6 +281,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       storeRecord({ commit }, record) {
         commit('STORE_RECORD', record);
+      },
+
+      storeRelated({ commit }, { relatedIds, params }) {
+        commit('STORE_RELATED', { relatedIds, params });
       },
 
       removeRecord({ commit }, record) {

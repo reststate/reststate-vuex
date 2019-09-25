@@ -1347,6 +1347,17 @@ describe('resourceModule()', () => {
         expect(firstRecord.id).toEqual('1');
         expect(firstRecord.attributes.name).toEqual('California Roll');
       });
+
+      it('makes the included records accessible via relationship', () => {
+        const primaryRecord = primaryRecords[1];
+        const parent = { type: primaryRecord.type, id: primaryRecord.id }; // TODO: don't require it to have this exact format
+        const records = multiStore.getters['dishes/related']({ parent });
+
+        expect(records.length).toEqual(1);
+        const firstRecord = records[0];
+        expect(firstRecord.id).toEqual('3');
+        expect(firstRecord.attributes.name).toEqual('Avocado Burger');
+      });
     });
   });
 
