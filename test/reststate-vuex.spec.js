@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { resourceModule } from '../src/reststate-vuex';
+import { resourceModule, mapResourceModules } from '../src/reststate-vuex';
 
 Vue.use(Vuex);
 
@@ -1234,6 +1234,108 @@ describe('resourceModule()', () => {
             expect(store.getters.error).toEqual(error);
           });
         });
+      });
+    });
+
+    describe('included', () => {
+      const primaryRecords = [
+        {
+          type: 'restaurants',
+          id: '1',
+          attributes: {
+            name: 'Sushi Place',
+          },
+          relationships: {
+            dishes: {
+              data: [
+                {
+                  type: 'dishes',
+                  id: '1',
+                },
+                {
+                  type: 'dishes',
+                  id: '2',
+                },
+              ],
+            },
+          },
+        },
+        {
+          type: 'restaurants',
+          id: '2',
+          attributes: {
+            name: 'Burger Place',
+          },
+          relationships: {
+            dishes: {
+              data: [
+                {
+                  type: 'dishes',
+                  id: '3',
+                },
+              ],
+            },
+          },
+        },
+      ];
+
+      const includedRecords = [
+        {
+          type: 'dishes',
+          id: '1',
+          attributes: {
+            name: 'California Roll',
+          },
+        },
+        {
+          type: 'dishes',
+          id: '2',
+          attributes: {
+            name: 'Volcano Roll',
+          },
+        },
+        {
+          type: 'dishes',
+          id: '3',
+          attributes: {
+            name: 'Avocado Burger',
+          },
+        },
+      ];
+
+      const response = {
+        data: primaryRecords,
+        included: includedRecords,
+      };
+
+      let multiStore;
+
+      beforeEach(() => {
+        api.get.mockResolvedValue({
+          data: response,
+        });
+
+        const modules = mapResourceModules({
+          names: ['restaurants', 'dishes'],
+          httpClient: api,
+        });
+        multiStore = new Vuex.Store({
+          modules,
+        });
+
+        return multiStore.dispatch('restaurants/loadAll', {
+          include: 'dishes',
+        });
+      });
+
+      it('makes the primary records accessible via getter', () => {
+        const records = multiStore.getters['restaurants/all'];
+
+        expect(records.length).toEqual(2);
+
+        const firstRecord = records[0];
+        expect(firstRecord.id).toEqual('1');
+        expect(firstRecord.attributes.name).toEqual('Sushi Place');
       });
     });
   });
