@@ -62,7 +62,7 @@ const storeIncluded = ({ commit, dispatch }, result) => {
           const options = {
             relatedIds,
             params: {
-              parent: { type: primaryRecord.type, id: primaryRecord.id },
+              parent: getResourceIdentifier(primaryRecord),
             },
           };
           const action = `${type}/storeRelated`;
