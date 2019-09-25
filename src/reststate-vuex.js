@@ -15,6 +15,16 @@ const storeRecord = records => newRecord => {
   }
 };
 
+const storeIncluded = ({ dispatch }, records) => {
+  if (!records) {
+    return;
+  }
+  records.forEach(record => {
+    const action = `${record.type}/storeRecord`;
+    dispatch(action, record, { root: true });
+  });
+};
+
 const matches = criteria => test =>
   Object.keys(criteria).every(key => deepEquals(criteria[key], test[key]));
 
@@ -121,7 +131,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
     },
 
     actions: {
-      loadAll({ commit }, { options } = {}) {
+      loadAll({ commit, dispatch }, { options } = {}) {
         commit('SET_STATUS', STATUS_LOADING);
         return client
           .all({ options })
@@ -129,6 +139,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('REPLACE_ALL_RECORDS', result.data);
             commit('STORE_META', result.meta);
+            storeIncluded({ dispatch }, result.included);
           })
           .catch(handleError(commit));
       },

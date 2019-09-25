@@ -1337,6 +1337,16 @@ describe('resourceModule()', () => {
         expect(firstRecord.id).toEqual('1');
         expect(firstRecord.attributes.name).toEqual('Sushi Place');
       });
+
+      it('makes the included records accessible via getter', () => {
+        const records = multiStore.getters['dishes/all'];
+
+        expect(records.length).toEqual(3);
+
+        const firstRecord = records[0];
+        expect(firstRecord.id).toEqual('1');
+        expect(firstRecord.attributes.name).toEqual('California Roll');
+      });
     });
   });
 
