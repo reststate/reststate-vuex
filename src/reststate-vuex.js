@@ -39,8 +39,9 @@ const storeIncluded = ({ commit, dispatch }, result) => {
       dispatch(action, relatedRecord, { root: true });
     });
 
-    // store the relationship to the primary records
-    result.data.forEach(primaryRecord => {
+    // store the relationship for primary and secondary records
+    const allRecords = [...result.data, ...result.included];
+    allRecords.forEach(primaryRecord => {
       if (primaryRecord.relationships) {
         Object.keys(primaryRecord.relationships).forEach(relationshipName => {
           const relationship = primaryRecord.relationships[relationshipName];

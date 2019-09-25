@@ -1286,6 +1286,16 @@ describe('resourceModule()', () => {
           attributes: {
             name: 'California Roll',
           },
+          relationships: {
+            comments: {
+              data: [
+                {
+                  type: 'comments',
+                  id: '1',
+                },
+              ],
+            },
+          },
         },
         {
           type: 'dishes',
@@ -1299,6 +1309,13 @@ describe('resourceModule()', () => {
           id: '3',
           attributes: {
             name: 'Avocado Burger',
+          },
+        },
+        {
+          type: 'comments',
+          id: '1',
+          attributes: {
+            text: 'my favorite',
           },
         },
       ];
@@ -1316,7 +1333,7 @@ describe('resourceModule()', () => {
         });
 
         const modules = mapResourceModules({
-          names: ['restaurants', 'dishes'],
+          names: ['restaurants', 'dishes', 'comments'],
           httpClient: api,
         });
         multiStore = new Vuex.Store({
@@ -1324,7 +1341,7 @@ describe('resourceModule()', () => {
         });
 
         return multiStore.dispatch('restaurants/loadAll', {
-          include: 'dishes',
+          include: 'dishes,dishes.comments',
         });
       });
 
@@ -1356,6 +1373,16 @@ describe('resourceModule()', () => {
         const firstRecord = records[0];
         expect(firstRecord.id).toEqual('3');
         expect(firstRecord.attributes.name).toEqual('Avocado Burger');
+      });
+
+      it('allows including records multiple levels deep', () => {
+        const parent = { type: 'dishes', id: '1' };
+        const records = multiStore.getters['comments/related']({ parent });
+
+        expect(records.length).toEqual(1);
+        const firstRecord = records[0];
+        expect(firstRecord.id).toEqual('1');
+        expect(firstRecord.attributes.text).toEqual('my favorite');
       });
     });
   });
