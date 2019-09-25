@@ -15,6 +15,64 @@ const storeRecord = records => newRecord => {
   }
 };
 
+const getResourceIdentifier = resource => {
+  if (!resource) {
+    return resource;
+  }
+
+  return {
+    type: resource.type,
+    id: resource.id,
+  };
+};
+
+const paramsWithParentIdentifierOnly = params => ({
+  ...params,
+  parent: getResourceIdentifier(params.parent),
+});
+
+const storeIncluded = ({ commit, dispatch }, result) => {
+  if (result.included) {
+    // store the included records
+    result.included.forEach(relatedRecord => {
+      const action = `${relatedRecord.type}/storeRecord`;
+      dispatch(action, relatedRecord, { root: true });
+    });
+
+    // store the relationship for primary and secondary records
+    const allRecords = [...result.data, ...result.included];
+    allRecords.forEach(primaryRecord => {
+      if (primaryRecord.relationships) {
+        Object.keys(primaryRecord.relationships).forEach(relationshipName => {
+          const relationship = primaryRecord.relationships[relationshipName];
+          if (!relationship.data || relationship.data.length === 0) {
+            return;
+          }
+
+          let type, relatedIds;
+          if (Array.isArray(relationship.data)) {
+            // TODO: maybe not all might have the same type
+            ({ type } = relationship.data[0]);
+            relatedIds = relationship.data.map(
+              relatedRecord => relatedRecord.id,
+            );
+          } else {
+            ({ type, id: relatedIds } = relationship.data);
+          }
+          const options = {
+            relatedIds,
+            params: {
+              parent: getResourceIdentifier(primaryRecord),
+            },
+          };
+          const action = `${type}/storeRelated`;
+          dispatch(action, options, { root: true });
+        });
+      }
+    });
+  }
+};
+
 const matches = criteria => test =>
   Object.keys(criteria).every(key => deepEquals(criteria[key], test[key]));
 
@@ -121,7 +179,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
     },
 
     actions: {
-      loadAll({ commit }, { options } = {}) {
+      loadAll({ commit, dispatch }, { options } = {}) {
         commit('SET_STATUS', STATUS_LOADING);
         return client
           .all({ options })
@@ -129,6 +187,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('REPLACE_ALL_RECORDS', result.data);
             commit('STORE_META', result.meta);
+            storeIncluded({ commit, dispatch }, result);
           })
           .catch(handleError(commit));
       },
@@ -246,6 +305,13 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         commit('STORE_RECORD', record);
       },
 
+      storeRelated({ commit }, { relatedIds, params }) {
+        commit('STORE_RELATED', {
+          relatedIds,
+          params: paramsWithParentIdentifierOnly(params),
+        });
+      },
+
       removeRecord({ commit }, record) {
         commit('REMOVE_RECORD', record);
       },
@@ -278,7 +344,9 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return ids.map(id => state.records.find(record => record.id === id));
       },
       related: state => params => {
-        const related = state.related.find(matches(params));
+        const related = state.related.find(
+          matches(paramsWithParentIdentifierOnly(params)),
+        );
 
         if (!related) {
           return null;
