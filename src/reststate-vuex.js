@@ -15,6 +15,22 @@ const storeRecord = records => newRecord => {
   }
 };
 
+const getResourceIdentifier = resource => {
+  if (!resource) {
+    return resource;
+  }
+
+  return {
+    type: resource.type,
+    id: resource.id,
+  };
+};
+
+const paramsWithParentIdentifierOnly = params => ({
+  ...params,
+  parent: getResourceIdentifier(params.parent),
+});
+
 const storeIncluded = ({ commit, dispatch }, result) => {
   if (result.included) {
     // store the included records
@@ -284,7 +300,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       storeRelated({ commit }, { relatedIds, params }) {
-        commit('STORE_RELATED', { relatedIds, params });
+        commit('STORE_RELATED', {
+          relatedIds,
+          params: paramsWithParentIdentifierOnly(params),
+        });
       },
 
       removeRecord({ commit }, record) {
@@ -319,7 +338,9 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return ids.map(id => state.records.find(record => record.id === id));
       },
       related: state => params => {
-        const related = state.related.find(matches(params));
+        const related = state.related.find(
+          matches(paramsWithParentIdentifierOnly(params)),
+        );
 
         if (!related) {
           return null;
