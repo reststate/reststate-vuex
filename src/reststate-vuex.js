@@ -49,11 +49,16 @@ const storeIncluded = ({ commit, dispatch }, result) => {
             return;
           }
 
-          // TODO: maybe not all might have the same type
-          const { type } = relationship.data[0];
-          const relatedIds = relationship.data.map(
-            relatedRecord => relatedRecord.id,
-          );
+          let type, relatedIds;
+          if (Array.isArray(relationship.data)) {
+            // TODO: maybe not all might have the same type
+            ({ type } = relationship.data[0]);
+            relatedIds = relationship.data.map(
+              relatedRecord => relatedRecord.id,
+            );
+          } else {
+            ({ type, id: relatedIds } = relationship.data);
+          }
           const options = {
             relatedIds,
             params: {

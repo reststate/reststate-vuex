@@ -1387,6 +1387,111 @@ describe('resourceModule()', () => {
         });
       });
     });
+
+    describe('to one', () => {
+      const primaryRecords = [
+        {
+          type: 'dishes',
+          id: '1',
+          attributes: {
+            name: 'California Roll',
+          },
+          relationships: {
+            restaurant: {
+              data: {
+                type: 'restaurants',
+                id: '1',
+              },
+            },
+          },
+        },
+        {
+          type: 'dishes',
+          id: '2',
+          attributes: {
+            name: 'Avocado Burger',
+          },
+          relationships: {
+            restaurant: {
+              data: {
+                type: 'restaurants',
+                id: '2',
+              },
+            },
+          },
+        },
+      ];
+
+      const includedRecords = [
+        {
+          type: 'restaurants',
+          id: '1',
+          attributes: {
+            name: 'Sushi Place',
+          },
+        },
+        {
+          type: 'restaurants',
+          id: '2',
+          attributes: {
+            name: 'Burger Place',
+          },
+        },
+      ];
+
+      const response = {
+        data: primaryRecords,
+        included: includedRecords,
+      };
+
+      let multiStore;
+
+      beforeEach(() => {
+        api.get.mockResolvedValue({
+          data: response,
+        });
+
+        const modules = mapResourceModules({
+          names: ['restaurants', 'dishes'],
+          httpClient: api,
+        });
+        multiStore = new Vuex.Store({
+          modules,
+        });
+
+        return multiStore.dispatch('dishes/loadAll', {
+          include: 'restaurant',
+        });
+      });
+
+      it('makes the primary records accessible via getter', () => {
+        const records = multiStore.getters['dishes/all'];
+
+        expect(records.length).toEqual(2);
+
+        const firstRecord = records[0];
+        expect(firstRecord.id).toEqual('1');
+        expect(firstRecord.attributes.name).toEqual('California Roll');
+      });
+
+      it('makes the included records accessible via getter', () => {
+        const records = multiStore.getters['restaurants/all'];
+
+        expect(records.length).toEqual(2);
+
+        const firstRecord = records[0];
+        expect(firstRecord.id).toEqual('1');
+        expect(firstRecord.attributes.name).toEqual('Sushi Place');
+      });
+
+      it('makes the included records accessible via relationship', () => {
+        const parent = primaryRecords[0];
+        const record = multiStore.getters['restaurants/related']({ parent });
+
+        expect(record.id).toEqual('1');
+        expect(record.attributes.name).toEqual('Sushi Place');
+      });
+    });
   });
 
   describe('pushing changes into the store', () => {
