@@ -141,8 +141,9 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       STORE_RELATED: (state, { relatedIds, params }) => {
         const { related } = state;
+        const paramsWithParentID = paramsWithParentIdentifierOnly(params);
 
-        const existingRecord = related.find(matches(params));
+        const existingRecord = related.find(matches(paramsWithParentID));
         if (existingRecord) {
           existingRecord.relatedIds = relatedIds;
         } else {
@@ -344,9 +345,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return ids.map(id => state.records.find(record => record.id === id));
       },
       related: state => params => {
-        const related = state.related.find(
-          matches(paramsWithParentIdentifierOnly(params)),
-        );
+        const paramsWithParentID = paramsWithParentIdentifierOnly(params);
+        const related = state.related.find(matches(paramsWithParentID));
 
         if (!related) {
           return null;
