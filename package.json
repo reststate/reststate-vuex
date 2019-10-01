@@ -1,6 +1,6 @@
 {
   "name": "@reststate/vuex",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Library to access JSON:API data via Vuex stores",
   "main": "index.js",
   "repository": "git@github.com:reststate/reststate-vuex.git",

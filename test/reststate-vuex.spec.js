@@ -1032,6 +1032,9 @@ describe('resourceModule()', () => {
       const parent = {
         type: 'users',
         id: '42',
+        attributes: {
+          name: 'fred',
+        },
       };
 
       const meta = { metaKey: 'metaValue' };
@@ -1082,8 +1085,17 @@ describe('resourceModule()', () => {
             expect(store.getters.isLoading).toEqual(false);
           });
 
-          it('allows retrieving related records', () => {
+          it('allows retrieving related records by full parent', () => {
             const records = store.getters.related({ parent });
+            expect(records.length).toEqual(2);
+          });
+
+          it('allows retrieving related records by parent identifier', () => {
+            const parentIdentifier = {
+              id: parent.id,
+              type: parent.type,
+            };
+            const records = store.getters.related({ parent: parentIdentifier });
             expect(records.length).toEqual(2);
           });
 
