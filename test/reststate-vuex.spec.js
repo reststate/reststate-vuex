@@ -4,7 +4,7 @@ import { resourceModule, mapResourceModules } from '../src/reststate-vuex';
 
 Vue.use(Vuex);
 
-describe('resourceModule()', function () {
+describe('resourceModule()', function() {
   let store;
   let api;
 
@@ -1251,7 +1251,7 @@ describe('resourceModule()', function () {
 
     describe('included', () => {
       describe('to many', () => {
-        function sharedExamples () {
+        function sharedExamples() {
           it('makes the primary records accessible via getter', () => {
             const records = this.multiStore.getters['restaurants/all'];
 
@@ -1291,7 +1291,7 @@ describe('resourceModule()', function () {
             expect(firstRecord.id).toEqual('1');
             expect(firstRecord.attributes.text).toEqual('my favorite');
           });
-        };
+        }
 
         beforeEach(() => {
           this.primaryRecords = [
@@ -1412,11 +1412,11 @@ describe('resourceModule()', function () {
           });
 
           sharedExamples.bind(this)();
-        })
+        });
       });
 
       describe('to one', () => {
-        function sharedExamples () {
+        function sharedExamples() {
           it('makes the primary records accessible via getter', () => {
             const records = this.multiStore.getters['dishes/all'];
 
@@ -1444,7 +1444,7 @@ describe('resourceModule()', function () {
             expect(record.id).toEqual('1');
             expect(record.attributes.name).toEqual('Sushi Place');
           });
-        };
+        }
 
         beforeEach(() => {
           this.primaryRecords = [
