@@ -147,7 +147,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         if (existingRecord) {
           existingRecord.relatedIds = relatedIds;
         } else {
-          related.push(Object.assign({ relatedIds }, params));
+          related.push(Object.assign({ relatedIds }, paramsWithParentID));
         }
       },
 
@@ -309,7 +309,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       storeRelated({ commit }, { relatedIds, params }) {
         commit('STORE_RELATED', {
           relatedIds,
-          params: paramsWithParentIdentifierOnly(params),
+          params,
         });
       },
 
