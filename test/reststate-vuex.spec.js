@@ -4,7 +4,7 @@ import { resourceModule, mapResourceModules } from '../src/reststate-vuex';
 
 Vue.use(Vuex);
 
-describe('resourceModule()', () => {
+describe('resourceModule()', function () {
   let store;
   let api;
 
@@ -1251,257 +1251,289 @@ describe('resourceModule()', () => {
 
     describe('included', () => {
       describe('to many', () => {
-        const primaryRecords = [
-          {
-            type: 'restaurants',
-            id: '1',
-            attributes: {
-              name: 'Sushi Place',
-            },
-            relationships: {
-              dishes: {
-                data: [
-                  {
-                    type: 'dishes',
-                    id: '1',
-                  },
-                  {
-                    type: 'dishes',
-                    id: '2',
-                  },
-                ],
-              },
-            },
-          },
-          {
-            type: 'restaurants',
-            id: '2',
-            attributes: {
-              name: 'Burger Place',
-            },
-            relationships: {
-              dishes: {
-                data: [
-                  {
-                    type: 'dishes',
-                    id: '3',
-                  },
-                ],
-              },
-            },
-          },
-        ];
+        function sharedExamples () {
+          it('makes the primary records accessible via getter', () => {
+            const records = this.multiStore.getters['restaurants/all'];
 
-        const includedRecords = [
-          {
-            type: 'dishes',
-            id: '1',
-            attributes: {
-              name: 'California Roll',
-            },
-            relationships: {
-              comments: {
-                data: [
-                  {
-                    type: 'comments',
-                    id: '1',
-                  },
-                ],
-              },
-            },
-          },
-          {
-            type: 'dishes',
-            id: '2',
-            attributes: {
-              name: 'Volcano Roll',
-            },
-          },
-          {
-            type: 'dishes',
-            id: '3',
-            attributes: {
-              name: 'Avocado Burger',
-            },
-          },
-          {
-            type: 'comments',
-            id: '1',
-            attributes: {
-              text: 'my favorite',
-            },
-          },
-        ];
+            expect(records.length).toEqual(2);
 
-        const response = {
-          data: primaryRecords,
-          included: includedRecords,
+            const firstRecord = records[0];
+            expect(firstRecord.id).toEqual('1');
+            expect(firstRecord.attributes.name).toEqual('Sushi Place');
+          });
+
+          it('makes the included records accessible via getter', () => {
+            const records = this.multiStore.getters['dishes/all'];
+
+            expect(records.length).toEqual(3);
+
+            const firstRecord = records[0];
+            expect(firstRecord.id).toEqual('1');
+            expect(firstRecord.attributes.name).toEqual('California Roll');
+          });
+
+          it('makes the included records accessible via relationship', () => {
+            const parent = this.primaryRecords[1];
+            const records = this.multiStore.getters['dishes/related']({ parent });
+
+            expect(records.length).toEqual(1);
+            const firstRecord = records[0];
+            expect(firstRecord.id).toEqual('3');
+            expect(firstRecord.attributes.name).toEqual('Avocado Burger');
+          });
+
+          it('allows including records multiple levels deep', () => {
+            const parent = { type: 'dishes', id: '1' };
+            const records = this.multiStore.getters['comments/related']({ parent });
+
+            expect(records.length).toEqual(1);
+            const firstRecord = records[0];
+            expect(firstRecord.id).toEqual('1');
+            expect(firstRecord.attributes.text).toEqual('my favorite');
+          });
         };
 
-        let multiStore;
-
         beforeEach(() => {
+          this.primaryRecords = [
+            {
+              type: 'restaurants',
+              id: '1',
+              attributes: {
+                name: 'Sushi Place',
+              },
+              relationships: {
+                dishes: {
+                  data: [
+                    {
+                      type: 'dishes',
+                      id: '1',
+                    },
+                    {
+                      type: 'dishes',
+                      id: '2',
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              type: 'restaurants',
+              id: '2',
+              attributes: {
+                name: 'Burger Place',
+              },
+              relationships: {
+                dishes: {
+                  data: [
+                    {
+                      type: 'dishes',
+                      id: '3',
+                    },
+                  ],
+                },
+              },
+            },
+          ];
+
+          this.includedRecords = [
+            {
+              type: 'dishes',
+              id: '1',
+              attributes: {
+                name: 'California Roll',
+              },
+              relationships: {
+                comments: {
+                  data: [
+                    {
+                      type: 'comments',
+                      id: '1',
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              type: 'dishes',
+              id: '2',
+              attributes: {
+                name: 'Volcano Roll',
+              },
+            },
+            {
+              type: 'dishes',
+              id: '3',
+              attributes: {
+                name: 'Avocado Burger',
+              },
+            },
+            {
+              type: 'comments',
+              id: '1',
+              attributes: {
+                text: 'my favorite',
+              },
+            },
+          ];
+
+          this.response = {
+            data: this.primaryRecords,
+            included: this.includedRecords,
+          };
+
           api.get.mockResolvedValue({
-            data: response,
+            data: this.response,
           });
 
           const modules = mapResourceModules({
             names: ['restaurants', 'dishes', 'comments'],
             httpClient: api,
           });
-          multiStore = new Vuex.Store({
+          this.multiStore = new Vuex.Store({
             modules,
           });
+        });
 
-          return multiStore.dispatch('restaurants/loadAll', {
-            include: 'dishes,dishes.comments',
+        describe('loadAll', () => {
+          beforeEach(() => {
+            return this.multiStore.dispatch('restaurants/loadAll', {
+              include: 'dishes,dishes.comments',
+            });
+          });
+
+          sharedExamples.bind(this)();
+        });
+
+        describe('loadPage', () => {
+          beforeEach(() => {
+            return this.multiStore.dispatch('restaurants/loadPage', {
+              include: 'dishes,dishes.comments',
+            });
+          });
+
+          sharedExamples.bind(this)();
+        })
+      });
+
+      describe('to one', () => {
+        function sharedExamples () {
+          it('makes the primary records accessible via getter', () => {
+            const records = this.multiStore.getters['dishes/all'];
+
+            expect(records.length).toEqual(2);
+
+            const firstRecord = records[0];
+            expect(firstRecord.id).toEqual('1');
+            expect(firstRecord.attributes.name).toEqual('California Roll');
+          });
+
+          it('makes the included records accessible via getter', () => {
+            const records = this.multiStore.getters['restaurants/all'];
+
+            expect(records.length).toEqual(2);
+
+            const firstRecord = records[0];
+            expect(firstRecord.id).toEqual('1');
+            expect(firstRecord.attributes.name).toEqual('Sushi Place');
+          });
+
+          it('makes the included records accessible via relationship', () => {
+            const parent = this.primaryRecords[0];
+            const record = this.multiStore.getters['restaurants/related']({ parent });
+
+            expect(record.id).toEqual('1');
+            expect(record.attributes.name).toEqual('Sushi Place');
+          });
+        };
+
+        beforeEach(() => {
+          this.primaryRecords = [
+            {
+              type: 'dishes',
+              id: '1',
+              attributes: {
+                name: 'California Roll',
+              },
+              relationships: {
+                restaurant: {
+                  data: {
+                    type: 'restaurants',
+                    id: '1',
+                  },
+                },
+              },
+            },
+            {
+              type: 'dishes',
+              id: '2',
+              attributes: {
+                name: 'Avocado Burger',
+              },
+              relationships: {
+                restaurant: {
+                  data: {
+                    type: 'restaurants',
+                    id: '2',
+                  },
+                },
+              },
+            },
+          ];
+
+          this.includedRecords = [
+            {
+              type: 'restaurants',
+              id: '1',
+              attributes: {
+                name: 'Sushi Place',
+              },
+            },
+            {
+              type: 'restaurants',
+              id: '2',
+              attributes: {
+                name: 'Burger Place',
+              },
+            },
+          ];
+
+          this.response = {
+            data: this.primaryRecords,
+            included: this.includedRecords,
+          };
+
+          api.get.mockResolvedValue({
+            data: this.response,
+          });
+
+          const modules = mapResourceModules({
+            names: ['restaurants', 'dishes'],
+            httpClient: api,
+          });
+          this.multiStore = new Vuex.Store({
+            modules,
           });
         });
 
-        it('makes the primary records accessible via getter', () => {
-          const records = multiStore.getters['restaurants/all'];
+        describe('loadAll', () => {
+          beforeEach(() => {
+            return this.multiStore.dispatch('dishes/loadAll', {
+              include: 'restaurant',
+            });
+          });
 
-          expect(records.length).toEqual(2);
-
-          const firstRecord = records[0];
-          expect(firstRecord.id).toEqual('1');
-          expect(firstRecord.attributes.name).toEqual('Sushi Place');
+          sharedExamples.bind(this)();
         });
 
-        it('makes the included records accessible via getter', () => {
-          const records = multiStore.getters['dishes/all'];
+        describe('loadPage', () => {
+          beforeEach(() => {
+            return this.multiStore.dispatch('dishes/loadPage', {
+              include: 'restaurant',
+            });
+          });
 
-          expect(records.length).toEqual(3);
-
-          const firstRecord = records[0];
-          expect(firstRecord.id).toEqual('1');
-          expect(firstRecord.attributes.name).toEqual('California Roll');
+          sharedExamples.bind(this)();
         });
-
-        it('makes the included records accessible via relationship', () => {
-          const parent = primaryRecords[1];
-          const records = multiStore.getters['dishes/related']({ parent });
-
-          expect(records.length).toEqual(1);
-          const firstRecord = records[0];
-          expect(firstRecord.id).toEqual('3');
-          expect(firstRecord.attributes.name).toEqual('Avocado Burger');
-        });
-
-        it('allows including records multiple levels deep', () => {
-          const parent = { type: 'dishes', id: '1' };
-          const records = multiStore.getters['comments/related']({ parent });
-
-          expect(records.length).toEqual(1);
-          const firstRecord = records[0];
-          expect(firstRecord.id).toEqual('1');
-          expect(firstRecord.attributes.text).toEqual('my favorite');
-        });
-      });
-    });
-
-    describe('to one', () => {
-      const primaryRecords = [
-        {
-          type: 'dishes',
-          id: '1',
-          attributes: {
-            name: 'California Roll',
-          },
-          relationships: {
-            restaurant: {
-              data: {
-                type: 'restaurants',
-                id: '1',
-              },
-            },
-          },
-        },
-        {
-          type: 'dishes',
-          id: '2',
-          attributes: {
-            name: 'Avocado Burger',
-          },
-          relationships: {
-            restaurant: {
-              data: {
-                type: 'restaurants',
-                id: '2',
-              },
-            },
-          },
-        },
-      ];
-
-      const includedRecords = [
-        {
-          type: 'restaurants',
-          id: '1',
-          attributes: {
-            name: 'Sushi Place',
-          },
-        },
-        {
-          type: 'restaurants',
-          id: '2',
-          attributes: {
-            name: 'Burger Place',
-          },
-        },
-      ];
-
-      const response = {
-        data: primaryRecords,
-        included: includedRecords,
-      };
-
-      let multiStore;
-
-      beforeEach(() => {
-        api.get.mockResolvedValue({
-          data: response,
-        });
-
-        const modules = mapResourceModules({
-          names: ['restaurants', 'dishes'],
-          httpClient: api,
-        });
-        multiStore = new Vuex.Store({
-          modules,
-        });
-
-        return multiStore.dispatch('dishes/loadAll', {
-          include: 'restaurant',
-        });
-      });
-
-      it('makes the primary records accessible via getter', () => {
-        const records = multiStore.getters['dishes/all'];
-
-        expect(records.length).toEqual(2);
-
-        const firstRecord = records[0];
-        expect(firstRecord.id).toEqual('1');
-        expect(firstRecord.attributes.name).toEqual('California Roll');
-      });
-
-      it('makes the included records accessible via getter', () => {
-        const records = multiStore.getters['restaurants/all'];
-
-        expect(records.length).toEqual(2);
-
-        const firstRecord = records[0];
-        expect(firstRecord.id).toEqual('1');
-        expect(firstRecord.attributes.name).toEqual('Sushi Place');
-      });
-
-      it('makes the included records accessible via relationship', () => {
-        const parent = primaryRecords[0];
-        const record = multiStore.getters['restaurants/related']({ parent });
-
-        expect(record.id).toEqual('1');
-        expect(record.attributes.name).toEqual('Sushi Place');
       });
     });
   });
