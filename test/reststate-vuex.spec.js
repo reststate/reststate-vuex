@@ -1413,6 +1413,26 @@ describe('resourceModule()', function() {
 
           sharedExamples.bind(this)();
         });
+
+        describe('loadNextPage', () => {
+          beforeEach(() => {
+            return this.multiStore.dispatch('restaurants/loadNextPage', {
+              include: 'dishes,dishes.comments',
+            });
+          });
+
+          sharedExamples.bind(this)();
+        });
+
+        describe('loadPreviousPage', () => {
+          beforeEach(() => {
+            return this.multiStore.dispatch('restaurants/loadPreviousPage', {
+              include: 'dishes,dishes.comments',
+            });
+          });
+
+          sharedExamples.bind(this)();
+        });
       });
 
       describe('to one', () => {
@@ -1528,6 +1548,26 @@ describe('resourceModule()', function() {
         describe('loadPage', () => {
           beforeEach(() => {
             return this.multiStore.dispatch('dishes/loadPage', {
+              include: 'restaurant',
+            });
+          });
+
+          sharedExamples.bind(this)();
+        });
+
+        describe('loadNextPage', () => {
+          beforeEach(() => {
+            return this.multiStore.dispatch('dishes/loadNextPage', {
+              include: 'restaurant',
+            });
+          });
+
+          sharedExamples.bind(this)();
+        });
+
+        describe('loadPreviousPage', () => {
+          beforeEach(() => {
+            return this.multiStore.dispatch('dishes/loadPreviousPage', {
               include: 'restaurant',
             });
           });
