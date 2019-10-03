@@ -212,7 +212,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .catch(handleError(commit));
       },
 
-      loadWhere({ commit }, params) {
+      loadWhere({ commit, dispatch }, params) {
         const { filter, options } = params;
         commit('SET_STATUS', STATUS_LOADING);
         return client
@@ -224,6 +224,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('STORE_RECORDS', matches);
             commit('STORE_FILTERED', { params, matchedIds });
             commit('STORE_META', results.meta);
+            storeIncluded({ commit, dispatch }, results);
           })
           .catch(handleError(commit));
       },

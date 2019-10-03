@@ -1504,6 +1504,113 @@ describe('resourceModule()', () => {
         });
       });
 
+      describe('loadWhere', () => {
+        const primaryRecords = [
+          {
+            type: 'restaurants',
+            id: '1',
+            attributes: {
+              name: 'Sushi Place',
+            },
+            relationships: {
+              dishes: {
+                data: [
+                  {
+                    type: 'dishes',
+                    id: '1',
+                  },
+                  {
+                    type: 'dishes',
+                    id: '2',
+                  },
+                ],
+              },
+            },
+          },
+          {
+            type: 'restaurants',
+            id: '2',
+            attributes: {
+              name: 'Burger Place',
+            },
+            relationships: {
+              dishes: {
+                data: [
+                  {
+                    type: 'dishes',
+                    id: '3',
+                  },
+                ],
+              },
+            },
+          },
+        ];
+
+        const includedRecords = [
+          {
+            type: 'dishes',
+            id: '1',
+            attributes: {
+              name: 'California Roll',
+            },
+          },
+          {
+            type: 'dishes',
+            id: '2',
+            attributes: {
+              name: 'Volcano Roll',
+            },
+          },
+          {
+            type: 'dishes',
+            id: '3',
+            attributes: {
+              name: 'Avocado Burger',
+            },
+          },
+        ];
+
+        const filter = { foo: 'bar' };
+
+        const response = {
+          data: primaryRecords,
+          included: includedRecords,
+        };
+
+        let multiStore;
+
+        beforeEach(() => {
+          api.get.mockResolvedValue({
+            data: response,
+          });
+
+          const modules = mapResourceModules({
+            names: ['restaurants', 'dishes'],
+            httpClient: api,
+          });
+          multiStore = new Vuex.Store({
+            modules,
+          });
+
+          return multiStore.dispatch('restaurants/loadWhere', {
+            filter,
+            options: {
+              include: 'dishes',
+            },
+          });
+        });
+
+        it('makes the included records accessible via relationship', () => {
+          const parent = primaryRecords[1];
+          const records = multiStore.getters['dishes/related']({ parent });
+
+          expect(records.length).toEqual(1);
+          const firstRecord = records[0];
+          expect(firstRecord.id).toEqual('3');
+          expect(firstRecord.attributes.name).toEqual('Avocado Burger');
+        });
+      });
+
       describe('loadById', () => {
         const primaryRecord = {
           type: 'restaurants',
