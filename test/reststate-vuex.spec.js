@@ -1250,7 +1250,7 @@ describe('resourceModule()', () => {
     });
 
     describe('included', () => {
-      describe('to many', () => {
+      describe('loadAll to many', () => {
         const primaryRecords = [
           {
             type: 'restaurants',
@@ -1399,7 +1399,7 @@ describe('resourceModule()', () => {
         });
       });
 
-      describe('to one', () => {
+      describe('loadAll to one', () => {
         const primaryRecords = [
           {
             type: 'dishes',
@@ -1501,6 +1501,85 @@ describe('resourceModule()', () => {
 
           expect(record.id).toEqual('1');
           expect(record.attributes.name).toEqual('Sushi Place');
+        });
+      });
+
+      describe('loadById', () => {
+        const primaryRecord = {
+          type: 'restaurants',
+          id: '1',
+          attributes: {
+            name: 'Sushi Place',
+          },
+          relationships: {
+            dishes: {
+              data: [
+                {
+                  type: 'dishes',
+                  id: '1',
+                },
+                {
+                  type: 'dishes',
+                  id: '2',
+                },
+              ],
+            },
+          },
+        };
+
+        const includedRecords = [
+          {
+            type: 'dishes',
+            id: '1',
+            attributes: {
+              name: 'California Roll',
+            },
+          },
+          {
+            type: 'dishes',
+            id: '2',
+            attributes: {
+              name: 'Volcano Roll',
+            },
+          },
+        ];
+
+        const response = {
+          data: primaryRecord,
+          included: includedRecords,
+        };
+
+        let multiStore;
+
+        beforeEach(() => {
+          api.get.mockResolvedValue({
+            data: response,
+          });
+
+          const modules = mapResourceModules({
+            names: ['restaurants', 'dishes'],
+            httpClient: api,
+          });
+          multiStore = new Vuex.Store({
+            modules,
+          });
+
+          return multiStore.dispatch('restaurants/loadById', {
+            id: '1',
+            options: {
+              include: 'dishes',
+            },
+          });
+        });
+
+        it('makes the included records accessible via relationship', () => {
+          const parent = primaryRecord;
+          const records = multiStore.getters['dishes/related']({ parent });
+
+          expect(records.length).toEqual(2);
+          const firstRecord = records[0];
+          expect(firstRecord.id).toEqual('1');
+          expect(firstRecord.attributes.name).toEqual('California Roll');
         });
       });
     });
