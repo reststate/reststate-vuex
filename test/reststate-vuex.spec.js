@@ -1582,6 +1582,108 @@ describe('resourceModule()', () => {
           expect(firstRecord.attributes.name).toEqual('California Roll');
         });
       });
+
+      describe('loadRelated', () => {
+        const parentRecord = {
+          type: 'restaurants',
+          id: '1',
+          attributes: {
+            name: 'Sushi Place',
+          },
+        };
+
+        const relatedRecords = [
+          {
+            type: 'dishes',
+            id: '1',
+            attributes: {
+              name: 'California Roll',
+            },
+            relationships: {
+              comments: {
+                data: [
+                  {
+                    type: 'comments',
+                    id: '1',
+                  },
+                ],
+              },
+            },
+          },
+          {
+            type: 'dishes',
+            id: '2',
+            attributes: {
+              name: 'Volcano Roll',
+            },
+            relationships: {
+              comments: {
+                data: [
+                  {
+                    type: 'comments',
+                    id: '2',
+                  },
+                ],
+              },
+            },
+          },
+        ];
+
+        const includedRecords = [
+          {
+            type: 'comments',
+            id: '1',
+            attributes: {
+              text: "It's great",
+            },
+          },
+          {
+            type: 'comments',
+            id: '2',
+            attributes: {
+              text: "It's okay",
+            },
+          },
+        ];
+
+        const response = {
+          data: relatedRecords,
+          included: includedRecords,
+        };
+
+        let multiStore;
+
+        beforeEach(() => {
+          api.get.mockResolvedValue({
+            data: response,
+          });
+
+          const modules = mapResourceModules({
+            names: ['restaurants', 'dishes', 'comments'],
+            httpClient: api,
+          });
+          multiStore = new Vuex.Store({
+            modules,
+          });
+
+          return multiStore.dispatch('dishes/loadRelated', {
+            parent: parentRecord,
+            options: {
+              include: 'comments',
+            },
+          });
+        });
+
+        it('makes the included records accessible via relationship', () => {
+          const parent = relatedRecords[0];
+          const records = multiStore.getters['comments/related']({ parent });
+
+          expect(records.length).toEqual(1);
+          const firstRecord = records[0];
+          expect(firstRecord.id).toEqual('1');
+          expect(firstRecord.attributes.text).toEqual("It's great");
+        });
+      });
     });
   });
 

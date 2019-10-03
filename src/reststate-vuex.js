@@ -266,7 +266,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         });
       },
 
-      loadRelated({ commit }, params) {
+      loadRelated({ commit, dispatch }, params) {
         const { parent, relationship = resourceName, options } = params;
         commit('SET_STATUS', STATUS_LOADING);
         return client
@@ -286,6 +286,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
               commit('STORE_RELATED', { params, relatedIds });
             }
             commit('STORE_META', results.meta);
+            storeIncluded({ commit, dispatch }, results);
           })
           .catch(handleError(commit));
       },
