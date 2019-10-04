@@ -40,7 +40,13 @@ const storeIncluded = ({ commit, dispatch }, result) => {
     });
 
     // store the relationship for primary and secondary records
-    const allRecords = [...result.data, ...result.included];
+    let allRecords = [...result.included];
+    if (Array.isArray(result.data)) {
+      allRecords = [...allRecords, ...result.data];
+    } else {
+      allRecords = [...allRecords, result.data];
+    }
+
     allRecords.forEach(primaryRecord => {
       if (primaryRecord.relationships) {
         Object.keys(primaryRecord.relationships).forEach(relationshipName => {
@@ -193,7 +199,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .catch(handleError(commit));
       },
 
-      loadById({ commit }, { id, options }) {
+      loadById({ commit, dispatch }, { id, options }) {
         commit('SET_STATUS', STATUS_LOADING);
         return client
           .find({ id, options })
@@ -201,11 +207,12 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('SET_STATUS', STATUS_SUCCESS);
             commit('STORE_RECORD', results.data);
             commit('STORE_META', results.meta);
+            storeIncluded({ commit, dispatch }, results);
           })
           .catch(handleError(commit));
       },
 
-      loadWhere({ commit }, params) {
+      loadWhere({ commit, dispatch }, params) {
         const { filter, options } = params;
         commit('SET_STATUS', STATUS_LOADING);
         return client
@@ -217,6 +224,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('STORE_RECORDS', matches);
             commit('STORE_FILTERED', { params, matchedIds });
             commit('STORE_META', results.meta);
+            storeIncluded({ commit, dispatch }, results);
           })
           .catch(handleError(commit));
       },
@@ -259,7 +267,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         });
       },
 
-      loadRelated({ commit }, params) {
+      loadRelated({ commit, dispatch }, params) {
         const { parent, relationship = resourceName, options } = params;
         commit('SET_STATUS', STATUS_LOADING);
         return client
@@ -279,6 +287,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
               commit('STORE_RELATED', { params, relatedIds });
             }
             commit('STORE_META', results.meta);
+            storeIncluded({ commit, dispatch }, results);
           })
           .catch(handleError(commit));
       },
