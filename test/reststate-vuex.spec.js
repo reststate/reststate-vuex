@@ -1274,7 +1274,9 @@ describe('resourceModule()', function() {
 
           it('makes the included records accessible via relationship', () => {
             const parent = this.primaryRecords[1];
-            const records = this.multiStore.getters['dishes/related']({ parent });
+            const records = this.multiStore.getters['dishes/related']({
+              parent,
+            });
 
             expect(records.length).toEqual(1);
             const firstRecord = records[0];
@@ -1284,7 +1286,9 @@ describe('resourceModule()', function() {
 
           it('allows including records multiple levels deep', () => {
             const parent = { type: 'dishes', id: '1' };
-            const records = this.multiStore.getters['comments/related']({ parent });
+            const records = this.multiStore.getters['comments/related']({
+              parent,
+            });
 
             expect(records.length).toEqual(1);
             const firstRecord = records[0];
@@ -1459,7 +1463,9 @@ describe('resourceModule()', function() {
 
           it('makes the included records accessible via relationship', () => {
             const parent = this.primaryRecords[0];
-            const record = this.multiStore.getters['restaurants/related']({ parent });
+            const record = this.multiStore.getters['restaurants/related']({
+              parent,
+            });
 
             expect(record.id).toEqual('1');
             expect(record.attributes.name).toEqual('Sushi Place');
