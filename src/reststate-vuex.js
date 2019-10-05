@@ -229,7 +229,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           .catch(handleError(commit));
       },
 
-      loadPage({ commit }, { options }) {
+      loadPage({ commit, dispatch }, { options }) {
         commit('SET_STATUS', STATUS_LOADING);
         return client
           .all({ options })
@@ -239,11 +239,12 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
             commit('STORE_PAGE', response.data);
             commit('STORE_META', response.meta);
             commit('SET_LINKS', response.links);
+            storeIncluded({ commit, dispatch }, response);
           })
           .catch(handleError(commit));
       },
 
-      loadNextPage({ commit, state }) {
+      loadNextPage({ commit, state, dispatch }) {
         const options = {
           url: state.links.next,
         };
@@ -252,10 +253,11 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           commit('STORE_PAGE', response.data);
           commit('SET_LINKS', response.links);
           commit('STORE_META', response.meta);
+          storeIncluded({ commit, dispatch }, response);
         });
       },
 
-      loadPreviousPage({ commit, state }) {
+      loadPreviousPage({ commit, state, dispatch }) {
         const options = {
           url: state.links.prev,
         };
@@ -264,6 +266,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           commit('STORE_PAGE', response.data);
           commit('SET_LINKS', response.links);
           commit('STORE_META', response.meta);
+          storeIncluded({ commit, dispatch }, response);
         });
       },
 
