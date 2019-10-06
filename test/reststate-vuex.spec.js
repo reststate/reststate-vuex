@@ -1465,6 +1465,7 @@ describe('resourceModule()', function() {
             const parent = this.primaryRecords[0];
             const record = this.multiStore.getters['restaurants/related']({
               parent,
+              relationship: 'restaurant',
             });
 
             expect(record.id).toEqual('1');
