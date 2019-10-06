@@ -1581,6 +1581,85 @@ describe('resourceModule()', function() {
           sharedExamples.bind(this)();
         });
       });
+
+      describe('relationships with non-default names', () => {
+        it('allows retrieving relationships with non-default names', () => {
+          const primaryRecord = {
+            type: 'people',
+            id: '2',
+            attributes: {
+              name: 'Child',
+            },
+            relationships: {
+              parent: {
+                data: {
+                  type: 'people',
+                  id: '1',
+                },
+              },
+              child: {
+                data: {
+                  type: 'people',
+                  id: '3',
+                },
+              },
+            },
+          };
+
+          const includedRecords = [
+            {
+              type: 'people',
+              id: '1',
+              attributes: {
+                name: 'Parent',
+              },
+            },
+            {
+              type: 'people',
+              id: '3',
+              attributes: {
+                name: 'Grandchild',
+              },
+            },
+          ];
+
+          const response = {
+            data: primaryRecord,
+            included: includedRecords,
+          };
+
+          api.get.mockResolvedValue({
+            data: response,
+          });
+
+          const modules = mapResourceModules({
+            names: ['people'],
+            httpClient: api,
+          });
+          const store = new Vuex.Store({ modules });
+
+          return store
+            .dispatch('people/loadById', {
+              id: '2',
+              options: {
+                include: 'parent,child',
+              },
+            })
+            .then(() => {
+              const parent = store.getters['people/related']({
+                parent: primaryRecord,
+                relationship: 'parent',
+              });
+              const child = store.getters['people/related']({
+                parent: primaryRecord,
+                relationship: 'child',
+              });
+
+              expect(parent.id).toEqual('1');
+              expect(child.id).toEqual('3');
+            });
+        });
+      });
     });
   });
 
