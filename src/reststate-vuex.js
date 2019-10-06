@@ -359,6 +359,11 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
       related: state => params => {
         const paramsWithParentID = paramsWithParentIdentifierOnly(params);
+
+        if (!paramsWithParentID.relationship) {
+          paramsWithParentID.relationship = resourceName;
+        }
+
         const related = state.related.find(matches(paramsWithParentID));
 
         if (!related) {

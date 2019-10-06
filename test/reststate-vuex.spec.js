@@ -1659,6 +1659,73 @@ describe('resourceModule()', function() {
               expect(child.id).toEqual('3');
             });
         });
+
+        it('retrieves the relationship with the same name as the resource if the name is not specified', () => {
+          const primaryRecord = {
+            type: 'posts',
+            id: '1',
+            relationships: {
+              secretComments: {
+                data: [
+                  {
+                    type: 'comments',
+                    id: '2',
+                  },
+                ],
+              },
+              comments: {
+                data: [
+                  {
+                    type: 'comments',
+                    id: '1',
+                  },
+                ],
+              },
+            },
+          };
+
+          const includedRecords = [
+            {
+              type: 'comments',
+              id: '1',
+            },
+            {
+              type: 'comments',
+              id: '2',
+            },
+          ];
+
+          const response = {
+            data: primaryRecord,
+            included: includedRecords,
+          };
+
+          api.get.mockResolvedValue({
+            data: response,
+          });
+
+          const modules = mapResourceModules({
+            names: ['posts', 'comments'],
+            httpClient: api,
+          });
+          const store = new Vuex.Store({ modules });
+
+          return store
+            .dispatch('posts/loadById', {
+              id: '1',
+              options: {
+                include: 'comments,secretComments',
+              },
+            })
+            .then(() => {
+              const comments = store.getters['comments/related']({
+                parent: primaryRecord,
+              });
+
+              expect(comments.length).toEqual(1);
+              expect(comments[0].id).toEqual('1');
+            });
+        });
       });
     });
   });
