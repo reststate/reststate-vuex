@@ -69,6 +69,7 @@ const storeIncluded = ({ commit, dispatch }, result) => {
             relatedIds,
             params: {
               parent: getResourceIdentifier(primaryRecord),
+              relationship: relationshipName,
             },
           };
           const action = `${type}/storeRelated`;
@@ -273,6 +274,10 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       loadRelated({ commit, dispatch }, params) {
         const { parent, relationship = resourceName, options } = params;
         commit('SET_STATUS', STATUS_LOADING);
+        const paramsToStore = {
+          ...params,
+          relationship,
+        };
         return client
           .related({ parent, relationship, options })
           .then(results => {
@@ -282,12 +287,12 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
               const relatedRecords = results.data;
               const relatedIds = relatedRecords.map(record => record.id);
               commit('STORE_RECORDS', relatedRecords);
-              commit('STORE_RELATED', { params, relatedIds });
+              commit('STORE_RELATED', { params: paramsToStore, relatedIds });
             } else {
               const record = results.data;
               const relatedIds = record.id;
               commit('STORE_RECORDS', [record]);
-              commit('STORE_RELATED', { params, relatedIds });
+              commit('STORE_RELATED', { params: paramsToStore, relatedIds });
             }
             commit('STORE_META', results.meta);
             storeIncluded({ commit, dispatch }, results);
@@ -358,6 +363,11 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
       related: state => params => {
         const paramsWithParentID = paramsWithParentIdentifierOnly(params);
+
+        if (!paramsWithParentID.relationship) {
+          paramsWithParentID.relationship = resourceName;
+        }
+
         const related = state.related.find(matches(paramsWithParentID));
 
         if (!related) {

@@ -1465,6 +1465,7 @@ describe('resourceModule()', function() {
             const parent = this.primaryRecords[0];
             const record = this.multiStore.getters['restaurants/related']({
               parent,
+              relationship: 'restaurant',
             });
 
             expect(record.id).toEqual('1');
@@ -1579,6 +1580,152 @@ describe('resourceModule()', function() {
           });
 
           sharedExamples.bind(this)();
+        });
+      });
+
+      describe('relationships with non-default names', () => {
+        it('allows retrieving relationships with non-default names', () => {
+          const primaryRecord = {
+            type: 'people',
+            id: '2',
+            attributes: {
+              name: 'Child',
+            },
+            relationships: {
+              parent: {
+                data: {
+                  type: 'people',
+                  id: '1',
+                },
+              },
+              child: {
+                data: {
+                  type: 'people',
+                  id: '3',
+                },
+              },
+            },
+          };
+
+          const includedRecords = [
+            {
+              type: 'people',
+              id: '1',
+              attributes: {
+                name: 'Parent',
+              },
+            },
+            {
+              type: 'people',
+              id: '3',
+              attributes: {
+                name: 'Grandchild',
+              },
+            },
+          ];
+
+          const response = {
+            data: primaryRecord,
+            included: includedRecords,
+          };
+
+          api.get.mockResolvedValue({
+            data: response,
+          });
+
+          const modules = mapResourceModules({
+            names: ['people'],
+            httpClient: api,
+          });
+          const store = new Vuex.Store({ modules });
+
+          return store
+            .dispatch('people/loadById', {
+              id: '2',
+              options: {
+                include: 'parent,child',
+              },
+            })
+            .then(() => {
+              const parent = store.getters['people/related']({
+                parent: primaryRecord,
+                relationship: 'parent',
+              });
+              const child = store.getters['people/related']({
+                parent: primaryRecord,
+                relationship: 'child',
+              });
+
+              expect(parent.id).toEqual('1');
+              expect(child.id).toEqual('3');
+            });
+        });
+
+        it('retrieves the relationship with the same name as the resource if the name is not specified', () => {
+          const primaryRecord = {
+            type: 'posts',
+            id: '1',
+            relationships: {
+              secretComments: {
+                data: [
+                  {
+                    type: 'comments',
+                    id: '2',
+                  },
+                ],
+              },
+              comments: {
+                data: [
+                  {
+                    type: 'comments',
+                    id: '1',
+                  },
+                ],
+              },
+            },
+          };
+
+          const includedRecords = [
+            {
+              type: 'comments',
+              id: '1',
+            },
+            {
+              type: 'comments',
+              id: '2',
+            },
+          ];
+
+          const response = {
+            data: primaryRecord,
+            included: includedRecords,
+          };
+
+          api.get.mockResolvedValue({
+            data: response,
+          });
+
+          const modules = mapResourceModules({
+            names: ['posts', 'comments'],
+            httpClient: api,
+          });
+          const store = new Vuex.Store({ modules });
+
+          return store
+            .dispatch('posts/loadById', {
+              id: '1',
+              options: {
+                include: 'comments,secretComments',
+              },
+            })
+            .then(() => {
+              const comments = store.getters['comments/related']({
+                parent: primaryRecord,
+              });
+
+              expect(comments.length).toEqual(1);
+              expect(comments[0].id).toEqual('1');
+            });
         });
       });
     });
