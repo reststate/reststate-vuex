@@ -26,11 +26,6 @@ const getResourceIdentifier = resource => {
   };
 };
 
-const paramsWithParentIdentifierOnly = params => ({
-  ...params,
-  parent: getResourceIdentifier(params.parent),
-});
-
 const storeIncluded = ({ commit, dispatch }, result) => {
   if (result.included) {
     // store the included records
@@ -104,6 +99,16 @@ const initialState = () => ({
 const resourceModule = ({ name: resourceName, httpClient }) => {
   const client = new ResourceClient({ name: resourceName, httpClient });
 
+  const getRelationshipIndex = params => {
+    const { parent, relationship = resourceName } = params;
+    const parentResourceIdentifier = getResourceIdentifier(parent);
+
+    return {
+      parent: parentResourceIdentifier,
+      relationship,
+    };
+  };
+
   return {
     namespaced: true,
 
@@ -148,13 +153,13 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
 
       STORE_RELATED: (state, { relatedIds, params }) => {
         const { related } = state;
-        const paramsWithParentID = paramsWithParentIdentifierOnly(params);
+        const relationshipIndex = getRelationshipIndex(params);
 
-        const existingRecord = related.find(matches(paramsWithParentID));
+        const existingRecord = related.find(matches(relationshipIndex));
         if (existingRecord) {
           existingRecord.relatedIds = relatedIds;
         } else {
-          related.push(Object.assign({ relatedIds }, paramsWithParentID));
+          related.push(Object.assign({ relatedIds }, relationshipIndex));
         }
       },
 
@@ -362,13 +367,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         return ids.map(id => state.records.find(record => record.id === id));
       },
       related: state => params => {
-        const paramsWithParentID = paramsWithParentIdentifierOnly(params);
-
-        if (!paramsWithParentID.relationship) {
-          paramsWithParentID.relationship = resourceName;
-        }
-
-        const related = state.related.find(matches(paramsWithParentID));
+        const relationshipIndex = getRelationshipIndex(params);
+        const related = state.related.find(matches(relationshipIndex));
 
         if (!related) {
           return null;

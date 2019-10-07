@@ -1206,10 +1206,7 @@ describe('resourceModule()', function() {
           });
 
           it('returns the second set of records', () => {
-            const records = store.getters.related({
-              parent,
-              options: secondOptions,
-            });
+            const records = store.getters.related({ parent });
             expect(records).toEqual(reversedRecords);
           });
         });
