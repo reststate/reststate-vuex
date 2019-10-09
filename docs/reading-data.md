@@ -161,3 +161,53 @@ this.$store.dispatch('widgets/loadAll', {
 
 // requests to widgets?fields[widgets]=title,description
 ```
+
+## Including Related Resources
+
+Sometimes you don't want to make separate `loadRelated` calls for each relationship. For cases like this, Reststate/Vuex supports JSON:API's `include` property to eagerly load related data. It can be passed to any `load` action:
+
+```js
+this.$store.dispatch('posts/loadAll', {
+  options: {
+    include: 'category,comments,comments.user',
+  }
+});
+```
+
+Note that `include` allows you to specify multiple relationship using the format JSON:API defines: each relationship is separated via a comma, and chained relationships are specified using dots.
+
+Included data will be stored in the Vuex module with the name corresponding to each resource. For example, if the above query returns records of types `posts`, `categories`, `comments`, and `users`, you would need to have modules like so to store them:
+
+```js
+mapResourceModules({
+  names: [
+    'posts',
+    'categories',
+    'comments',
+    'users',
+  ],
+  httpClient: api,
+}),
+```
+
+Related data loaded via `include` can be accessed with the `related` getter, just like related data loaded via `loadRelated`:
+
+```js
+const comments = this.$store.getters['comments/related']({ parent: post });
+```
+
+As with data loaded via `loadRelated`, if the relationship name is not the same as the name of the resource, you can pass it as an argument:
+
+```js
+this.$store.dispatch('posts/loadAll', {
+  options: {
+    include: 'secretComments',
+  }
+}).then(() => {
+  const secretComments = this.$store.getters['comments/related']({
+    parent: post,
+    relationship: 'secretComments',
+  });
+  console.log(widgets);
+});
+```
