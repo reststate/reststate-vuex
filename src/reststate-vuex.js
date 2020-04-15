@@ -312,9 +312,30 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         });
       },
 
-      update({ commit }, record) {
+      update({ commit, dispatch }, record) {
         return client.update(record).then(() => {
           commit('STORE_RECORD', record);
+          if (record.relationships) {
+            for (const relationship of Object.keys(record.relationships)) {
+              if (record.relationships[relationship].data) {
+                // TODO: if (Array.isArray(results.data)) {
+                const paramsToStore = {
+                  parent: getResourceIdentifier(record),
+                  relationship,
+                };
+                const { type, id } = record.relationships[relationship].data;
+                const relatedIds = id;
+                dispatch(
+                  `${type}/storeRelated`,
+                  {
+                    params: paramsToStore,
+                    relatedIds,
+                  },
+                  { root: true },
+                );
+              }
+            }
+          }
         });
       },
 

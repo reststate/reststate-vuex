@@ -2055,6 +2055,66 @@ describe('resourceModule()', function () {
         const firstRecord = records[0];
         expect(firstRecord.attributes.title).toEqual('Bar');
       });
+
+      it('updates related to-one records', () => {
+        const oldRestaurant = {
+          type: 'restaurants',
+          id: '2',
+        };
+        const newRestaurant = {
+          type: 'restaurants',
+          id: '3',
+        };
+        const dish = {
+          type: 'dishes',
+          id: '1',
+          relationships: {
+            restaurant: {
+              data: oldRestaurant,
+            },
+          },
+        };
+
+        api.get.mockResolvedValue({
+          data: {
+            data: [dish],
+            included: [oldRestaurant],
+          },
+        });
+        const modules = mapResourceModules({
+          names: ['restaurants', 'dishes'],
+          httpClient: api,
+        });
+        const multiStore = new Vuex.Store({
+          modules,
+        });
+        multiStore.commit('restaurants/REPLACE_ALL_RECORDS', [
+          oldRestaurant,
+          newRestaurant,
+        ]);
+
+        const dishWithUpdatedRelationship = {
+          ...dish,
+          relationships: {
+            restaurant: {
+              data: newRestaurant,
+            },
+          },
+        };
+
+        return multiStore
+          .dispatch('dishes/loadById', { id: '1' })
+          .then(() =>
+            multiStore.dispatch('dishes/update', dishWithUpdatedRelationship),
+          )
+          .then(() => {
+            const records = multiStore.getters['restaurants/related']({
+              parent: dish,
+              relationship: 'restaurant',
+            });
+            expect(records).toEqual(newRestaurant);
+          });
+      });
     });
 
     describe('error', () => {
