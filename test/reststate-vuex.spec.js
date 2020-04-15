@@ -4,7 +4,7 @@ import { resourceModule, mapResourceModules } from '../src/reststate-vuex';
 
 Vue.use(Vuex);
 
-describe('resourceModule()', function() {
+describe('resourceModule()', function () {
   let store;
   let api;
 
