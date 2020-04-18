@@ -2115,6 +2115,73 @@ describe('resourceModule()', function () {
             expect(records).toEqual(newRestaurant);
           });
       });
+
+      it('updates related to-many records', () => {
+        const keepDish = {
+          type: 'dishes',
+          id: '1',
+        };
+        const oldDish = {
+          type: 'dishes',
+          id: '2',
+        };
+        const newDish = {
+          type: 'dishes',
+          id: '3',
+        };
+        const restaurant = {
+          type: 'restaurants',
+          id: '1',
+          relationships: {
+            dishes: {
+              data: [keepDish, oldDish],
+            },
+          },
+        };
+
+        api.get.mockResolvedValue({
+          data: {
+            data: [restaurant],
+            included: [keepDish, oldDish],
+          },
+        });
+        const modules = mapResourceModules({
+          names: ['restaurants', 'dishes'],
+          httpClient: api,
+        });
+        const multiStore = new Vuex.Store({
+          modules,
+        });
+        multiStore.commit('dishes/REPLACE_ALL_RECORDS', [
+          keepDish,
+          oldDish,
+          newDish,
+        ]);
+
+        const restaurantWithUpdatedRelationship = {
+          ...restaurant,
+          relationships: {
+            dishes: {
+              data: [keepDish, newDish],
+            },
+          },
+        };
+
+        return multiStore
+          .dispatch('restaurants/loadById', { id: '1' })
+          .then(
+            multiStore.dispatch(
+              'restaurants/update',
+              restaurantWithUpdatedRelationship,
+            ),
+          )
+          .then(() => {
+            const records = multiStore.getters['dishes/related']({
+              parent: restaurant,
+            });
+            expect(records).toEqual([keepDish, newDish]);
+          });
+      });
     });
 
     describe('error', () => {
