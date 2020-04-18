@@ -374,7 +374,9 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           return null;
         } else if (Array.isArray(related.relatedIds)) {
           const ids = related.relatedIds;
-          return ids.map(id => state.records.find(record => record.id === id));
+          return ids
+            .map(id => state.records.find(record => record.id === id))
+            .filter(record => record !== undefined);
         } else {
           const id = related.relatedIds;
           return state.records.find(record => id === record.id);
