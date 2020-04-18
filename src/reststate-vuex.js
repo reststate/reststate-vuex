@@ -317,14 +317,20 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           commit('STORE_RECORD', record);
           if (record.relationships) {
             for (const relationship of Object.keys(record.relationships)) {
-              if (record.relationships[relationship].data) {
-                // TODO: if (Array.isArray(results.data)) {
+              const { data } = record.relationships[relationship];
+              if (data) {
                 const paramsToStore = {
                   parent: getResourceIdentifier(record),
                   relationship,
                 };
-                const { type, id } = record.relationships[relationship].data;
-                const relatedIds = id;
+                let type, id, relatedIds;
+                if (Array.isArray(data)) {
+                  ({ type } = data[0]);
+                  relatedIds = data.map(record => record.id);
+                } else {
+                  ({ type, id } = data);
+                  relatedIds = id;
+                }
                 dispatch(
                   `${type}/storeRelated`,
                   {
