@@ -1244,6 +1244,26 @@ describe('resourceModule()', function () {
           });
         });
       });
+
+      it('skips records that are not found', () => {
+        api.get.mockResolvedValue({
+          data: {
+            data: records,
+            meta,
+          },
+        });
+        api.delete.mockResolvedValue();
+
+        return store
+          .dispatch('loadRelated', { parent })
+          .then(() => {
+            return store.dispatch('delete', records[0]);
+          })
+          .then(() => {
+            const records = store.getters.related({ parent });
+            expect(records.length).toEqual(1);
+          });
+      });
     });
 
     describe('included', () => {
