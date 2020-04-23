@@ -26,6 +26,14 @@ const getResourceIdentifier = resource => {
   };
 };
 
+const getRelationshipType = relationship => {
+  const data = Array.isArray(relationship.data)
+    ? relationship.data[0]
+    : relationship.data;
+
+  return data && data.type;
+};
+
 const storeIncluded = ({ commit, dispatch }, result) => {
   if (result.included) {
     // store the included records
@@ -154,7 +162,6 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       STORE_RELATED: (state, { relatedIds, params }) => {
         const { related } = state;
         const relationshipIndex = getRelationshipIndex(params);
-
         const existingRecord = related.find(matches(relationshipIndex));
         if (existingRecord) {
           existingRecord.relatedIds = relatedIds;
@@ -312,13 +319,43 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
         });
       },
 
-      update({ commit, dispatch }, record) {
+      update({ commit, dispatch, getters }, record) {
         return client.update(record).then(() => {
+          const oldRecord = getters.byId({ id: record.id });
+
+          // remove old relationships first
+          if (oldRecord && oldRecord.relationships) {
+            for (const entry of Object.entries(oldRecord.relationships)) {
+              const [relationship, entity] = entry;
+              const type = getRelationshipType(entity);
+              const paramsToStore = {
+                relationship,
+                parent: getResourceIdentifier(oldRecord),
+              };
+
+              dispatch(
+                `${type}/storeRelated`,
+                {
+                  params: paramsToStore,
+                  relatedIds: null,
+                },
+                { root: true },
+              );
+            }
+          }
+
+          // save entity
           commit('STORE_RECORD', record);
+
+          // set new relationships
           if (record.relationships) {
             for (const relationship of Object.keys(record.relationships)) {
               const { data } = record.relationships[relationship];
-              if (data) {
+              const isNonEmptyArray =
+                Array.isArray(data) && Boolean(data.length);
+              const isObject = Boolean(data && data.type && data.id);
+
+              if (isNonEmptyArray || isObject) {
                 const paramsToStore = {
                   parent: getResourceIdentifier(record),
                   relationship,

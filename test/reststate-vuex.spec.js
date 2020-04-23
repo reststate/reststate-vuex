@@ -2202,6 +2202,120 @@ describe('resourceModule()', function () {
             expect(records).toEqual([keepDish, newDish]);
           });
       });
+
+      it('updates related to-many empty records', () => {
+        const post = {
+          type: 'posts',
+          id: '1',
+
+          relationships: {
+            // ancestor
+            author: {
+              data: {
+                type: 'people',
+                id: '1',
+              },
+            },
+
+            // descendants
+            comments: {
+              data: [
+                {
+                  type: 'comments',
+                  id: '1',
+                },
+              ],
+            },
+          },
+        };
+
+        const included = [
+          {
+            type: 'people',
+            id: '1',
+          },
+          {
+            type: 'comments',
+            id: '1',
+          },
+        ];
+
+        const store = new Vuex.Store({
+          modules: {
+            ...mapResourceModules({
+              names: ['posts', 'people', 'comments'],
+              httpClient: api,
+            }),
+          },
+        });
+
+        api.get.mockResolvedValue({
+          data: {
+            included,
+            data: post,
+          },
+        });
+
+        return store.dispatch('posts/loadById', { id: '1' }).then(() => {
+          const author = store.getters['people/related']({
+            parent: post,
+            relationship: 'author',
+          });
+
+          // check ancestor
+          expect(author).toEqual({
+            id: '1',
+            type: 'people',
+          });
+
+          const comments = store.getters['comments/related']({
+            parent: post,
+          });
+
+          // check descendants
+          expect(comments).toContainEqual({
+            id: '1',
+            type: 'comments',
+          });
+
+          // the new post will not have relationships
+          const newPost = {
+            type: 'posts',
+            id: '1',
+            relationships: {
+              comments: {
+                data: [],
+              },
+              author: {
+                data: null,
+              },
+            },
+          };
+
+          api.get.mockResolvedValue({
+            data: {
+              data: newPost,
+            },
+          });
+
+          return store.dispatch('posts/update', newPost).then(() => {
+            const author = store.getters['people/related']({
+              parent: post,
+              relationship: 'author',
+            });
+
+            // the new post does not have the author
+            expect(author).toEqual(undefined);
+
+            const comments = store.getters['comments/related']({
+              parent: post,
+            });
+
+            // the new post does not have comments
+            expect(comments).toEqual(undefined);
+          });
+        });
+      });
     });
 
     describe('error', () => {
