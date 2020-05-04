@@ -58,15 +58,14 @@ const storeIncluded = ({ commit, dispatch }, result) => {
             return;
           }
 
-          let type, relatedIds;
+          const type = getRelationshipType(relationship);
+          let relatedIds;
           if (Array.isArray(relationship.data)) {
-            // TODO: maybe not all might have the same type
-            ({ type } = relationship.data[0]);
             relatedIds = relationship.data.map(
               relatedRecord => relatedRecord.id,
             );
           } else {
-            ({ type, id: relatedIds } = relationship.data);
+            ({ id: relatedIds } = relationship.data);
           }
           const options = {
             relatedIds,
@@ -350,7 +349,8 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           // set new relationships
           if (record.relationships) {
             for (const relationship of Object.keys(record.relationships)) {
-              const { data } = record.relationships[relationship];
+              const relationshipObject = record.relationships[relationship];
+              const { data } = relationshipObject;
               const isNonEmptyArray =
                 Array.isArray(data) && Boolean(data.length);
               const isObject = Boolean(data && data.type && data.id);
@@ -360,13 +360,12 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
                   parent: getResourceIdentifier(record),
                   relationship,
                 };
-                let type, id, relatedIds;
+                const type = getRelationshipType(relationshipObject);
+                let relatedIds;
                 if (Array.isArray(data)) {
-                  ({ type } = data[0]);
                   relatedIds = data.map(record => record.id);
                 } else {
-                  ({ type, id } = data);
-                  relatedIds = id;
+                  relatedIds = data.id;
                 }
                 dispatch(
                   `${type}/storeRelated`,
