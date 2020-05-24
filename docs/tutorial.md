@@ -17,12 +17,12 @@ Next, add `@reststate/vuex`, as well as the `axios` library for handling the web
 $ yarn add @reststate/vuex axios
 ```
 
-Next, we want to use `@reststate/vuex` to create Vuex store modules for handling restaurants and dishes. The JSON:API web service we'll be connecting to is [sandboxapi.codingitwrong.com](https://sandboxapi.codingitwrong.com/), a free service that allows you to create an account so you can write data as well as read it. Sign up for an account there.
+Next, we want to use `@reststate/vuex` to create Vuex store modules for handling restaurants and dishes. The JSON:API web service we'll be connecting to is [sandbox.howtojsonapi.com](https://sandbox.howtojsonapi.com/), a free service that allows you to create an account so you can write data as well as read it. Sign up for an account there.
 
 Next, we need to get a token to authenticate with. We aren't going to build a login form as part of this tutorial. Instead, use a web service client app like [Postman](https://www.getpostman.com/) to send the following request:
 
 ```
-POST https://sandboxapi.codingitwrong.com/oauth/token
+POST https://sandbox.howtojsonapi.com/oauth/token
 
 grant_type=password
 username=you@yourodmain.com
@@ -49,7 +49,7 @@ import { mapResourceModules } from '@reststate/vuex';
 const token = '[the token you received from the POST request above]';
 
 const httpClient = axios.create({
-  baseURL: 'https://sandboxapi.codingitwrong.com/',
+  baseURL: 'https://sandbox.howtojsonapi.com/',
   headers: {
     'Content-Type': 'application/vnd.api+json',
     Authorization: `Bearer ${token}`,
