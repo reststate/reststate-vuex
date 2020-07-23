@@ -224,7 +224,7 @@ And add a custom `handleCreate` method:
 Notice a few things:
 
 - The object we pass to `createRestaurant` follows the JSON:API resource object format: the attributes are under an `attributes` object. (If you know JSON:API, you may notice that we aren't passing a `type` property, though--`@reststate/vuex` can infer that from the fact that we're in the `restaurants` module.)
-- We clear out the name and address after the `create` operation succeeds.
+- We clear out the name and address after the `create` operation succeeds, which clears the form.
 
 Run the app and you should be able to submit a new restaurant, and it should appear in the list right away. This is because `@reststate/vuex` automatically adds it to the local store of restaurants; you don't need to do that manually.
 
