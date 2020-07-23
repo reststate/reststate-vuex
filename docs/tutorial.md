@@ -26,7 +26,7 @@ Next, we need to get a token to authenticate with. We aren't going to build a lo
 POST https://sandbox.howtojsonapi.com/oauth/token
 
 grant_type=password
-username=you@yourodmain.com
+username=you@yourdomain.com
 password=yourpassword
 ```
 
