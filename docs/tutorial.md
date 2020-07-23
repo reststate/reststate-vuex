@@ -36,12 +36,11 @@ You'll receive back a response like:
 {
   "access_token": "Hhd07mqAY1QlhoinAcKMB5zlmRiatjOh5Ainh90yWPI",
   "token_type": "bearer",
-  "expires_in": 7200,
   "created_at": 1531855327
 }
 ```
 
-Let's set up an `axios` client with that access token to handle the web service connection. Add the following to `src/store.js`:
+Let's set up an `axios` client with that access token to handle the web service connection. Add the following to `src/store/index.js`:
 
 ```javascript
 import axios from 'axios';
@@ -64,21 +63,16 @@ Now, call `mapResourceModules()` to create two new modules, for accessing restau
  Vue.use(Vuex);
 
  export default new Vuex.Store({
+-  state: {},
+-  mutations: {},
+-  actions: {},
+-  modules: {}
 +  modules: {
 +    ...mapResourceModules({
 +      httpClient,
 +      names: ['restaurants', 'dishes'],
 +    })
 +  },
--  state: {
--
--  },
--  mutations: {
--
--  },
--  actions: {
--
--  }
  });
 ```
 
@@ -88,7 +82,7 @@ Let's set up the index route to display a list of the restaurants.
 
 First, delete the `<style>` tag from `App.vue` to remove the default styling.
 
-Then, replace the content of `src/components/Home.vue` with the following:
+Then, replace the content of `src/views/Home.vue` with the following:
 
 ```html
 <template>
@@ -161,7 +155,7 @@ Next, let's check these variables in the template:
          v-for="restaurant in allRestaurants"
 ```
 
-Now reload the page and you should briefly see the "Loading" message before the data loads. If you'd like to see the error message, change the `baseURL` in `store.js` to some incorrect URL, and the request to load the data will error out.
+Now reload the page and you should briefly see the "Loading" message before the data loads. If you'd like to see the error message, change the `baseURL` in `store/index.js` to some incorrect URL, and the request to load the data will error out.
 
 Now that we've set up reading our data, let's see how we can write data. Let's allow the user to create a new restaurant.
 
