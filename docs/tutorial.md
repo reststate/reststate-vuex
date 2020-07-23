@@ -7,9 +7,10 @@ Create a new Vue app using [Vue CLI 3](https://cli.vuejs.org/):
 ```sh
 $ npm install -g @vue/cli
 $ vue create opinion-ate-vue
+$ cd opinion-ate-vue
 ```
 
-Make sure you include Vue Router and Vuex in the list of features. You can answer "Yes" for "Use history mode for router?"
+Make sure you include Router and Vuex in the list of features. You can answer "Yes" for "Use history mode for router?"
 
 Next, add `@reststate/vuex`, as well as the `axios` library for handling the web service requests:
 
