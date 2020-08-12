@@ -27,7 +27,7 @@
     "kind-of": "^6.0.3",
     "lodash": "^4.17.19",
     "minimist": "^1.2.5",
-    "serialize-javascript": "^3.0.0",
+    "serialize-javascript": "^3.1.0",
     "set-value": "^3.0.2",
     "vue-template-compiler": "^2.5.17",
     "webpack-bundle-analyzer": "^3.3.2",
