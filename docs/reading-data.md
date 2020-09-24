@@ -208,6 +208,6 @@ this.$store.dispatch('posts/loadAll', {
     parent: post,
     relationship: 'secretComments',
   });
-  console.log(widgets);
+  console.log(secretComments);
 });
 ```
