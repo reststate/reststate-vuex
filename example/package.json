@@ -23,6 +23,7 @@
     "@vue/cli-service": "^4.5.7",
     "@vue/eslint-config-airbnb": "^5.1.0",
     "acorn": "^7.1.1",
+    "dot-prop": "^6.0.0",
     "js-yaml": "^3.13.1",
     "kind-of": "^6.0.3",
     "lodash": "^4.17.19",
