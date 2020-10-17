@@ -103,7 +103,7 @@ const initialState = {
   lastMeta: null,
 };
 
-const resourceModule = ({ name: resourceName, httpClient }) => {
+const resourceModule = ({ name: resourceName, httpClient, storeType }) => {
   const client = new ResourceClient({ name: resourceName, httpClient });
 
   const getRelationshipIndex = params => {
@@ -119,7 +119,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
   return {
     namespaced: true,
 
-    state: initialState,
+    state: storeType === 'object' ? initialState : initialState(),
 
     mutations: {
       REPLACE_ALL_RECORDS: (state, records) => {
@@ -449,10 +449,13 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
   };
 };
 
-const mapResourceModules = ({ names, httpClient }) =>
+const mapResourceModules = ({ names, httpClient, storeType = 'function' }) =>
   names.reduce(
     (acc, name) =>
-      Object.assign({ [name]: resourceModule({ name, httpClient }) }, acc),
+      Object.assign(
+        { [name]: resourceModule({ name, httpClient, storeType }) },
+        acc,
+      ),
     {},
   );
 
