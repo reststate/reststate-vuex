@@ -91,7 +91,7 @@ const handleError = commit => errorResponse => {
   throw errorResponse;
 };
 
-const initialState = () => ({
+const initialState = {
   records: [],
   related: [],
   filtered: [],
@@ -101,7 +101,7 @@ const initialState = () => ({
   links: {},
   lastCreated: null,
   lastMeta: null,
-});
+};
 
 const resourceModule = ({ name: resourceName, httpClient }) => {
   const client = new ResourceClient({ name: resourceName, httpClient });
@@ -193,7 +193,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       },
 
       RESET_STATE: state => {
-        Object.assign(state, initialState());
+        Object.assign(state, initialState);
       },
     },
 
