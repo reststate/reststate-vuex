@@ -405,6 +405,7 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
       resetState({ commit }) {
         commit('RESET_STATE');
       },
+
       addRelated({ commit, getters }, params) {
         const { parent, relationship = resourceName, data } = params;
         const relatedItems = getters.related(params).map(o => o.id);
