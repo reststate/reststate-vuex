@@ -11,7 +11,7 @@
   "dependencies": {
     "@reststate/client": "^0.0.7",
     "@reststate/vuex": "^0.0.16",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "vue": "^2.6.12",
     "vuex": "^3.5.1"
   },
