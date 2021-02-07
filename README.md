@@ -1,6 +1,6 @@
 # @reststate/vuex
 
-**This package is no longer maintained.**
+**This package is no longer maintained.** For alternate packages, check the [JSON:API Implementations page](https://jsonapi.org/implementations/). Note that these have not been vetted for functionality or security, so please review thoroughly before choosing a library.
 
 `@reststate/vuex` allows you to access data from a [JSON:API](http://jsonapi.org/) web service via [Vuex](https://vuex.vuejs.org/) stores. Because of JSON:API's strong conventions, in most cases all you should need to do is tell `@reststate/vuex` the base URL of your web service, and which resources to access, and you should be set. No manual web request juggling!
 
