@@ -323,7 +323,13 @@ const resourceModule = ({ name: resourceName, httpClient }) => {
           const oldRecord = getters.byId({ id: record.id });
 
           // remove old relationships first
-          if (oldRecord && oldRecord.relationships) {
+          // it only makes sense if we temper with the record's relationships
+          if (
+            oldRecord &&
+            oldRecord.relationships &&
+            record &&
+            record.relationships
+          ) {
             for (const entry of Object.entries(oldRecord.relationships)) {
               const [relationship, entity] = entry;
               const type = getRelationshipType(entity);
