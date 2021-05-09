@@ -26,7 +26,7 @@
     "dot-prop": "^6.0.0",
     "js-yaml": "^3.13.1",
     "kind-of": "^6.0.3",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "minimist": "^1.2.5",
     "serialize-javascript": "^3.1.0",
     "set-value": "^3.0.2",
