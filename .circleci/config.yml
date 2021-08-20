@@ -1,10 +1,9 @@
-version: 2
+version: 2.1
 jobs:
   build:
     docker:
       - image: circleci/node:12.14.0
     working_directory: ~/repo
-
     steps:
       - checkout
 
@@ -24,3 +23,30 @@ jobs:
 
       # run tests!
       - run: yarn test
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+
+  deploy:
+    docker:
+      - image: circleci/node:12.14.0
+    working_directory: ~/repo
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$GITHUB_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
