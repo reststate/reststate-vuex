@@ -53,6 +53,7 @@ workflows:
           context: githubPackagePublish
           requires:
             - build
-          branches:
-            only:
-              - master
+          filter:
+            branches:
+              only:
+                - master
