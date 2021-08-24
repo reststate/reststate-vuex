@@ -40,7 +40,6 @@ jobs:
           name: Authenticate with registry
           command: |
             echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" > ~/repo/.npmrc
-            npm login --scope=@lucroglobal --registry=https://npm.pkg.github.com
       - run:
           name: Publish package
           command: npm publish
