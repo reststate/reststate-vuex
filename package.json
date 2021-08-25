@@ -1,5 +1,5 @@
 {
-  "name": "@lucroglobal/vuex",
+  "name": "@lucro/vuex",
   "version": "0.2.5-2",
   "description": "Library to access JSON:API data via Vuex stores",
   "main": "index.js",
