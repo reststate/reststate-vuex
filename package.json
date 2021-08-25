@@ -1,9 +1,12 @@
 {
   "name": "@lucro/vuex",
-  "version": "0.2.5-2",
+  "version": "0.2.5-3",
   "description": "Library to access JSON:API data via Vuex stores",
   "main": "index.js",
-  "repository": "git@github.com:lucroglobal/reststate-vuex.git",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/lucroglobal/reststate-vuex.git"
+  },
   "author": "Josh Justice <me@codingitwrong.com>",
   "license": "Apache-2.0",
   "scripts": {
@@ -15,6 +18,7 @@
   },
   "dependencies": {
     "@reststate/client": "^0.0.8",
+    "my-package": "0.0.0",
     "yarn": "^1.22.11"
   },
   "peerDependencies": {
@@ -40,6 +44,15 @@
     "vue": "2.6.11",
     "vue-server-renderer": "2.6.11",
     "vuepress": "^1.0.1",
-    "vuex": "^3.1.1"
+    "vuex": "^3.6.2"
+  },
+  "bugs": {
+    "url": "https://github.com/lucroglobal/reststate-vuex/issues"
+  },
+  "homepage": "https://github.com/lucroglobal/reststate-vuex#readme",
+  "directories": {
+    "doc": "docs",
+    "example": "example",
+    "test": "test"
   }
 }

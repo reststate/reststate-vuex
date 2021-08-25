@@ -15,7 +15,7 @@ Make sure you include Router and Vuex in the list of features. You can answer "Y
 Next, add `@reststate/vuex`, as well as the `axios` library for handling the web service requests:
 
 ```sh
-$ yarn add @reststate/vuex axios
+$ yarn add @lucro/vuex axios
 ```
 
 Next, we want to use `@reststate/vuex` to create Vuex store modules for handling restaurants and dishes. The JSON:API web service we'll be connecting to is [jsonapi-sandbox.herokuapp.com](https://jsonapi-sandbox.herokuapp.com/), a free service that allows you to create an account so you can write data as well as read it. Sign up for an account there.
@@ -44,7 +44,7 @@ Let's set up an `axios` client with that access token to handle the web service 
 
 ```javascript
 import axios from 'axios';
-import { mapResourceModules } from '@reststate/vuex';
+import { mapResourceModules } from '@lucro/vuex';
 
 const token = '[the token you received from the POST request above]';
 

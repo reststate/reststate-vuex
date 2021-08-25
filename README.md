@@ -1,8 +1,6 @@
-# @reststate/vuex
+# @lucro/vuex
 
-**This package is no longer maintained.** For alternate packages, check the [JSON:API Implementations page](https://jsonapi.org/implementations/). Note that these have not been vetted for functionality or security, so please review thoroughly before choosing a library.
-
-`@reststate/vuex` allows you to access data from a [JSON:API](http://jsonapi.org/) web service via [Vuex](https://vuex.vuejs.org/) stores. Because of JSON:API's strong conventions, in most cases all you should need to do is tell `@reststate/vuex` the base URL of your web service, and which resources to access, and you should be set. No manual web request juggling!
+`@lucro/vuex` allows you to access data from a [JSON:API](http://jsonapi.org/) web service via [Vuex](https://vuex.vuejs.org/) stores. Because of JSON:API's strong conventions, in most cases all you should need to do is tell `@reststate/vuex` the base URL of your web service, and which resources to access, and you should be set. No manual web request juggling!
 
 ## Synopsis
 
@@ -33,7 +31,7 @@ const component = {
 ## Installation
 
 ```
-# npm install --save @reststate/vuex
+# npm install --save @lucro/vuex
 ```
 
 ## Setup
@@ -42,7 +40,7 @@ To create a Vuex module corresponding to a resource on the server, call `resourc
 
 ```javascript
 import { Store } from 'vuex';
-import { resourceModule } from '@reststate/vuex';
+import { resourceModule } from '@lucro/vuex';
 import api from './api';
 
 const store = new Store({
@@ -59,7 +57,7 @@ If you are accessing multiple resources, you can use `mapResourceModules()`:
 
 ```javascript
 import { Store } from 'vuex';
-import { mapResourceModules } from '@reststate/vuex';
+import { mapResourceModules } from '@lucro/vuex';
 import api from './api';
 
 const store = new Store({
