@@ -1,6 +1,6 @@
 {
   "name": "@lucro/vuex",
-  "version": "0.2.5-3",
+  "version": "0.2.5-4",
   "description": "Library to access JSON:API data via Vuex stores",
   "main": "index.js",
   "repository": {

@@ -57,4 +57,3 @@ workflows:
             branches:
               only:
                 - master
-                - feature/SAM-2335
