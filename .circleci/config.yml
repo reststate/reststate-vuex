@@ -39,7 +39,7 @@ jobs:
       - run:
           name: Authenticate with registry
           command: |
-            echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" > ~/.npmrc
+            echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
       - run:
           name: Publish package
           command: npm publish
@@ -50,7 +50,7 @@ workflows:
     jobs:
       - build
       - deploy:
-          context: githubPackagePublish
+          context: npmPublish
           requires:
             - build
           filters:

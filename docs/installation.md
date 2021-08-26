@@ -1,14 +1,14 @@
 # Installation
 
 ```
-# npm install --save @reststate/vuex
+# npm install --save @lucro/vuex
 ```
 
 To create a Vuex module corresponding to a resource on the server, call `resourceModule()`:
 
 ```javascript
 import { Store } from 'vuex';
-import { resourceModule } from '@reststate/vuex';
+import { resourceModule } from '@lucro/vuex';
 import api from './api';
 
 const store = new Store({
@@ -25,7 +25,7 @@ If you are accessing multiple resources, you can use `mapResourceModules()`:
 
 ```javascript
 import { Store } from 'vuex';
-import { mapResourceModules } from '@reststate/vuex';
+import { mapResourceModules } from '@lucro/vuex';
 import api from './api';
 
 const store = new Store({
