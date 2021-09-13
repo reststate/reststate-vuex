@@ -1,8 +1,11 @@
 <template>
   <div>
     <p v-if="isLoading">Loading...</p>
-    <p v-else-if="isError">Error loading widgets</p>
+    <div v-else-if="isError">Error loading widgets. Server responded with:
+      <pre>{{error}}</pre>
+    </div>
     <ul v-else>
+      <h1>Widgets</h1>
       <li
         v-for="widget in allWidgets"
         :key="widget.id"
