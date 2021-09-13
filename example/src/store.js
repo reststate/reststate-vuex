@@ -1,4 +1,4 @@
-import MockAdapter from 'axios-mock-adapter'
+import MockAdapter from 'axios-mock-adapter';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
@@ -21,7 +21,7 @@ export default new Vuex.Store({
 
 // To avoid having to run a separate server
 // mock out the one reply we need for this example.
-var mock = new MockAdapter(httpClient);
+const mock = new MockAdapter(httpClient);
 
 // Mock any GET request to /widgets
 // arguments for reply are (status, data, headers)
@@ -41,7 +41,6 @@ mock.onGet('/widgets?').reply(200, {
         attributes: {
           name: 'Second Widget',
         },
-      }
-    ]
-}
-);
+      },
+    ],
+});
