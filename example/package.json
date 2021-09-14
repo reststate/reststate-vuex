@@ -5,33 +5,23 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "test:e2e": "vue-cli-service test:e2e"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@reststate/client": "^0.0.7",
-    "@reststate/vuex": "^0.0.16",
-    "axios": "^0.21.1",
+    "@lucro/vuex": "^0.2.5-4",
+    "axios": "^0.21",
+    "axios-mock-adapter": "^1.20.0",
+    "core-js": "^3.6.5",
     "vue": "^2.6.12",
     "vuex": "^3.5.1"
   },
   "devDependencies": {
-    "@cypress/webpack-preprocessor": "^3.0.0",
-    "@vue/cli-plugin-babel": "^3.0.5",
-    "@vue/cli-plugin-e2e-cypress": "^4.5.7",
-    "@vue/cli-plugin-eslint": "^4.5.7",
-    "@vue/cli-service": "^4.5.7",
-    "@vue/eslint-config-airbnb": "^5.1.0",
-    "acorn": "^7.1.1",
-    "dot-prop": "^6.0.0",
-    "js-yaml": "^3.13.1",
-    "kind-of": "^6.0.3",
-    "lodash": "^4.17.21",
-    "minimist": "^1.2.5",
-    "serialize-javascript": "^3.1.0",
-    "set-value": "^3.0.2",
-    "vue-template-compiler": "^2.6.12",
-    "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-dev-server": "^3.7.2"
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "vue-template-compiler": "^2.6.12"
   }
 }
