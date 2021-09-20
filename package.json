@@ -17,7 +17,8 @@
     "docs:build": "vuepress build docs"
   },
   "dependencies": {
-    "@reststate/client": "^0.0.8",
+    "@reststate/client": "^0.0.9",
+    "vue-template-compiler": "2.6.11",
     "yarn": "^1.22.11"
   },
   "peerDependencies": {
